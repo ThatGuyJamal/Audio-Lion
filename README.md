@@ -19,6 +19,8 @@ My discord is: `ThatGuyJamal#2695`
 
 You can install the public build of Audio Lion (recommended) by downloading the latest release from the [releases](https://github.com/ThatGuyJamal/Audio-Lion/releases) page or from [our website](https://example.com/).
 
+You can also view all past builds of the app [here](./installers/windows/)
+
 ## Building (Windows)
 
 To build Audio Lion you will need to have [Rust](https://www.rust-lang.org/) and [Node.js](https://nodejs.org/en/) installed.
