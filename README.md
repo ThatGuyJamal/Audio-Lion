@@ -1,5 +1,7 @@
 # Audio Lion
 
+![icon](./static/lion/128px.png)
+
 Audio Lion is a simple audio player for windows (currently) and is written in [Rust](https://www.rust-lang.org/) and [Svelte](https://svelte.dev/). 
 
 It is currently in development and is not ready for use.
