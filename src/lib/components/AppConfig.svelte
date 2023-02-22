@@ -10,11 +10,11 @@
 	export async function loadAppConfig() {
 		return await invoke(TauriCommands.VIEW_APP_CONFIG)
 			.then((result: unknown) => {
-				// console.log(result);
+				console.log(result);
 				return result as AppConfig;
 			})
 			.catch((error: unknown) => {
-				// console.log(error);
+				console.log(error);
 				return appConfig;
 			});
 	}
@@ -23,14 +23,15 @@
 	export async function resetAppConfig() {
 		return await invoke(TauriCommands.RESET_APP_CONFIG)
 			.then((result: unknown) => {
-				// console.log(result);
-				return true
+				console.log(result);
+				return true;
 			})
 			.catch((error: unknown) => {
-				// console.log(error);
-				return false
-            });
+				console.log(error);
+				return false;
+			});
 	}
+
 </script>
 
 <div>
@@ -54,12 +55,12 @@
 		on:click={async () =>
 			await resetAppConfig().then((result) => {
 				if (result) {
-                    console.log("Config reset to default values");
-                } else {
-                    console.log("Config reset failed");
-                }
+					console.log("Config reset to default values");
+				} else {
+					console.log("Config reset failed");
+				}
 			})}
 	>
-    Reset Config
+		Reset Config
 	</button>
 </div>
