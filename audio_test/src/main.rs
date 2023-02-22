@@ -1,4 +1,4 @@
-use std::io::BufReader;
+use std::io::{stdin, BufReader};
 
 fn main() {
     // Get a output stream handle to the default physical sound device
@@ -10,12 +10,6 @@ fn main() {
 
     // Get a list of all the mp3 files in the directory
     let mp3_files = get_mp3_files(mp3_dir);
-
-    // If there are no mp3 files in the directory, exit the program
-    if mp3_files.is_empty() {
-        println!("No mp3 files found in {}", mp3_dir);
-        return;
-    }
 
     // Display the mp3 files to the user
     println!("MP3 files in {}: ", mp3_dir);
@@ -30,41 +24,52 @@ fn main() {
     let selected_file = &mp3_files[file_index];
     println!("Selected file: {}", selected_file.display());
 
-    let file = std::fs::File::open(format!("{}", selected_file.display())).unwrap();
-    sink.append(rodio::Decoder::new(BufReader::new(file)).unwrap());
+    let file = std::fs::File::open(selected_file).unwrap();
+    let decoder = rodio::Decoder::new(BufReader::new(file)).unwrap();
+    sink.append(decoder);
 
-    // Play the file until it is finished, then exit the program
-    sink.sleep_until_end();
+    // Wait for the audio to finish playing or for the user to type "stop"
+    loop {
+        let mut input = String::new();
+        let stdin = stdin();
+
+        // Check if the user has typed "stop"
+        if stdin.read_line(&mut input).unwrap_or(0) > 0 && input.trim() == "stop" {
+            sink.stop();
+            break;
+        } else {
+            println!("Type 'stop' to stop the audio")
+        }
+
+        // Check if the audio has finished playing
+        if !sink.empty() {
+            continue;
+        }
+
+        // If the audio has finished playing and the user has not typed "stop", the program ends
+        break;
+    }
 }
 
-// Get a list of all the mp3 files in a directory
 fn get_mp3_files(dir: &str) -> Vec<std::path::PathBuf> {
     let mut mp3_files = vec![];
 
-    // Read the directory and get a list of all the files
     if let Ok(entries) = std::fs::read_dir(dir) {
         for entry in entries {
-            // If the entry is a file, check if it is an mp3 file
             if let Ok(entry) = entry {
                 let path = entry.path();
                 if let Some(extension) = path.extension() {
-                    // If the file is an mp3 file, add it to the list
-                    // Otherwise, skip the file
                     if extension == "mp3" {
                         mp3_files.push(path.to_path_buf());
-                    } else {
-                        println!("Skipping file: {}", path.display());
                     }
                 }
             }
         }
     }
 
-    return mp3_files
+    mp3_files
 }
 
-// Prompt the user to select a file
-// The user must enter a number between 1 and the number of files
 fn get_file_selection(num_files: usize) -> usize {
     loop {
         println!("Select a file (1-{}):", num_files);
