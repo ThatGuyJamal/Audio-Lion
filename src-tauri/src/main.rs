@@ -12,7 +12,6 @@ use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
 
 
 fn main() {
-    audio_player::core::init();
     let ctx = tauri::generate_context!();
 
     tauri::Builder::default()
@@ -23,6 +22,7 @@ fn main() {
                 window.open_devtools();
                 window.close_devtools();
             }
+            audio_player::core::init(app);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![commands::view_app_config, commands::reset_app_config])

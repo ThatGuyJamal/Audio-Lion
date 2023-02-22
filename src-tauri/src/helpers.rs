@@ -62,30 +62,62 @@ pub mod configuration {
         pub cache_enabled: bool, // default: true
     }
 
-    /// Creates a configuration file with default values
-    pub fn create_config_file() -> Result<(), Box<dyn std::error::Error>> {
+    pub fn create_config_file(
+        app_handle: tauri::AppHandle,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let config = AppConfig {
             cache_enabled: true,
         };
-
-        // Serialize the Config object to JSON
         let config_json = serde_json::to_string(&config)?;
 
-        // Write the JSON string to a file
-        let mut file = File::create("config.json")?;
-        file.write_all(config_json.as_bytes())?;
+        if let Some(config_path) = app_handle.path_resolver().app_config_dir() {
+            // Create the directory if it doesn't exist
+            std::fs::create_dir_all(&config_path)?;
 
-        Ok(())
+            // Write the config.json file to the config directory and handle errors
+            let file_path = config_path.join("config.json");
+            match std::fs::write(&file_path, config_json) {
+                Ok(_) => {
+                    // The file was created successfully
+                    println!("Config file created successfully at {:?}", file_path);
+                    Ok(())
+                }
+                Err(e) => {
+                    // Handle the error here
+                    println!("Error: {:?}", e);
+                    Err(Box::new(e))
+                }
+            }
+        } else {
+            // The app does not have access to a writable config directory
+            Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Unable to find writable config directory",
+            )))
+        }
     }
 
-    /// Reads the configuration file and returns a `AppConfig` object
-    pub fn read_config_file() -> Result<AppConfig, Box<dyn std::error::Error>> {
-        let mut file = match File::open("config.json") {
+    /// Reads the configuration file and returns an `AppConfig` object
+    pub fn read_config_file(
+        app_handle: tauri::AppHandle,
+    ) -> Result<AppConfig, Box<dyn std::error::Error>> {
+        let config_file_path = app_handle
+            .path_resolver()
+            .app_config_dir()
+            .ok_or_else(|| {
+                std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "Unable to find writable config directory",
+                )
+            })?
+            .join("config.json");
+
+        let mut file = match File::open(&config_file_path) {
             Ok(file) => file,
             Err(ref err) if err.kind() == ErrorKind::NotFound => {
                 // If the file is not found, create it using the `create_config_file` function
-                let _ = create_config_file()?;
-                File::open("config.json")?
+                let _ = create_config_file(app_handle)?;
+                File::open(&config_file_path)?
             }
             Err(err) => return Err(Box::new(err)),
         };
@@ -103,10 +135,16 @@ pub mod configuration {
     /// Deletes the configuration file
     /// Returns `true` if the file was deleted successfully
     /// Returns `false` if the file was not deleted successfully
-    pub fn delete_config_file() -> bool {
-        match std::fs::remove_file("config.json") {
-            Ok(_) => true,
-            Err(_) => false,
+    pub fn delete_config_file(app_handle: &tauri::AppHandle) -> bool {
+    match app_handle.path_resolver().app_config_dir() {
+        Some(config_path) => {
+            match std::fs::remove_file(config_path.join("config.json")) {
+                Ok(_) => true,
+                Err(_) => false,
+            }
         }
+        None => false,
     }
+}
+
 }
