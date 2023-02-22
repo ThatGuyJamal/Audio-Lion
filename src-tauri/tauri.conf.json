@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Audio Lion",
-    "version": "0.0.1"
+    "version": "0.0.2"
   },
   "tauri": {
     "allowlist": {
@@ -20,8 +20,8 @@
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
+      "category": "Music",
+      "copyright": "Copyright Audio Lion 2023",
       "deb": {
         "depends": []
       },
@@ -32,8 +32,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "audio.lion.dev",
-      "longDescription": "",
+      "identifier": "com.audio.lion.dev",
       "macOS": {
         "entitlements": null,
         "exceptionDomain": "",
@@ -42,7 +41,8 @@
         "signingIdentity": null
       },
       "resources": [],
-      "shortDescription": "",
+      "longDescription": "",
+      "shortDescription": "A simple audio player for your desktop",
       "targets": "all",
       "windows": {
         "certificateThumbprint": null,
