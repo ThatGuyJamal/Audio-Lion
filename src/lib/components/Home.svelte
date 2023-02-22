@@ -18,6 +18,12 @@
 				Developer Information
 			</a>
 		</button>
+
+		<button class="btn">
+			<a href="/config" rel="noreferrer">
+				App Config
+			</a>
+		</button>
 	</div>
 
 	<p />

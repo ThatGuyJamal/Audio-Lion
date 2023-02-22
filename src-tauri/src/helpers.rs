@@ -1,3 +1,6 @@
+// disable dead code warnings for this module
+#![allow(dead_code)]
+
 pub mod utilities {
 
     #[derive(PartialEq)]
@@ -87,11 +90,23 @@ pub mod configuration {
             Err(err) => return Err(Box::new(err)),
         };
 
+        // The file exists, so read it into a string and deserialize it
         let mut config_json = String::new();
         file.read_to_string(&mut config_json)?;
 
+        // Serialize the `AppConfig` object to JSON
         let config: AppConfig = serde_json::from_str(&config_json)?;
 
         Ok(config)
+    }
+
+    /// Deletes the configuration file
+    /// Returns `true` if the file was deleted successfully
+    /// Returns `false` if the file was not deleted successfully
+    pub fn delete_config_file() -> bool {
+        match std::fs::remove_file("config.json") {
+            Ok(_) => true,
+            Err(_) => false,
+        }
     }
 }

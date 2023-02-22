@@ -1,3 +1,5 @@
+import type { AppConfig } from "$lib/types/config";
+
 export default {
 	app: {
 		name: "Audio Lion",
@@ -10,5 +12,8 @@ export default {
 		},
 		under_development: false,
 		version: "0.0.1",
+		app_config_defaults: {
+			cache_enabled: true,
+		} as AppConfig
 	},
 };

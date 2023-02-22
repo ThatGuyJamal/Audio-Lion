@@ -5,3 +5,5 @@
 <main class="container">
   <slot />
 </main>
+
+<a href="/">home</a>
