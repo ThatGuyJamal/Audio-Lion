@@ -14,8 +14,14 @@
 		</button>
 
 		<button class="btn">
-			<a href={Config.app.github_repo} target="_blank" rel="noreferrer">
+			<a href={Config.app.developer.github} target="_blank" rel="noreferrer">
 				Developer Information
+			</a>
+		</button>
+
+		<button class="btn">
+			<a href="/config" rel="noreferrer">
+				App Config
 			</a>
 		</button>
 	</div>
