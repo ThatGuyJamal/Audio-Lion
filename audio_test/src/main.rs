@@ -67,7 +67,7 @@ fn get_mp3_files(dir: &str) -> Vec<std::path::PathBuf> {
         }
     }
 
-    mp3_files
+    return mp3_files
 }
 
 fn get_file_selection(num_files: usize) -> usize {
