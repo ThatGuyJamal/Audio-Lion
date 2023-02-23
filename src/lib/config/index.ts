@@ -1,4 +1,4 @@
-import type { AppConfig } from "$lib/types/config";
+import { AudioFileType, type AppConfig } from "$lib/types/AppConfig";
 
 export default {
 	app: {
@@ -13,7 +13,8 @@ export default {
 		under_development: false,
 		version: "0.0.1",
 		app_config_defaults: {
-			cache_enabled: true,
+			audio_directories: [],
+			audio_file_types_allowed: [AudioFileType.MP3, AudioFileType.WAV],
 		} as AppConfig
 	},
 };
