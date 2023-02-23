@@ -32,7 +32,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "Audio Lion",
+      "identifier": "Audio-Lion",
       "macOS": {
         "entitlements": null,
         "exceptionDomain": "",
