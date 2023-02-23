@@ -59,10 +59,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 790,
         "resizable": true,
         "title": "Audio Lion",
-        "width": 800
+        "width": 999
       }
     ]
   }
