@@ -2,14 +2,14 @@
 #![allow(dead_code)]
 
 pub mod utilities {
-
-    #[derive(PartialEq)]
+    #[derive(PartialEq, Debug)]
     pub enum AudioFileTypes {
         MP3,
         WAV,
     }
 
     impl AudioFileTypes {
+        /// Returns an `AudioFileTypes` object from a file extension
         fn from_extension(extension: &str) -> Option<Self> {
             match extension.to_lowercase().as_str() {
                 "mp3" => Some(Self::MP3),
@@ -19,6 +19,7 @@ pub mod utilities {
         }
     }
 
+    /// Returns a vector of `PathBuf` objects for all audio files in the given directory
     pub fn get_audio_files(dir: &str, file_type: AudioFileTypes) -> Vec<std::path::PathBuf> {
         let mut audio_files = vec![];
 
@@ -26,10 +27,13 @@ pub mod utilities {
             for entry in entries {
                 if let Ok(entry) = entry {
                     let path = entry.path();
+                    // Check if the path is a file
                     if let Some(extension) = path.extension() {
+                        // Check if the file type is the same as the file type we're looking for
                         if let Some(file_type_from_ext) =
                             AudioFileTypes::from_extension(&extension.to_string_lossy())
                         {
+                            // If the file type is the same as the file type we're looking for, add it to the vector
                             if file_type_from_ext == file_type {
                                 audio_files.push(path.to_path_buf());
                             } else {
@@ -58,15 +62,22 @@ pub mod configuration {
     #[derive(Serialize, Deserialize, Debug)]
     /// The configuration file for the application
     pub struct AppConfig {
-        /// Whether or not the cache is enabled in the application
-        pub cache_enabled: bool, // default: true
+        pub audio_directories: Vec<String>,
+        /// A vector of audio file types to search for, e.g. MP3, WAV, etc.
+        pub audio_file_types_allowed: Vec<String>,
     }
 
+    /// Creates a configuration file in the application's config directory
+    ///
+    /// Returns `Ok(())` if the file was created successfully
+    ///
+    /// Returns `Err` if the file was not created successfully
     pub fn create_config_file(
         app_handle: tauri::AppHandle,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let config = AppConfig {
-            cache_enabled: true,
+            audio_directories: vec![],
+            audio_file_types_allowed: vec![String::from("mp3"), String::from("wav")],
         };
         let config_json = serde_json::to_string(&config)?;
 
@@ -98,6 +109,10 @@ pub mod configuration {
     }
 
     /// Reads the configuration file and returns an `AppConfig` object
+    ///
+    /// Returns `Ok(AppConfig)` if the file was read successfully
+    ///
+    /// Returns `Err` if the file was not read successfully
     pub fn read_config_file(
         app_handle: tauri::AppHandle,
     ) -> Result<AppConfig, Box<dyn std::error::Error>> {
@@ -129,22 +144,23 @@ pub mod configuration {
         // Serialize the `AppConfig` object to JSON
         let config: AppConfig = serde_json::from_str(&config_json)?;
 
+        println!("Config file read successfully {:?}", &config);
+
         Ok(config)
     }
 
     /// Deletes the configuration file
+    ///
     /// Returns `true` if the file was deleted successfully
+    ///
     /// Returns `false` if the file was not deleted successfully
     pub fn delete_config_file(app_handle: &tauri::AppHandle) -> bool {
-    match app_handle.path_resolver().app_config_dir() {
-        Some(config_path) => {
-            match std::fs::remove_file(config_path.join("config.json")) {
+        match app_handle.path_resolver().app_config_dir() {
+            Some(config_path) => match std::fs::remove_file(config_path.join("config.json")) {
                 Ok(_) => true,
                 Err(_) => false,
-            }
+            },
+            None => false,
         }
-        None => false,
     }
-}
-
 }
