@@ -17,6 +17,9 @@
 	/* Default colors */
 	--color-primary: #ff4e4e;
 	--color-secondary: #396cd8;
+
+	--app-background-color: #1d1d1d;
+	--app-button-color: #0f0f0f98;
 }
 
 .container {
@@ -93,7 +96,7 @@ button {
 @media (prefers-color-scheme: dark) {
 	:root {
 		color: #f6f6f6;
-		background-color: #2f2f2f;
+		background-color: var(--app-background-color);
 	}
 
 	a:hover {
@@ -103,6 +106,6 @@ button {
 	input,
 	button {
 		color: #ffffff;
-		background-color: #0f0f0f98;
+		background-color: var(--app-button-color);
 	}
 }
