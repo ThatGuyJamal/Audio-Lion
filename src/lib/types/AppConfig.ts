@@ -1,3 +1,4 @@
+/** The types for the configuration file returned from the backend api */
 export type AppConfig = {
 	/**
 	 * The directories where the app will look for audio files.
@@ -13,6 +14,7 @@ export type AppConfig = {
 	audio_file_types_allowed: string[];
 };
 
+/** The supported audio file types returned from the backend */
 export enum AudioFileType {
     MP3 = "mp3",
     WAV = "wav",
