@@ -16,10 +16,11 @@
 
 	/* Default colors */
 	--color-primary: #ff4e4e;
-	--color-secondary: #396cd8;
+	--color-secondary: #646cff;
 
 	--app-background-color: #1d1d1d;
 	--app-button-color: #0f0f0f98;
+	--app-button-hover-color: #396cd8;
 }
 
 .container {
@@ -47,18 +48,18 @@
 	justify-content: center;
 }
 
+h1 {
+	text-align: center;
+	color: var(--color-secondary);
+}
+
 a {
 	font-weight: 500;
-	color: #646cff;
+	color: var(--color-secondary);
 	text-decoration: inherit;
 }
 
 a:hover {
-	color: var(--color-primary);
-}
-
-h1 {
-	text-align: center;
 	color: var(--color-primary);
 }
 
@@ -81,7 +82,7 @@ button {
 }
 
 button:hover {
-	border-color: var(--color-secondary);
+	border-color: var(--app-button-hover-color);
 }
 
 input,
