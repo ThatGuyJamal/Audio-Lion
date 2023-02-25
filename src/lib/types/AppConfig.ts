@@ -19,3 +19,7 @@ export enum AudioFileType {
     MP3 = "mp3",
     WAV = "wav",
 }
+
+export enum AppConfigLimits {
+	MAX_AUDIO_DIRECTORIES = 2,
+}

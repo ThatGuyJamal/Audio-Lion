@@ -25,7 +25,7 @@ fn main() {
             audio_player::core::init(app);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![commands::view_app_config, commands::reset_app_config])
+        .invoke_handler(tauri::generate_handler![commands::view_app_config, commands::reset_app_config, commands::set_app_config])
         .menu(Menu::with_items([
             #[cfg(target_os = "windows")]
             // Create a menu entry for the window home button

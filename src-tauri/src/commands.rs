@@ -40,3 +40,24 @@ pub fn reset_app_config(app_handle: tauri::AppHandle) -> bool  {
         }
     }
 }
+
+#[tauri::command]
+pub fn set_app_config(app_handle: tauri::AppHandle, audio_directories: Vec<String>, audio_file_types_allowed: Vec<String>) -> bool {
+    println!("set_app_config: {:?}", audio_directories);
+    println!("set_app_config: {:?}", audio_file_types_allowed);
+
+    let config = configuration::AppConfig {
+        audio_directories,
+        audio_file_types_allowed,
+    };
+    match helpers::configuration::update_config_file(&app_handle, &config) {
+        Ok(_) => {
+            return true;
+        }
+        Err(_) => {
+            // Handle the error here
+            // println!("Error: {:?}", e);
+            return false;
+        }
+    }
+}

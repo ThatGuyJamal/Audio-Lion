@@ -108,4 +108,39 @@ pub mod configuration {
             None => false,
         }
     }
+
+    /// Updates the configuration file with the new configuration
+    /// 
+    /// Returns `Ok(())` if the file was updated successfully
+    /// 
+    /// Returns `Err` if the file was not updated successfully
+    pub fn update_config_file(
+        app_handle: &tauri::AppHandle,
+        config: &AppConfig,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let config_json = serde_json::to_string(&config)?;
+
+        if let Some(config_path) = app_handle.path_resolver().app_config_dir() {
+            // Write the config.json file to the config directory and handle errors
+            let file_path = config_path.join("config.json");
+            match std::fs::write(&file_path, config_json) {
+                Ok(_) => {
+                    // The file was created successfully
+                    println!("Config file updated successfully at {:?}", file_path);
+                    Ok(())
+                }
+                Err(e) => {
+                    // Handle the error here
+                    println!("Error: {:?}", e);
+                    Err(Box::new(e))
+                }
+            }
+        } else {
+            // The app does not have access to a writable config directory
+            Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Unable to find writable config directory",
+            )))
+        }
+    }
 }

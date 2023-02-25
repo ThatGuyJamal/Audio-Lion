@@ -52,3 +52,91 @@ export function extractFileNameWithoutExtension({
 		? capitalizeFirstLetter(nameWithoutExtension)
 		: nameWithoutExtension;
 }
+
+export type ValidPlatforms = "windows" | "mac" | "linux" | "unknown";
+
+export function isValidDirectory2(path: string, platform: ValidPlatforms): boolean {
+	// Check the path separator based on the platform
+	const separator = platform === "windows" ? "\\" : "/";
+	const parts = path.split(separator);
+
+	console.log(path);
+	console.log(parts);
+
+	// Windows directory paths must start with a drive letter or UNC path
+	if (platform === "windows" && parts.length > 0) {
+		const firstPart = parts[0].toLowerCase();
+		if (!/^[a-z]:$/.test(firstPart) && !/^\\\\[^\\]+\\[^\\]+/.test(path)) {
+			return false;
+		}
+	}
+
+	// Check that each part of the path is a valid directory name
+	for (const part of parts) {
+		// Windows directory names can't contain certain characters
+		if (platform === "windows" && /[<>:"/\\|?*]/.test(part)) {
+			return false;
+		}
+		// Directory names can't be empty or contain certain characters on any platform
+		if (/^[.]{1,2}$/.test(part) || /[<>:"/\\|?*\0]/.test(part)) {
+			return false;
+		}
+	}
+
+	// The path is valid if we made it this far
+	return true;
+}
+
+/**
+ * Checks if a path is a valid directory path for the given platform.
+ * @param path The path to check
+ * @param platform The platform to check the path for
+ * @returns True if the path is valid, false otherwise
+ */
+export function isValidDirectory(path: string, platform: ValidPlatforms): boolean {
+	// Check the path separator based on the platform
+	const separator = platform === "windows" ? "\\" : "/";
+	const parts = path.split(separator);
+
+	// Check that the last part of the path is not a file name
+	const lastPart = parts[parts.length - 1];
+	if (/\.[^\.]+$/.test(lastPart)) {
+		return false;
+	}
+
+	// Windows directory paths must start with a drive letter or UNC path
+	if (platform === "windows" && parts.length > 0) {
+		const firstPart = parts[0].toLowerCase();
+		if (!/^[a-z]:$/.test(firstPart) && !/^\\\\[^\\]+\\[^\\]+/.test(path)) {
+			return false;
+		}
+	}
+
+	// Check that each part of the path is a valid directory name
+	for (const part of parts) {
+		// Windows directory names can't contain certain characters
+		if (platform === "windows" && /[<>:"/\\|?*]/.test(part)) {
+			return false;
+		}
+		// Directory names can't be empty or contain certain characters on any platform
+		if (/^[.]{1,2}$/.test(part) || /[<>:"/\\|?*\0]/.test(part)) {
+			return false;
+		}
+	}
+
+	// The path is valid if we made it this far
+	return true;
+}
+
+export function getCurrentPlatform(): ValidPlatforms {
+	const userAgent = window.navigator.userAgent;
+	if (userAgent.indexOf("Windows") !== -1) {
+		return "windows";
+	} else if (userAgent.indexOf("Linux") !== -1) {
+		return "linux";
+	} else if (userAgent.indexOf("Mac") !== -1) {
+		return "mac";
+	} else {
+		return "unknown";
+	}
+}
