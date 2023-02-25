@@ -1,7 +1,6 @@
 <script lang="ts">
 	import {
 		formatFileSize,
-		capitalizeFirstLetter,
 		extractFileNameWithoutExtension,
 	} from "$lib/utils/format";
 	let files: FileList;
