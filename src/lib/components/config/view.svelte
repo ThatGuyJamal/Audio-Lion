@@ -7,7 +7,7 @@
 
 	// create a writable store for the app config
 	const appConfigStore = writable<AppConfig | null>(null);
-        
+
 	// call the loadAppConfig function when the component is mounted
 	onMount(() => {
 		loadAppConfig(appConfigStore);
@@ -20,21 +20,19 @@
 	{:then result}
 		{#if result === null}
 			<div>
-				<h1>
-					It looks like the app config file is missing or corrupted. Please reset the
-					configuration file below!
-				</h1>
+				<p class="warning">
+					It looks like the app config file is missing or corrupted. Please reset it!
+				</p>
 			</div>
 		{:else}
 			<div>
 				<div>
 					{#if result?.audio_directories != null && result?.audio_directories.length > 0}
 						<p>Audio Streaming Directories:</p>
-						<ul>
-							{#each result?.audio_directories as dir}
-								<li>{dir}</li>
-							{/each}
-						</ul>
+						{#each result?.audio_directories as dir}
+							<p>{dir}</p>
+							,
+						{/each}
 					{:else}
 						<p>No audio streaming directories configured yet.</p>
 					{/if}
@@ -60,3 +58,11 @@
 		<p>Something went wrong: {error.message}</p>
 	{/await}
 </div>
+
+<style>
+	.warning {
+		background-color: #ff0000;
+		color: #ffffff;
+		padding: 10px;
+	}
+</style>
