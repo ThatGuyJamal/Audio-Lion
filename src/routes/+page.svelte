@@ -40,6 +40,10 @@
 		<button class="btn">
 			<a href="/config" rel="noreferrer"> App Config </a>
 		</button>
+
+		<button class="btn">
+			<a href="/player" rel="noreferrer"> Play Music </a>
+		</button>
 	</div>
 
 	<p />
