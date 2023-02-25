@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 pub mod core {
-    use tauri::{Manager, App};
+    use tauri::{App, Manager};
 
     use crate::helpers;
 
@@ -63,6 +63,7 @@ pub mod stream {
                             // If the file type is the same as the file type we're looking for, add it to the vector
                             if file_type_from_ext == file_type {
                                 audio_files.push(path.to_path_buf());
+                                println!("Added file: {}", path.display());
                             } else {
                                 continue;
                             }
@@ -76,6 +77,6 @@ pub mod stream {
             }
         }
 
-        audio_files
+        return audio_files;
     }
 }
