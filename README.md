@@ -8,7 +8,7 @@ It is currently in development and is not ready for use.
 
 ## Development Information
 
-Audio Lion at its core is using [Tauri](https://tauri.app/) for its Gui and [Rodio](https://github.com/RustAudio/rodio) to play audio. 
+Audio Lion at its core is using [Tauri](https://tauri.app/) for its Backend API, [Svelte](https://svelte.dev/) for its GUI and [Rodio](https://github.com/RustAudio/rodio) for its audio API library. 
 
 More information on how I am developing Audio Lion can be found will be posted when the project becomes more stable. For now message me on discord if you have any questions.
 
