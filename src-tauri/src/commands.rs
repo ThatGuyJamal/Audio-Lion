@@ -1,7 +1,10 @@
-use crate::helpers::{self, configuration};
+use crate::{
+    audio_player::{self, stream::AudioFileTypes},
+    helpers::{self, configuration},
+};
 
 #[tauri::command]
-pub fn view_app_config(app_handle: tauri::AppHandle)-> Result<configuration::AppConfig, String>  {
+pub fn view_app_config(app_handle: tauri::AppHandle) -> Result<configuration::AppConfig, String> {
     match helpers::configuration::read_config_file(app_handle) {
         Ok(config) => {
             // Use the configuration data here
@@ -17,7 +20,7 @@ pub fn view_app_config(app_handle: tauri::AppHandle)-> Result<configuration::App
 }
 
 #[tauri::command]
-pub fn reset_app_config(app_handle: tauri::AppHandle) -> bool  {
+pub fn reset_app_config(app_handle: tauri::AppHandle) -> bool {
     match helpers::configuration::delete_config_file(&app_handle) {
         // If the configuration file was deleted successfully, create a new one
         true => {
@@ -42,7 +45,11 @@ pub fn reset_app_config(app_handle: tauri::AppHandle) -> bool  {
 }
 
 #[tauri::command]
-pub fn set_app_config(app_handle: tauri::AppHandle, audio_directories: Vec<String>, audio_file_types_allowed: Vec<String>) -> bool {
+pub fn set_app_config(
+    app_handle: tauri::AppHandle,
+    audio_directories: Vec<String>,
+    audio_file_types_allowed: Vec<String>,
+) -> bool {
     println!("set_app_config: {:?}", audio_directories);
     println!("set_app_config: {:?}", audio_file_types_allowed);
 
@@ -59,5 +66,36 @@ pub fn set_app_config(app_handle: tauri::AppHandle, audio_directories: Vec<Strin
             // println!("Error: {:?}", e);
             return false;
         }
+    }
+}
+
+#[tauri::command]
+pub fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: String) -> Vec<String> {
+    let config = helpers::configuration::read_config_file(app_handle).unwrap();
+    let result = audio_player::stream::get_audio_files(&config.audio_directories[0], AudioFileTypes::from_extension(&audio_file_type).unwrap());
+
+    let mut audio_files: Vec<String> = Vec::new();
+
+    for file in result {
+        audio_files.push(file.display().to_string());
+    }
+
+    println!("get_audio_files {:?}", audio_files);
+
+    return audio_files;
+}
+
+#[tauri::command]
+pub fn play_audio_file(
+    file_path: &str,
+    file_type: &str,
+    file_index: usize,
+) -> bool {
+    let result = audio_player::stream::play_audio(file_path, file_type, file_index);
+
+    if result == true {
+        return true;
+    } else {
+        return false;
     }
 }

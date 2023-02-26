@@ -29,7 +29,12 @@ pub mod core {
 }
 
 pub mod stream {
-    #[derive(PartialEq, Debug)]
+    use std::io::BufReader;
+
+    use rodio::Source;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(PartialEq, Debug, Serialize, Deserialize)]
     pub enum AudioFileTypes {
         MP3,
         WAV,
@@ -37,10 +42,25 @@ pub mod stream {
 
     impl AudioFileTypes {
         /// Returns an `AudioFileTypes` object from a file extension
-        fn from_extension(extension: &str) -> Option<Self> {
+        pub fn from_extension(extension: &str) -> Option<Self> {
             match extension.to_lowercase().as_str() {
                 "mp3" => Some(Self::MP3),
                 "wav" => Some(Self::WAV),
+                _ => None,
+            }
+        }
+
+        fn convert_audio_type_to_str(file_type: AudioFileTypes) -> &'static str {
+            match file_type {
+                AudioFileTypes::MP3 => "mp3",
+                AudioFileTypes::WAV => "wav",
+            }
+        }
+
+        fn convert_audio_type_from_str(file_type: &str) -> Option<AudioFileTypes> {
+            match file_type.to_lowercase().as_str() {
+                "mp3" => Some(AudioFileTypes::MP3),
+                "wav" => Some(AudioFileTypes::WAV),
                 _ => None,
             }
         }
@@ -78,5 +98,63 @@ pub mod stream {
         }
 
         return audio_files;
+    }
+
+    /// Plays an audio file
+    pub fn play_audio(file_path: &str, file_type: &str, file_index: usize) -> bool {
+        let audio_file_type = match AudioFileTypes::convert_audio_type_from_str(file_type) {
+            Some(file_type) => file_type,
+            None => return false, // invalid file type, return false
+        };
+
+        println!("[play_audio] File type: {:?}", audio_file_type);
+        println!("[play_audio] File index: {}", file_index);
+        println!("[play_audio] File path: {}", file_path);
+
+        let audio_files = get_audio_files(&file_path, audio_file_type);
+
+        println!("[play_audio] Audio files: {:?}", audio_files);
+
+        let file_index = match audio_files.get(file_index) {
+            Some(file_index) => file_index,
+            None => {
+                println!("[play_audio] Invalid index: {}", file_index);
+                return false;
+            } // invalid index, return false
+        };
+
+        println!("[play_audio] Selected file: {}", file_index.display());
+
+        // Get a output stream handle to the default physical sound device
+        let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
+
+        // Loads the audio file into a file buffer
+        let file = match std::fs::File::open(file_index) {
+            Ok(file) => file,
+            Err(e) => {
+                println!("[play_audio] Error opening file: {}", e);
+                return false;
+            } // error opening file, return false
+        };
+
+        // Decode that sound file into a source
+        let decoder = match rodio::Decoder::new(BufReader::new(file)) {
+            Ok(decoder) => decoder.convert_samples(),
+            Err(e) => {
+                println!("[play_audio] Error creating decoder: {}", e);
+                return false;
+            } // error creating decoder, return false
+        };
+
+        // Play the sound directly on the device
+        stream_handle.play_raw(decoder);
+
+        println!("[play_audio] Playing audio file: {}", file_index.display());
+
+        // The sound plays in a separate audio thread,
+        // so we need to keep the main thread alive while it's playing.
+        std::thread::sleep(std::time::Duration::from_secs(15));
+
+        return true;
     }
 }

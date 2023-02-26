@@ -53,9 +53,70 @@ export function extractFileNameWithoutExtension({
 		: nameWithoutExtension;
 }
 
+export function extractFileName(path: string): string {
+	var startIndex =
+		path.lastIndexOf("\\") >= 0 ? path.lastIndexOf("\\") : path.lastIndexOf("/");
+	var filename = path.substring(startIndex);
+	if (filename.indexOf("\\") === 0 || filename.indexOf("/") === 0) {
+		filename = filename.substring(1);
+	}
+	var dotIndex = filename.lastIndexOf(".");
+	if (dotIndex > -1) {
+		filename = filename.substring(0, dotIndex);
+	}
+	return filename;
+}
+
+export function getFileExtension(filePath: string) {
+	// Get the last dot position in the file path
+	const lastDotIndex = filePath.lastIndexOf(".");
+
+	// If there's no dot, or it's the first or last character, return an empty string
+	if (
+		lastDotIndex === -1 ||
+		lastDotIndex === 0 ||
+		lastDotIndex === filePath.length - 1
+	) {
+		return "";
+	}
+
+	// Get the file extension by taking the substring after the last dot
+	const extension = filePath.substring(lastDotIndex + 1);
+
+	return extension.toLowerCase(); // Return the extension in lowercase
+}
+
+export function getIndexByName(name: string, arr: string[]): number {
+	return arr.findIndex((element) => element === name);
+}
+
+export function getDirectoryPath(
+	filePath: string,
+	platform: ValidPlatforms
+): string {
+	// Determine the path separator based on the platform
+	let pathSeparator = "/";
+	if (platform === "windows") {
+		pathSeparator = "\\";
+	} else if (platform === "mac" || platform === "linux") {
+		pathSeparator = "/";
+	}
+
+	// Get the last index of the path separator
+	const lastIndex = filePath.lastIndexOf(pathSeparator);
+
+	// Extract the directory path
+	const dirPath = filePath.slice(0, lastIndex + 1);
+
+	return dirPath;
+}
+
 export type ValidPlatforms = "windows" | "mac" | "linux" | "unknown";
 
-export function isValidDirectory2(path: string, platform: ValidPlatforms): boolean {
+export function isValidDirectory2(
+	path: string,
+	platform: ValidPlatforms
+): boolean {
 	// Check the path separator based on the platform
 	const separator = platform === "windows" ? "\\" : "/";
 	const parts = path.split(separator);
@@ -93,7 +154,10 @@ export function isValidDirectory2(path: string, platform: ValidPlatforms): boole
  * @param platform The platform to check the path for
  * @returns True if the path is valid, false otherwise
  */
-export function isValidDirectory(path: string, platform: ValidPlatforms): boolean {
+export function isValidDirectory(
+	path: string,
+	platform: ValidPlatforms
+): boolean {
 	// Check the path separator based on the platform
 	const separator = platform === "windows" ? "\\" : "/";
 	const parts = path.split(separator);

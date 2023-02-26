@@ -4,28 +4,33 @@
 // )]
 
 mod audio_player;
-mod helpers;
 mod commands;
+mod helpers;
 
 use tauri::api::shell;
 use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
-
 
 fn main() {
     let ctx = tauri::generate_context!();
 
     tauri::Builder::default()
         .setup(|app| {
-            #[cfg(debug_assertions)] // only include this code on debug builds
-            {
-                let window = app.get_window("main").unwrap();
-                window.open_devtools();
-                window.close_devtools();
-            }
+            // #[cfg(debug_assertions)] // only include this code on debug builds
+            // {
+            //     let window = app.get_window("main").unwrap();
+            //     window.open_devtools();
+            //     window.close_devtools();
+            // }
             audio_player::core::init(app);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![commands::view_app_config, commands::reset_app_config, commands::set_app_config])
+        .invoke_handler(tauri::generate_handler![
+            commands::view_app_config,
+            commands::reset_app_config,
+            commands::set_app_config,
+            commands::get_audio_files,
+            commands::play_audio_file
+        ])
         .menu(Menu::with_items([
             #[cfg(target_os = "windows")]
             // Create a menu entry for the window home button

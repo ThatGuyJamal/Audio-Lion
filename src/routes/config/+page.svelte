@@ -37,7 +37,15 @@
 	$: dirInputStatus = "loading" as "invalid" | "valid" | "loading";
 
 	const runNewFolder = async (event: Event) => {
+		const config = await loadAppConfig() as AppConfig
 		const input = event.target as HTMLInputElement;
+
+		// Makes sure we don't add the same directory twice
+		if (config.audio_directories.includes(input.value)) {
+			dirPath = "";
+			return;
+		}
+
 		dirPath = input.value;
 
 		const currentData = await loadAppConfig();
