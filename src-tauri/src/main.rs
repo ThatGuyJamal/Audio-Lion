@@ -8,7 +8,7 @@ mod commands;
 mod helpers;
 
 use tauri::api::shell;
-use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
+use tauri::Manager;
 
 fn main() {
     let ctx = tauri::generate_context!();
@@ -25,25 +25,25 @@ fn main() {
             commands::get_audio_files,
             commands::play_audio_file
         ])
-        .menu(Menu::with_items([
-            #[cfg(target_os = "windows")]
-            // Create a menu entry for the window home button
-            MenuEntry::Submenu(Submenu::new(
-                "Window",
-                Menu::with_items(vec![
-                    CustomMenuItem::new("Home", "Home").into(),
-                    CustomMenuItem::new("App Configuration", "Settings").into(),
-                    CustomMenuItem::new("About", "About").into(),
-                ]),
-            )),
-            MenuEntry::Submenu(Submenu::new(
-                "Help",
-                Menu::with_items([
-                    CustomMenuItem::new("Discord Server", "Discord").into(),
-                    CustomMenuItem::new("Github Link", "Github").into(),
-                ]),
-            )),
-        ]))
+        // .menu(Menu::with_items([
+        //     #[cfg(target_os = "windows")]
+        //     // Create a menu entry for the window home button
+        //     MenuEntry::Submenu(Submenu::new(
+        //         "Window",
+        //         Menu::with_items(vec![
+        //             CustomMenuItem::new("Home", "Home").into(),
+        //             CustomMenuItem::new("App Configuration", "Settings").into(),
+        //             CustomMenuItem::new("About", "About").into(),
+        //         ]),
+        //     )),
+        //     MenuEntry::Submenu(Submenu::new(
+        //         "Help",
+        //         Menu::with_items([
+        //             CustomMenuItem::new("Discord Server", "Discord").into(),
+        //             CustomMenuItem::new("Github Link", "Github").into(),
+        //         ]),
+        //     )),
+        // ]))
         .on_menu_event(|event| {
             let event_name = event.menu_item_id();
             match event_name {

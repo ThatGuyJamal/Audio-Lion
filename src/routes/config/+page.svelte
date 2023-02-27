@@ -4,7 +4,8 @@
 	import { writable } from "svelte/store";
 	import { loadAppConfig, resetAppConfig, setAppConfig } from "$lib/utils/tauri";
 	import config from "$lib/config";
-	import { getCurrentPlatform, isValidDirectory } from "$lib/utils/format";
+ import DevInfo from "$lib/components/popups/dev-info.svelte";
+	// import { getCurrentPlatform, isValidDirectory } from "$lib/utils/format";
 
 	// The updated state of the component
 	const viewState = writable<AppConfig | null>(null);
@@ -37,7 +38,7 @@
 	$: dirInputStatus = "loading" as "invalid" | "valid" | "loading";
 
 	const runNewFolder = async (event: Event) => {
-		const config = await loadAppConfig() as AppConfig
+		const config = (await loadAppConfig()) as AppConfig;
 		const input = event.target as HTMLInputElement;
 
 		// Makes sure we don't add the same directory twice
@@ -73,89 +74,117 @@
 	};
 </script>
 
-<div>
-	<h1>App Configurations</h1>
+<DevInfo />
+
+<main>
+	<h1 class="text-2xl mb-6">App Configurations</h1>
 	{#await $viewState}
 		<p>fetching config file from system...</p>
 	{:then result}
 		{#if result === null}
 			<div>
-				<p class="warning">
-					It looks like the app config file is missing or corrupted. Please reset it!
-				</p>
+				It looks like the configuration file is missing or corrupted!
+				<div class="dropdown dropdown-end">
+					<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+					<!-- svelte-ignore a11y-label-has-associated-control -->
+					<label tabindex="0" class="btn btn-circle btn-ghost btn-xs text-info">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							class="w-4 h-4 stroke-current"
+							><path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+							/></svg
+						>
+					</label>
+					<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+					<!-- svelte-ignore a11y-label-has-associated-control -->
+					<div
+						tabindex="0"
+						class="card compact dropdown-content shadow bg-base-100 rounded-box w-64"
+					>
+						<div class="card-body">
+							<h2 class="card-title text-center">Need Support?</h2>
+							<p class="text-red-400">Please contact the app developers on discord.</p>
+						</div>
+					</div>
+				</div>
 			</div>
 		{:else}
 			<div>
 				<div>
 					{#if result?.audio_directories != null && result?.audio_directories.length > 0}
-						<p>Audio Streaming Directories:</p>
+						<div class="divider" />
+						<h1 class="text-xl mb-1">Audio Streaming Directories:</h1>
 						{#each result?.audio_directories as dir}
-							<p>{dir}</p>
+							<p class="mb-1 underline decoration-solid">{dir}</p>
 						{/each}
 					{:else}
-						<p>No audio streaming directories configured yet.</p>
+						<p class="text-amber-200">
+							No audio streaming directories configured yet.
+						</p>
 					{/if}
-
+					<div class="divider" />
 					{#if result?.audio_file_types_allowed != null && result.audio_file_types_allowed.length > 0}
-						<p>Audio File Types Allowed:</p>
-						<div>
-							{#each result.audio_file_types_allowed as type}
-								<li>{type}</li>
-							{/each}
-						</div>
+						<h1 class="text-xl mb-1">Audio File Type(s) Filter</h1>
+						<p>
+							The current audio file types below are supported by {config.app.name}:
+						</p>
+						{#each result.audio_file_types_allowed as fileExtensionType}
+							<p>{fileExtensionType}</p>
+						{/each}
 					{:else}
 						<p>
-							No audio file filters set, defaulting to {config.app.app_config_defaults.audio_file_types_allowed.join(
-								", "
-							)}
+							No audio file filters set, defaulting to {config.app.app_config_defaults
+								.audio_file_types_allowed}
 						</p>
 					{/if}
 				</div>
 			</div>
-		{/if}
-		{#if result?.audio_directories != null && result?.audio_directories.length <= AppConfigLimits.MAX_AUDIO_DIRECTORIES}
-			<h1>Select a folder</h1>
-			<p>This path will be used to play your music</p>
-			<label for="dir-input">Enter folder directory:</label>
-			<input
-				type="text"
-				id="dir-input"
-				on:input={runNewFolder}
-				bind:value={dirPath}
-			/>
-			{#if dirPath}
-				{#if dirInputStatus === "invalid"}
-					<p class="warning">
-						Invalid directory path. Please make sure the folder path is correct.
-					</p>
-					<p>Example: C:\Users\Bob\Music</p>
-				{:else if dirInputStatus === "valid"}
-					<p>Selected directory: {dirPath}</p>
-				{:else if dirInputStatus === "loading"}
-					<p>Checking directory...</p>
+			<div class="divider" />
+			{#if result?.audio_directories != null && result?.audio_directories.length <= AppConfigLimits.MAX_AUDIO_DIRECTORIES}
+				<h1 class="text-xl mb-1">Select Music Folders</h1>
+				<p class="mb-2">This path will be used to play your music</p>
+				<label for="dir-input">Enter folder directory:</label>
+				<input
+					type="text"
+					id="dir-input"
+					class="file-input file-input-xs max-w-xs"
+					on:input={runNewFolder}
+					bind:value={dirPath}
+				/>
+				{#if dirPath}
+					{#if dirInputStatus === "invalid"}
+						<p class="warning">
+							Invalid directory path. Please make sure the folder path is correct!
+						</p>
+						<p>Example: C:\Users\Bob\Music</p>
+					{:else if dirInputStatus === "valid"}
+						<p>Selected directory: {dirPath}</p>
+					{:else if dirInputStatus === "loading"}
+						<p>Checking directory...</p>
+					{/if}
+				{:else}
+					<p class="mt-2">Example: C:\Users\Bob\Music</p>
 				{/if}
 			{:else}
-				<h2>No path selected</h2>
-				<p>Example: C:\Users\Bob\Music</p>
+				<input
+					type="file"
+					placeholder="Max Folders reached"
+					class="file-input  file-input-xs max-w-xs"
+					disabled
+				/>
 			{/if}
-		{:else}
-			<p>
-				You have reached the maximum number of audio directories allowed. Please
-				remove one before adding another.
-			</p>
+			<div class="divider" />
+			<h1 class="text-xl mb-2">Reset Config Defaults</h1>
+			<p>Click the button below to reset the app config to the default values.</p>
+			<button class="btn mt-3" on:click={runReset}> Reset Config </button>
 		{/if}
 	{:catch error}
 		<p>Something went wrong: {error.message}</p>
 	{/await}
-	<h1>Reset Config Defaults</h1>
-	<p>Click the button below to reset the app config to the default values.</p>
-	<button on:click={runReset}> Reset Config </button>
-</div>
-
-<style>
-	.warning {
-		background-color: #ff0000;
-		color: #ffffff;
-		padding: 10px;
-	}
-</style>
+</main>
