@@ -17,7 +17,7 @@ pub mod configuration {
     /// Returns `Ok(())` if the file was created successfully
     ///
     /// Returns `Err` if the file was not created successfully
-    pub fn create_config_file(
+    pub async fn create_config_file(
         app_handle: tauri::AppHandle,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let config = AppConfig {
@@ -76,7 +76,7 @@ pub mod configuration {
             Ok(file) => file,
             Err(ref err) if err.kind() == ErrorKind::NotFound => {
                 // If the file is not found, create it using the `create_config_file` function
-                let _ = create_config_file(app_handle)?;
+                let _ = create_config_file(app_handle);
                 File::open(&config_file_path)?
             }
             Err(err) => return Err(Box::new(err)),
@@ -99,7 +99,7 @@ pub mod configuration {
     /// Returns `true` if the file was deleted successfully
     ///
     /// Returns `false` if the file was not deleted successfully
-    pub fn delete_config_file(app_handle: &tauri::AppHandle) -> bool {
+    pub async fn delete_config_file(app_handle: &tauri::AppHandle) -> bool {
         match app_handle.path_resolver().app_config_dir() {
             Some(config_path) => match std::fs::remove_file(config_path.join("config.json")) {
                 Ok(_) => true,
@@ -114,7 +114,7 @@ pub mod configuration {
     /// Returns `Ok(())` if the file was updated successfully
     /// 
     /// Returns `Err` if the file was not updated successfully
-    pub fn update_config_file(
+    pub async fn update_config_file(
         app_handle: &tauri::AppHandle,
         config: &AppConfig,
     ) -> Result<(), Box<dyn std::error::Error>> {
