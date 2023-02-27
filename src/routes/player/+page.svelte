@@ -9,6 +9,7 @@
 		getFileExtension,
 		getIndexByName,
 	} from "$lib/utils/format";
+	import DevInfo from "$lib/components/popups/dev-info.svelte";
 
 	// The updated state of the component
 	const viewState = writable<AppConfig | null>();
@@ -82,9 +83,9 @@
 		let filePath = getDirectoryPath(path, "windows");
 		let fileIndex = getIndexByName(path, audio_files_arr);
 
-		console.log("index:", fileIndex)
+		console.log("index:", fileIndex);
 
-		console.log("filePath", filePath)
+		console.log("filePath", filePath);
 
 		if (fileExtension === "mp3") {
 			await playAudioFile({
@@ -124,8 +125,10 @@
 	}
 </script>
 
-<div>
-	<h1>Audio Player</h1>
+<DevInfo />
+
+<main>
+	<h1 class="mb-8 text-2xl">Select a Song</h1>
 	{#await $viewState}
 		<p>fetching config file from system...</p>
 	{:then}
@@ -133,26 +136,52 @@
 			{#if audio_files_arr}
 				{#each audio_files_arr as file}
 					<button
-						on:click={() => {
+						class="btn btn-sm mb-5"
+						on:click={async () => {
 							console.log("clicked", file);
-							play(file);
+							await play(file);
 						}}
 					>
 						{extractFileName(file)}
 					</button>
 					<br />
-					<br />
 				{/each}
+				<div class="stats shadow">
+					<div class="stat">
+						<div class="stat-title">Total Songs Loaded</div>
+						<div class="stat-value">{audio_files_arr.length}</div>
+						<!-- <div class="stat-desc"></div> -->
+					</div>
+				</div>
 			{:else}
 				<p>No audio directories found</p>
 			{/if}
 		{:else}
-			<p>
-				No audio folder config found in settings. <a href="/config">Click here</a> to
-				apply one.
-			</p>
+			<div class="alert shadow-lg">
+				<div>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						class="stroke-info flex-shrink-0 w-6 h-6"
+						><path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+						/></svg
+					>
+					<div>
+						<h3 class="font-bold">Invalid Settings</h3>
+						<div class="text-xs">Missing Music Folders</div>
+					</div>
+				</div>
+				<div class="flex-none">
+					<button class="btn btn-sm"><a href="/config">Fix Settings</a></button>
+				</div>
+			</div>
 		{/if}
 	{:catch error}
 		<p>{error.message}</p>
 	{/await}
-</div>
+</main>

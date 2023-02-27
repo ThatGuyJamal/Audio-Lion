@@ -1,12 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-	font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-		"Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 	font-size: 16px;
 	line-height: 24px;
 	font-weight: 400;
 
-	color: #0f0f0f;
-	background-color: #f6f6f6;
+	color: #f6f6f6;
+	background-color: var(--app-background-color);
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
@@ -14,7 +16,6 @@
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-text-size-adjust: 100%;
 
-	/* Default colors */
 	--color-primary: #ff4e4e;
 	--color-secondary: #646cff;
 
@@ -23,38 +24,44 @@
 	--app-button-hover-color: #396cd8;
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
+
 .container {
 	margin: 0;
 	padding-top: 10vh;
 	display: flex;
-	flex-direction: column;
+	/* flex-direction: column; */
 	justify-content: center;
 	text-align: center;
 }
 
-.logo {
-	height: 6em;
+.app-logo {
+	height: 8em;
 	padding: 1.5em;
 	will-change: filter;
 	transition: 0.75s;
 }
 
-.logo.lion:hover {
+.app-logo:hover {
 	filter: drop-shadow(0 0 2em var(--color-primary));
 }
 
 .row {
-	display: flex;
-	justify-content: center;
+	@apply flex flex-row flex-wrap justify-center;
+}
+
+.main-page-buttons {
+	@apply btn mt-5 ml-3
 }
 
 h1 {
-	text-align: center;
 	color: var(--color-secondary);
 }
 
 a {
-	font-weight: 500;
 	color: var(--color-secondary);
 	text-decoration: inherit;
 }
@@ -65,48 +72,5 @@ a:hover {
 
 input,
 button {
-	border-radius: 8px;
-	border: 1px solid transparent;
-	padding: 0.6em 1.2em;
-	font-size: 1em;
-	font-weight: 500;
-	font-family: inherit;
-	color: #0f0f0f;
-	background-color: #ffffff;
-	transition: border-color 0.25s;
 	box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
-button {
-	cursor: pointer;
-}
-
-button:hover {
-	border-color: var(--app-button-hover-color);
-}
-
-input,
-button {
-	outline: none;
-}
-
-#greet-input {
-	margin-right: 5px;
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		color: #f6f6f6;
-		background-color: var(--app-background-color);
-	}
-
-	a:hover {
-		color: var(--color-primary);
-	}
-
-	input,
-	button {
-		color: #ffffff;
-		background-color: var(--app-button-color);
-	}
 }
