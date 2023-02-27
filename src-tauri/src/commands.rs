@@ -50,8 +50,8 @@ pub async fn set_app_config(
     audio_directories: Vec<String>,
     audio_file_types_allowed: Vec<String>,
 ) -> bool {
-    println!("set_app_config: {:?}", audio_directories);
-    println!("set_app_config: {:?}", audio_file_types_allowed);
+    // println!("set_app_config: {:?}", audio_directories);
+    // println!("set_app_config: {:?}", audio_file_types_allowed);
 
     let config = configuration::AppConfig {
         audio_directories,
@@ -80,7 +80,7 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
         audio_files.push(file.display().to_string());
     }
 
-    println!("get_audio_files {:?}", audio_files);
+    // println!("get_audio_files {:?}", audio_files);
 
     return audio_files;
 }

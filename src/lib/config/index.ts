@@ -11,7 +11,7 @@ export default {
 			solo: "https://solo.to/thatguyjamal",
 		},
 		under_development: false,
-		version: "0.0.1",
+		version: "alpha-0.0.4",
 		app_config_defaults: {
 			audio_directories: [],
 			audio_file_types_allowed: [AudioFileType.MP3, AudioFileType.WAV],

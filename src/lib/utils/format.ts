@@ -121,9 +121,6 @@ export function isValidDirectory2(
 	const separator = platform === "windows" ? "\\" : "/";
 	const parts = path.split(separator);
 
-	console.log(path);
-	console.log(parts);
-
 	// Windows directory paths must start with a drive letter or UNC path
 	if (platform === "windows" && parts.length > 0) {
 		const firstPart = parts[0].toLowerCase();

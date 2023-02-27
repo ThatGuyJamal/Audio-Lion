@@ -1,5 +1,8 @@
 <script>
 	import config from "$lib/config";
+	import { getCurrentPlatform } from "$lib/utils/format";
+
+	let platform = getCurrentPlatform();
 </script>
 
 <!-- @see https://daisyui.com/components/modal/#modal-using-label--hidden-checkbox-with-a-close-button-at-corner -->
@@ -24,6 +27,10 @@
 					The developer
 				</a>
 			</button>
+
+			<p class="mt-2 subpixel-antialiased">
+				Build Version: {config.app.version}-{platform}
+			</p>
 		</div>
 	</div>
 </div>

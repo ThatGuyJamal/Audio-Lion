@@ -19,7 +19,7 @@
 	loadAppConfig().then(async (data) => {
 		let result = (await loadAudioFiles(data).catch(() => [])) as string[];
 		audio_files_arr = result;
-		console.log("audio_files_arr", audio_files_arr);
+		// console.log("audio_files_arr", audio_files_arr);
 	});
 
 	// load the current app config when the component is mounted
@@ -83,26 +83,12 @@
 		let filePath = getDirectoryPath(path, "windows");
 		let fileIndex = getIndexByName(path, audio_files_arr);
 
-		console.log("index:", fileIndex);
-
-		console.log("filePath", filePath);
-
 		if (fileExtension === "mp3") {
 			await playAudioFile({
 				file_path: filePath,
 				file_type: AudioFileType.MP3,
 				file_index: fileIndex,
-			})
-				.then((res) => {
-					if (res) {
-						console.log(`Playing ${fileName}...`);
-					} else {
-						console.log(`Failed to play ${fileName}`);
-					}
-				})
-				.catch((err) => {
-					console.log(err);
-				});
+			});
 		}
 
 		if (fileExtension === "wav") {
@@ -110,17 +96,7 @@
 				file_path: filePath,
 				file_type: AudioFileType.WAV,
 				file_index: fileIndex,
-			})
-				.then((res) => {
-					if (res) {
-						console.log(`Playing ${fileName}...`);
-					} else {
-						console.log(`Failed to play ${fileName}`);
-					}
-				})
-				.catch((err) => {
-					console.log(err);
-				});
+			});
 		}
 	}
 </script>
@@ -135,13 +111,7 @@
 		{#if canDisplay}
 			{#if audio_files_arr}
 				{#each audio_files_arr as file}
-					<button
-						class="btn btn-sm mb-5"
-						on:click={async () => {
-							console.log("clicked", file);
-							await play(file);
-						}}
-					>
+					<button class="btn btn-sm mb-5" on:click={async () => await play(file)}>
 						{extractFileName(file)}
 					</button>
 					<br />

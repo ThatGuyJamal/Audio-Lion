@@ -51,8 +51,8 @@ export async function getAudioFiles(
 ): Promise<string[]> {
 	const result = await invoke<string[]>(TauriCommands.GET_AUDIO_FILES, {
 		audioFileType: fileType,
-	}).catch((err) => {
-		console.error(err);
+	}).catch(() => {
+		// console.error(err);
 		return [];
 	});
 

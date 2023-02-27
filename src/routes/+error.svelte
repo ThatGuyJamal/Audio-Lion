@@ -2,12 +2,4 @@
   import { page } from '$app/stores';
 </script>
 
-<h1>{$page.error?.message}</h1>
-
-<button on:click={
-    () => {
-        window.location.href = '/';
-    }
-}>
-    Go back
-</button>
+<h1 class="text-xl text-red-600">{$page.error?.message}</h1>

@@ -35,12 +35,12 @@ pub mod configuration {
             match std::fs::write(&file_path, config_json) {
                 Ok(_) => {
                     // The file was created successfully
-                    println!("Config file created successfully at {:?}", file_path);
+                    // println!("Config file created successfully at {:?}", file_path);
                     Ok(())
                 }
                 Err(e) => {
                     // Handle the error here
-                    println!("Error: {:?}", e);
+                    // println!("Error: {:?}", e);
                     Err(Box::new(e))
                 }
             }
@@ -89,7 +89,7 @@ pub mod configuration {
         // Serialize the `AppConfig` object to JSON
         let config: AppConfig = serde_json::from_str(&config_json)?;
 
-        println!("Config file read successfully {:?}", &config);
+        // println!("Config file read successfully {:?}", &config);
 
         Ok(config)
     }
@@ -126,12 +126,12 @@ pub mod configuration {
             match std::fs::write(&file_path, config_json) {
                 Ok(_) => {
                     // The file was created successfully
-                    println!("Config file updated successfully at {:?}", file_path);
+                    // println!("Config file updated successfully at {:?}", file_path);
                     Ok(())
                 }
                 Err(e) => {
                     // Handle the error here
-                    println!("Error: {:?}", e);
+                    // println!("Error: {:?}", e);
                     Err(Box::new(e))
                 }
             }
