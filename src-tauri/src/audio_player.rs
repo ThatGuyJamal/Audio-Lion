@@ -10,7 +10,7 @@ pub mod core {
         println!("Audio Lion Core is now running!");
 
         // Load the configuration file
-        load_config(app.app_handle());
+        load_config(app.app_handle())
     }
 
     fn load_config(app_handle: tauri::AppHandle) {
@@ -31,7 +31,7 @@ pub mod core {
 pub mod stream {
     use std::io::BufReader;
 
-    use rodio::Source;
+    use rodio::{OutputStream, Sink};
     use serde::{Deserialize, Serialize};
 
     #[derive(PartialEq, Debug, Serialize, Deserialize)]
@@ -57,7 +57,7 @@ pub mod stream {
             }
         }
 
-        fn convert_audio_type_from_str(file_type: &str) -> Option<AudioFileTypes> {
+        fn convert_audio_type_from_str(file_type: String) -> Option<AudioFileTypes> {
             match file_type.to_lowercase().as_str() {
                 "mp3" => Some(AudioFileTypes::MP3),
                 "wav" => Some(AudioFileTypes::WAV),
@@ -101,7 +101,7 @@ pub mod stream {
     }
 
     /// Plays an audio file
-    pub fn play_audio(file_path: &str, file_type: &str, file_index: usize) -> bool {
+    pub async fn play_audio(file_path: String, file_type: String, file_index: usize) -> bool {
         let audio_file_type = match AudioFileTypes::convert_audio_type_from_str(file_type) {
             Some(file_type) => file_type,
             None => return false, // invalid file type, return false
@@ -126,7 +126,8 @@ pub mod stream {
         println!("[play_audio] Selected file: {}", file_index.display());
 
         // Get a output stream handle to the default physical sound device
-        let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
+        let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+        let sink = Sink::try_new(&stream_handle).unwrap();
 
         // Loads the audio file into a file buffer
         let file = match std::fs::File::open(file_index) {
@@ -139,7 +140,7 @@ pub mod stream {
 
         // Decode that sound file into a source
         let decoder = match rodio::Decoder::new(BufReader::new(file)) {
-            Ok(decoder) => decoder.convert_samples(),
+            Ok(decoder) => decoder,
             Err(e) => {
                 println!("[play_audio] Error creating decoder: {}", e);
                 return false;
@@ -147,13 +148,11 @@ pub mod stream {
         };
 
         // Play the sound directly on the device
-        stream_handle.play_raw(decoder);
+        sink.append(decoder);
 
         println!("[play_audio] Playing audio file: {}", file_index.display());
 
-        // The sound plays in a separate audio thread,
-        // so we need to keep the main thread alive while it's playing.
-        std::thread::sleep(std::time::Duration::from_secs(15));
+        sink.sleep_until_end();
 
         return true;
     }
