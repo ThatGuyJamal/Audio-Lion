@@ -31,3 +31,4 @@ dist-ssr
 !.env.example
 
 /target
+/db_test/target
