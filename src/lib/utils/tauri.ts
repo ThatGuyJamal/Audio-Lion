@@ -34,6 +34,11 @@ export async function resetAppConfig(): Promise<AppConfig> {
 	return data;
 }
 
+/**
+ * Sets the app config to the new app config
+ * @param newAppConfig 
+ * @returns 
+ */
 export async function setAppConfig(
 	newAppConfig: AppConfig
 ): Promise<AppConfig> {
