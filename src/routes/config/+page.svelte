@@ -71,12 +71,29 @@
 			await tick();
 		}
 	};
+
+	// Handles the checkbox for each folder
+	async function handleFolderChecks(dir: string) {
+		const config = await loadAppConfig();
+
+		if (config) {
+			let index = config.audio_directories.indexOf(dir);
+			if (index > -1) {
+				config.audio_directories.splice(index, 1);
+			}
+			const newConfig = await setAppConfig(config);
+			ApplicationConfigurationState.set(newConfig);
+			await tick();
+		} else {
+			alert("No config data found");
+		}
+	}
 </script>
 
 <DevInfo />
 
 <main>
-	<h1 class="text-2xl mb-6">App Configurations</h1>
+	<h1 class="text-4xl mb-6 underline decoration-double">App Configurations</h1>
 	{#await $ApplicationConfigurationState}
 		<p>fetching config file from system...</p>
 	{:then result}
@@ -117,11 +134,22 @@
 			<div>
 				<div>
 					{#if result?.audio_directories != null && result?.audio_directories.length > 0}
-						<div class="divider" />
 						<h1 class="text-xl mb-1">Audio Streaming Directories:</h1>
 						{#each result?.audio_directories as dir}
-							<p class="mb-1 underline decoration-solid">{dir}</p>
+							<div class="form-control">
+								<label class="label cursor-pointer">
+									<span class="label-text mb-1 underline decoration-solid">{dir}</span>
+									<!-- We can hard code the checked (true) value because if its loaded then it must be enabled by default -->
+									<input
+										type="checkbox"
+										checked={true} 
+										class="checkbox"
+										on:click={() => handleFolderChecks(dir)}
+									/>
+								</label>
+							</div>
 						{/each}
+						<p class="text-sm text-red-400">Uncheck to remove a folder</p>
 					{:else}
 						<p class="text-amber-200">
 							No audio streaming directories configured yet.
@@ -181,7 +209,7 @@
 			<div class="divider" />
 			<h1 class="text-xl mb-2">Reset Config Defaults</h1>
 			<p>Click the button below to reset the app config to the default values.</p>
-			<button class="btn mt-3" on:click={runReset}> Reset Config </button>
+			<button class="btn mt-3 mb-2" on:click={runReset}> Reset Config </button>
 		{/if}
 	{:catch error}
 		<p>Something went wrong: {error.message}</p>
