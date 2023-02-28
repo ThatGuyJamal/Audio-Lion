@@ -1,23 +1,20 @@
 <script lang="ts">
 	import { AppConfigLimits, type AppConfig } from "$lib/types/AppConfig";
 	import { onMount, tick } from "svelte";
-	import { writable } from "svelte/store";
 	import { loadAppConfig, resetAppConfig, setAppConfig } from "$lib/utils/tauri";
 	import config from "$lib/config";
- import DevInfo from "$lib/components/popups/dev-info.svelte";
+	import DevInfo from "$lib/components/popups/dev-info.svelte";
+	import { ApplicationConfigurationState } from "$lib/store/AppConfig";
 	// import { getCurrentPlatform, isValidDirectory } from "$lib/utils/format";
-
-	// The updated state of the component
-	const viewState = writable<AppConfig | null>(null);
 
 	// load the current app config when the component is mounted
 	onMount(async () => {
 		const load = await loadAppConfig();
 
 		if (load) {
-			viewState.set(load);
+			ApplicationConfigurationState.set(load);
 		} else {
-			viewState.set(null);
+			ApplicationConfigurationState.set(null);
 		}
 		await tick();
 	});
@@ -26,10 +23,12 @@
 	const runReset = async () => {
 		let result = await resetAppConfig();
 
+		// console.table(result);
+
 		if (result) {
-			viewState.set(result);
+			ApplicationConfigurationState.set(result);
 		} else {
-			viewState.set(null);
+			ApplicationConfigurationState.set(null);
 		}
 		await tick();
 	};
@@ -67,7 +66,7 @@
 			let newData = currentData;
 			// console.table(currentData);
 			await setAppConfig(currentData);
-			viewState.set(newData);
+			ApplicationConfigurationState.set(newData);
 			dirPath = "";
 			await tick();
 		}
@@ -78,7 +77,7 @@
 
 <main>
 	<h1 class="text-2xl mb-6">App Configurations</h1>
-	{#await $viewState}
+	{#await $ApplicationConfigurationState}
 		<p>fetching config file from system...</p>
 	{:then result}
 		{#if result === null}

@@ -1,6 +1,6 @@
-<script>
-	import config from "$lib/config";
+<script lang="ts">
 	import "../app.css";
+	import config from "$lib/config";
 </script>
 
 <div class="navbar bg-base-100">
