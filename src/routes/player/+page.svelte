@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-	import { writable } from "svelte/store";
 	import { getAudioFiles, loadAppConfig, playAudioFile } from "$lib/utils/tauri";
 	import { AudioFileType, type AppConfig } from "$lib/types/AppConfig";
 	import {
@@ -10,30 +9,44 @@
 		getIndexByName,
 	} from "$lib/utils/format";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
+	import { ApplicationConfigurationState } from "$lib/store/AppConfig";
 
-	// The updated state of the component
-	const viewState = writable<AppConfig | null>();
+	// the array of audio files to display to the user
 	let audio_files_arr: string[] = [];
-	$: canDisplay = false; // whether or not to display the audio player
 
-	loadAppConfig().then(async (data) => {
-		let result = (await loadAudioFiles(data).catch(() => [])) as string[];
-		audio_files_arr = result;
-		// console.log("audio_files_arr", audio_files_arr);
-	});
+	// whether or not to display the audio player
+	$: canDisplay = false;
 
 	// load the current app config when the component is mounted
 	onMount(async () => {
-		const load = await loadAppConfig();
+		const config = await loadAppConfig();
+
+		// If the config exists, set the state and load the audio files
+		if (config) {
+			ApplicationConfigurationState.set(config);
+
+			const audioFiles = await loadAudioFiles(config);
+
+			// If the audio files exist, store them in the array to display
+			if (audioFiles) {
+				audio_files_arr = audioFiles;
+			}
+		} else {
+			ApplicationConfigurationState.set(null);
+		}
+
+		await tick();
 	});
 
-	async function loadAudioFiles(data: AppConfig | null) {
+	async function loadAudioFiles(
+		data: AppConfig | null
+	): Promise<string[] | null> {
 		if (data) {
-			viewState.set(data);
+			ApplicationConfigurationState.set(data);
 
 			if (data.audio_directories.length <= 0) {
 				canDisplay = false;
-				return;
+				return null;
 			} else {
 				canDisplay = true;
 			}
@@ -52,7 +65,7 @@
 			if (shouldLoadMp3 === "yes") {
 				const mp3Files = await getAudioFiles(AudioFileType.MP3);
 
-				// console.log("MP3", mp3Files);
+				console.log("MP3", mp3Files);
 
 				for (let i = 0; i < mp3Files.length; i++) {
 					audio_files_arr.push(mp3Files[i]);
@@ -62,7 +75,7 @@
 			if (shouldLoadWav === "yes") {
 				const wavFiles = await getAudioFiles(AudioFileType.WAV);
 
-				// console.log("WAV", wavFiles);
+				console.log("WAV", wavFiles);
 
 				for (let i = 0; i < wavFiles.length; i++) {
 					audio_files_arr.push(wavFiles[i]);
@@ -72,7 +85,7 @@
 			return audio_files_arr;
 		}
 
-		viewState.set(null);
+		ApplicationConfigurationState.set(null);
 		await tick();
 		return [];
 	}
@@ -105,7 +118,7 @@
 
 <main>
 	<h1 class="mb-8 text-2xl">Select a Song</h1>
-	{#await $viewState}
+	{#await $ApplicationConfigurationState}
 		<p>fetching config file from system...</p>
 	{:then}
 		{#if canDisplay}
@@ -116,7 +129,7 @@
 					</button>
 					<br />
 				{/each}
-				<div class="stats shadow">
+				<div class="stats shadow mb-5 mt-3">
 					<div class="stat">
 						<div class="stat-title">Total Songs Loaded</div>
 						<div class="stat-value">{audio_files_arr.length}</div>
