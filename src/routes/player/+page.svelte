@@ -65,7 +65,7 @@
 			if (shouldLoadMp3 === "yes") {
 				const mp3Files = await getAudioFiles(AudioFileType.MP3);
 
-				console.log("MP3", mp3Files);
+				// console.log("MP3", mp3Files);
 
 				for (let i = 0; i < mp3Files.length; i++) {
 					audio_files_arr.push(mp3Files[i]);
@@ -75,7 +75,7 @@
 			if (shouldLoadWav === "yes") {
 				const wavFiles = await getAudioFiles(AudioFileType.WAV);
 
-				console.log("WAV", wavFiles);
+				// console.log("WAV", wavFiles);
 
 				for (let i = 0; i < wavFiles.length; i++) {
 					audio_files_arr.push(wavFiles[i]);
