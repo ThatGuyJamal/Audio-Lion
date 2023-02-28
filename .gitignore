@@ -31,4 +31,5 @@ dist-ssr
 !.env.example
 
 /target
-/db_test/target
+/mongodb_test/target
+/sqldb_test/target
