@@ -44,42 +44,40 @@ pub mod core {
         let pool = LocalPoolHandle::new(2);
 
         let output = pool
-            .spawn_pinned(|| {
-                async move {
-                    let (_stream, stream_handle) =
-                        OutputStream::try_default().map_err(anyhow::Error::msg)?;
-                    //let stream = tokio::sync::Mutex::new(_stream);
-                    let sink = Sink::try_new(&stream_handle).map_err(anyhow::Error::msg)?;
+            .spawn_pinned(|| async move {
+                let (_stream, stream_handle) =
+                    OutputStream::try_default().map_err(anyhow::Error::msg)?;
 
-                    match command {
-                        AudioCommands::Play => {
-                            if let Some(params) = play_params {
-                                let result = stream::play_audio(params, sink)
-                                    .await
-                                    .map_err(|e| anyhow!(e.to_string()))?;
-                                Ok(result)
-                            } else {
-                                Err(anyhow!("Play command called without play_params"))
-                            }
-                        }
-                        AudioCommands::Pause => {
-                            let result = stream::pause_audio(sink)
+                let sink = Sink::try_new(&stream_handle).map_err(anyhow::Error::msg)?;
+
+                match command {
+                    AudioCommands::Play => {
+                        if let Some(params) = play_params {
+                            let result = stream::play_audio(params, sink)
                                 .await
                                 .map_err(|e| anyhow!(e.to_string()))?;
                             Ok(result)
+                        } else {
+                            Err(anyhow!("Play command called without play_params"))
                         }
-                        AudioCommands::Resume => {
-                            let result = stream::resume_audio(sink)
-                                .await
-                                .map_err(|e| anyhow!(e.to_string()))?;
-                            Ok(result)
-                        }
-                        AudioCommands::Stop => {
-                            let result = stream::stop_audio(sink)
-                                .await
-                                .map_err(|e| anyhow!(e.to_string()))?;
-                            Ok(result)
-                        }
+                    }
+                    AudioCommands::Pause => {
+                        let result = stream::pause_audio(sink)
+                            .await
+                            .map_err(|e| anyhow!(e.to_string()))?;
+                        Ok(result)
+                    }
+                    AudioCommands::Resume => {
+                        let result = stream::resume_audio(sink)
+                            .await
+                            .map_err(|e| anyhow!(e.to_string()))?;
+                        Ok(result)
+                    }
+                    AudioCommands::Stop => {
+                        let result = stream::stop_audio(sink)
+                            .await
+                            .map_err(|e| anyhow!(e.to_string()))?;
+                        Ok(result)
                     }
                 }
             })
