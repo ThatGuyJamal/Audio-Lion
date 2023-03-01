@@ -11,13 +11,9 @@ pub async fn view_app_config(
 ) -> Result<configuration::AppConfig, String> {
     match configuration::read_config_file(app_handle) {
         Ok(config) => {
-            // Use the configuration data here
-            // println!("{:?}", config);
             return Ok(config);
         }
         Err(e) => {
-            // Handle the error here
-            // println!("Error: {:?}", e);
             return Err(e.to_string());
         }
     }
@@ -35,13 +31,10 @@ pub async fn reset_app_config(app_handle: tauri::AppHandle) -> bool {
                     return true;
                 }
                 Err(_) => {
-                    // Handle the error here
-                    // println!("Error: {:?}", e);
                     return false;
                 }
             }
         }
-        // If the configuration file was not deleted successfully, return false
         false => {
             return false;
         }
@@ -54,9 +47,6 @@ pub async fn set_app_config(
     audio_directories: Vec<String>,
     audio_file_types_allowed: Vec<String>,
 ) -> bool {
-    // println!("set_app_config: {:?}", audio_directories);
-    // println!("set_app_config: {:?}", audio_file_types_allowed);
-
     let config = configuration::AppConfig {
         audio_directories,
         audio_file_types_allowed,
@@ -66,8 +56,6 @@ pub async fn set_app_config(
             return true;
         }
         Err(_) => {
-            // Handle the error here
-            // println!("Error: {:?}", e);
             return false;
         }
     }
@@ -92,8 +80,6 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
             audio_files.push(file.display().to_string());
         }
 
-        // println!("get_audio_files {:?}", audio_files);
-
         return audio_files;
     }
 
@@ -106,8 +92,6 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
         for file in files {
             audio_files.push(file.display().to_string());
         }
-
-        // println!("get_audio_files {:?}", audio_files);
     }
     return audio_files;
 }
