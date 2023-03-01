@@ -78,7 +78,7 @@ pub mod configuration {
             Ok(file) => file,
             Err(ref err) if err.kind() == ErrorKind::NotFound => {
                 // If the file is not found, create it using the `create_config_file` function
-                let _ = create_config_file(app_handle);
+                tauri::async_runtime::block_on(create_config_file(app_handle)).unwrap();
                 File::open(&config_file_path)?
             }
             Err(err) => return Err(Box::new(err)),
@@ -112,9 +112,9 @@ pub mod configuration {
     }
 
     /// Updates the configuration file with the new configuration
-    /// 
+    ///
     /// Returns `Ok(())` if the file was updated successfully
-    /// 
+    ///
     /// Returns `Err` if the file was not updated successfully
     pub async fn update_config_file(
         app_handle: &tauri::AppHandle,

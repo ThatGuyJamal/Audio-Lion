@@ -4,7 +4,7 @@ use crate::{
     audio_player::{
         self,
         core::AudioCommands,
-        stream::{AudioCommandResult, AudioFileTypes},
+        stream::{AudioCommandResult, AudioFileTypes, PlayAudioParams},
     },
     helpers::configuration::{self},
 };
@@ -26,7 +26,7 @@ impl serde::Serialize for AudioCommandResultError {
     }
 }
 
-#[tauri::command(async)]
+#[tauri::command]
 pub async fn view_app_config(
     app_handle: tauri::AppHandle,
 ) -> Result<configuration::AppConfig, String> {
@@ -44,7 +44,7 @@ pub async fn view_app_config(
     }
 }
 
-#[tauri::command(async)]
+#[tauri::command]
 pub async fn reset_app_config(app_handle: tauri::AppHandle) -> bool {
     match configuration::delete_config_file(&app_handle).await {
         // If the configuration file was deleted successfully, create a new one
@@ -69,7 +69,7 @@ pub async fn reset_app_config(app_handle: tauri::AppHandle) -> bool {
     }
 }
 
-#[tauri::command(async)]
+#[tauri::command]
 pub async fn set_app_config(
     app_handle: tauri::AppHandle,
     audio_directories: Vec<String>,
@@ -133,16 +133,16 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
     return audio_files;
 }
 
-#[tauri::command(async)]
-pub async fn play_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
-    let result = audio_player::core::handle_audio(AudioCommands::Play, None)
+#[tauri::command]
+pub async fn play_audio_file(play_params: Option<PlayAudioParams>) -> Result<AudioCommandResult, AudioCommandResultError> {
+    let result = audio_player::core::handle_audio(AudioCommands::Play, play_params)
         .await
         .unwrap();
 
     Ok(result)
 }
 
-#[tauri::command(async)]
+#[tauri::command]
 pub async fn pause_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
     let result = audio_player::core::handle_audio(AudioCommands::Pause, None)
         .await
@@ -151,7 +151,7 @@ pub async fn pause_audio_file() -> Result<AudioCommandResult, AudioCommandResult
     Ok(result)
 }
 
-#[tauri::command(async)]
+#[tauri::command]
 pub async fn resume_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
     let result = audio_player::core::handle_audio(AudioCommands::Resume, None)
         .await
@@ -160,7 +160,7 @@ pub async fn resume_audio_file() -> Result<AudioCommandResult, AudioCommandResul
     Ok(result)
 }
 
-#[tauri::command(async)]
+#[tauri::command]
 pub async fn stop_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
     let result = audio_player::core::handle_audio(AudioCommands::Stop, None)
         .await
@@ -177,7 +177,7 @@ pub struct AppInfo {
     description: String,
 }
 
-#[tauri::command(async)]
+#[tauri::command]
 pub async fn get_app_info(app_handle: tauri::AppHandle) -> AppInfo {
     let package_info = app_handle.package_info();
     let os = std::env::consts::OS.to_string();
