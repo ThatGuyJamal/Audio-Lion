@@ -36,18 +36,13 @@ pub mod configuration {
             let file_path = config_path.join("config.json");
             match std::fs::write(&file_path, config_json) {
                 Ok(_) => {
-                    // The file was created successfully
-                    // println!("Config file created successfully at {:?}", file_path);
                     Ok(())
                 }
                 Err(e) => {
-                    // Handle the error here
-                    // println!("Error: {:?}", e);
                     Err(Box::new(e))
                 }
             }
         } else {
-            // The app does not have access to a writable config directory
             Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "Unable to find writable config directory",
@@ -77,21 +72,17 @@ pub mod configuration {
         let mut file = match File::open(&config_file_path) {
             Ok(file) => file,
             Err(ref err) if err.kind() == ErrorKind::NotFound => {
-                // If the file is not found, create it using the `create_config_file` function
                 tauri::async_runtime::block_on(create_config_file(app_handle)).unwrap();
                 File::open(&config_file_path)?
             }
             Err(err) => return Err(Box::new(err)),
         };
 
-        // The file exists, so read it into a string and deserialize it
         let mut config_json = String::new();
         file.read_to_string(&mut config_json)?;
 
         // Serialize the `AppConfig` object to JSON
         let config: AppConfig = serde_json::from_str(&config_json)?;
-
-        // println!("Config file read successfully {:?}", &config);
 
         Ok(config)
     }
@@ -123,22 +114,16 @@ pub mod configuration {
         let config_json = serde_json::to_string(&config)?;
 
         if let Some(config_path) = app_handle.path_resolver().app_config_dir() {
-            // Write the config.json file to the config directory and handle errors
             let file_path = config_path.join("config.json");
             match std::fs::write(&file_path, config_json) {
                 Ok(_) => {
-                    // The file was created successfully
-                    // println!("Config file updated successfully at {:?}", file_path);
                     Ok(())
                 }
                 Err(e) => {
-                    // Handle the error here
-                    // println!("Error: {:?}", e);
                     Err(Box::new(e))
                 }
             }
         } else {
-            // The app does not have access to a writable config directory
             Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "Unable to find writable config directory",
