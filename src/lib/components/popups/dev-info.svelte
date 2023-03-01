@@ -1,8 +1,21 @@
 <script>
 	import config from "$lib/config";
 	import { getCurrentPlatform } from "$lib/utils/format";
+	import { getAppInfo } from "$lib/utils/tauri";
+	import { onMount } from "svelte";
 
-	let platform = getCurrentPlatform();
+	let os = "Unknown";
+	let v = "0.0.0";
+
+	async function getSystemInfo() {
+		let info = await getAppInfo();
+		os = info.os;
+		v = info.version;
+	}
+
+	onMount(async () => {
+		await getSystemInfo();
+	});
 </script>
 
 <!-- @see https://daisyui.com/components/modal/#modal-using-label--hidden-checkbox-with-a-close-button-at-corner -->
@@ -27,9 +40,8 @@
 					The developer
 				</a>
 			</button>
-
 			<p class="mt-2 subpixel-antialiased">
-				Build Version: {config.app.version}-{platform}
+				Build Version: {config.app.version_state}-{v}-{os}
 			</p>
 		</div>
 	</div>

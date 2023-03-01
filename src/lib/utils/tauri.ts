@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api";
-import { TauriCommands } from "$lib/types/commands";
+import { TauriCommands, type AppInfo } from "$lib/types/commands";
 import type { AppConfig, AudioFileType } from "$lib/types/AppConfig";
 import { getDirectoryPath } from "./format";
 
@@ -114,4 +114,11 @@ export async function stopAudioFile(): Promise<boolean> {
 	return await invoke<boolean>(TauriCommands.STOP_AUDIO_FILE).catch(() => {
 		return false;
 	});
+}
+
+/**
+ * @returns	The app info from the backend
+ */
+export async function getAppInfo(): Promise<AppInfo> {
+	return await invoke<AppInfo>(TauriCommands.GET_APP_INFO).then((data) => data)
 }

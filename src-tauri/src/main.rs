@@ -17,7 +17,7 @@ struct Payload {
 }
 
 fn main() {
-    tauri::Builder::default()
+ tauri::Builder::default()
         .setup(|app| {
             audio_player::core::init(app);
             Ok(())
