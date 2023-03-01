@@ -11,6 +11,7 @@ export enum TauriCommands {
 	GET_APP_INFO = "get_app_info",
 }
 
+/** The app information returned from the backend */
 export type AppInfo = {
 	os: string;
 	name: string,

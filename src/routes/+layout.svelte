@@ -3,11 +3,13 @@
 	import config from "$lib/config";
 </script>
 
-<div class="navbar bg-base-100">
+<div class="navbar bg-base-100 fixed">
 	<div class="flex-1">
 		<a class="btn btn-ghost normal-case text-xl text-teal-600" href="/">{config.app.name}</a>
 	</div>
 	<a href="/player" class="btn btn-ghost rounded-btn">Player</a>
+	<!-- The drop down icon for the nav bar. -->
+	<!-- see https://daisyui.com/components/navbar/#navbar-with-search-input-and-dropdown -->
 	<div class="dropdown dropdown-end">
 		<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 		<!-- svelte-ignore a11y-label-has-associated-control -->
