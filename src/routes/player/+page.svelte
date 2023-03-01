@@ -4,6 +4,7 @@
 	import { AudioFileType, type AppConfig } from "$lib/types/AppConfig";
 	import {
 		extractFileName,
+		getCurrentPlatform,
 		getDirectoryPath,
 		getFileExtension,
 		getIndexByName,
@@ -91,9 +92,9 @@
 	}
 
 	async function play(path: string) {
-		let fileName = extractFileName(path);
+		// let fileName = extractFileName(path);
 		let fileExtension = getFileExtension(path);
-		let filePath = getDirectoryPath(path, "windows");
+		let filePath = getDirectoryPath(path, getCurrentPlatform());
 		let fileIndex = getIndexByName(path, audio_files_arr);
 
 		if (fileExtension === "mp3") {
@@ -124,7 +125,7 @@
 		{#if canDisplay}
 			{#if audio_files_arr}
 				{#each audio_files_arr as file}
-					<button class="btn btn-sm mb-5" on:click={async () => await play(file)}>
+					<button class="btn btn-sm mb-5 text-teal-600" on:click={async () => await play(file)}>
 						{extractFileName(file)}
 					</button>
 					<br />
@@ -137,7 +138,7 @@
 					</div>
 				</div>
 			{:else}
-				<p>No audio directories found</p>
+				<p class="text-red-600">No audio directories found</p>
 			{/if}
 		{:else}
 			<div class="alert shadow-lg">
@@ -155,7 +156,7 @@
 						/></svg
 					>
 					<div>
-						<h3 class="font-bold">Invalid Settings</h3>
+						<p class="font-bold text-red-600 ml-2 mr-2">Invalid Settings</p>
 						<div class="text-xs">Missing Music Folders</div>
 					</div>
 				</div>

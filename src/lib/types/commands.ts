@@ -5,4 +5,7 @@ export enum TauriCommands {
 	SET_APP_CONFIG = "set_app_config",
 	GET_AUDIO_FILES = "get_audio_files",
 	PLAY_AUDIO_FILE = "play_audio_file",
+	PAUSE_AUDIO_FILE = "pause_audio_file",
+	RESUME_AUDIO_FILE = "resume_audio_file",
+	STOP_AUDIO_FILE = "stop_audio_file",
 }

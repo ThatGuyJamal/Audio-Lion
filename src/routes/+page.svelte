@@ -1,6 +1,6 @@
 <script>
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
-import Config from "$lib/config";
+	import Config from "$lib/config";
 </script>
 
 <DevInfo />
@@ -16,8 +16,7 @@ import Config from "$lib/config";
 		</a>
 	</div>
 
-	<h2>What is Audio Lion?</h2>
-	<p class="mt-5 mb-5">{Config.app.description}</p>
+	<p class="mt-5 mb-8 text-teal-600">{Config.app.description}</p>
 
 	<div class="alert shadow-lg">
 		<div>

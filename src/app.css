@@ -28,7 +28,6 @@
   display: none;
 }
 
-
 .container {
 	margin: 0;
 	padding-top: 10vh;
@@ -46,7 +45,7 @@
 }
 
 .app-logo:hover {
-	filter: drop-shadow(0 0 2em var(--color-primary));
+	filter: drop-shadow(0 0 1.5em rgb(13 148 136));
 }
 
 .row {
@@ -58,7 +57,7 @@
 }
 
 h1 {
-	color: var(--color-secondary);
+	@apply text-indigo-500
 }
 
 a {

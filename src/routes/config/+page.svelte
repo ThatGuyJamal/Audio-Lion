@@ -23,7 +23,7 @@
 	const runReset = async () => {
 		let result = await resetAppConfig();
 
-		// console.table(result);
+		console.table(result);
 
 		if (result) {
 			ApplicationConfigurationState.set(result);

@@ -5,8 +5,9 @@
 
 <div class="navbar bg-base-100">
 	<div class="flex-1">
-		<a class="btn btn-ghost normal-case text-xl" href="/">{config.app.name}</a>
+		<a class="btn btn-ghost normal-case text-xl text-teal-600" href="/">{config.app.name}</a>
 	</div>
+	<a href="/player" class="btn btn-ghost rounded-btn">Player</a>
 	<div class="dropdown dropdown-end">
 		<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 		<!-- svelte-ignore a11y-label-has-associated-control -->
@@ -30,6 +31,7 @@
 			</li>
 			<li><a href="/config">Settings ⚙️</a></li>
 			<li><a href="/player">Play Music 🎶</a></li>
+			<li><a href={config.app.community.discord} target="_blank" rel="noreferrer">Discord Server 🌐</a></li>
 			<li><label for="my-modal-3">Dev Information 🧑🏽‍💻</label></li>
 			<li>
 				<a class="justify-between" href="/">

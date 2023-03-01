@@ -15,11 +15,11 @@ export async function loadAppConfig(): Promise<AppConfig | null> {
 	return result;
 }
 
+/**
+ * @returns The current app config
+ */
 export async function getAppConfig(): Promise<AppConfig | null> {
-	// Get the data from the backend
-	// This should not be null, but in case of errors making the file, it will be null
-	const result = await invoke<AppConfig | null>(TauriCommands.VIEW_APP_CONFIG);
-	return result;
+	return await invoke<AppConfig | null>(TauriCommands.VIEW_APP_CONFIG);
 }
 
 /**
@@ -35,9 +35,8 @@ export async function resetAppConfig(): Promise<AppConfig> {
 }
 
 /**
- * Sets the app config to the new app config
- * @param newAppConfig 
- * @returns 
+ * @param newAppConfig The data to set the app config to
+ * @returns The new app config
  */
 export async function setAppConfig(
 	newAppConfig: AppConfig
@@ -51,6 +50,11 @@ export async function setAppConfig(
 	return data!;
 }
 
+/**
+ * Gets all the audio files in the audio directories
+ * @param fileType The type of audio file to get
+ * @returns {String[]} An array of file paths
+ */
 export async function getAudioFiles(
 	fileType: AudioFileType
 ): Promise<string[]> {
@@ -66,18 +70,48 @@ export async function getAudioFiles(
 	return result;
 }
 
+type PlayAudioFile = {
+	file_path: string;
+	file_type: AudioFileType;
+	/** The index of the file. This is used as a ref when the backend searches for the file later. */
+	file_index: number;
+};
+
+/**
+ * Sends a command to the backend to play an audio file
+ * @returns
+ */
 export async function playAudioFile({
 	file_path,
 	file_type,
 	file_index,
-}: {
-	file_path: string;
-	file_type: AudioFileType;
-	file_index: number;
-}): Promise<boolean> {
+}: PlayAudioFile): Promise<boolean> {
 	return await invoke<boolean>(TauriCommands.PLAY_AUDIO_FILE, {
 		filePath: file_path,
 		fileType: file_type,
 		fileIndex: file_index,
+	}).catch(() => {
+		return false;
+	});
+}
+
+// TODO - Implement these
+export async function pauseAudioFile(): Promise<boolean> {
+	return await invoke<boolean>(TauriCommands.PAUSE_AUDIO_FILE).catch(() => {
+		return false;
+	});
+}
+
+// TODO - Implement these
+export async function resumeAudioFile(): Promise<boolean> {
+	return await invoke<boolean>(TauriCommands.RESUME_AUDIO_FILE).catch(() => {
+		return false;
+	});
+}
+
+// TODO - Implement these
+export async function stopAudioFile(): Promise<boolean> {
+	return await invoke<boolean>(TauriCommands.STOP_AUDIO_FILE).catch(() => {
+		return false;
 	});
 }

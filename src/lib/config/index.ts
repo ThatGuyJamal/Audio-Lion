@@ -10,11 +10,15 @@ export default {
 			github: "https://github.com/ThatGuyJamal",
 			solo: "https://solo.to/thatguyjamal",
 		},
+		community: {
+			discord: "https://discord.gg/MSTrBrNaGn",
+			landing_page: "",
+		},
 		under_development: false,
 		version: "alpha-0.0.4",
 		app_config_defaults: {
 			audio_directories: [],
 			audio_file_types_allowed: [AudioFileType.MP3, AudioFileType.WAV],
-		} as AppConfig
+		} as AppConfig,
 	},
 };

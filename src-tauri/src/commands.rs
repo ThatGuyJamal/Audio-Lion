@@ -1,13 +1,15 @@
 use crate::{
     audio_player::{self, stream::AudioFileTypes},
-    helpers::{self, configuration},
+    helpers::configuration::{self},
 };
+
+use serde::{Serialize, Deserialize};
 
 #[tauri::command(async)]
 pub async fn view_app_config(
     app_handle: tauri::AppHandle,
 ) -> Result<configuration::AppConfig, String> {
-    match helpers::configuration::read_config_file(app_handle) {
+    match configuration::read_config_file(app_handle) {
         Ok(config) => {
             // Use the configuration data here
             // println!("{:?}", config);
@@ -23,12 +25,12 @@ pub async fn view_app_config(
 
 #[tauri::command(async)]
 pub async fn reset_app_config(app_handle: tauri::AppHandle) -> bool {
-    match helpers::configuration::delete_config_file(&app_handle).await {
+    match configuration::delete_config_file(&app_handle).await {
         // If the configuration file was deleted successfully, create a new one
         true => {
             // Clone app_handle and pass it to create_config_file
             let app_handle_clone = app_handle.clone();
-            match helpers::configuration::create_config_file(app_handle_clone).await {
+            match configuration::create_config_file(app_handle_clone).await {
                 Ok(_) => {
                     return true;
                 }
@@ -59,7 +61,7 @@ pub async fn set_app_config(
         audio_directories,
         audio_file_types_allowed,
     };
-    match helpers::configuration::update_config_file(&app_handle, &config).await {
+    match configuration::update_config_file(&app_handle, &config).await {
         Ok(_) => {
             return true;
         }
@@ -73,7 +75,7 @@ pub async fn set_app_config(
 
 #[tauri::command]
 pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: String) -> Vec<String> {
-    let config = helpers::configuration::read_config_file(app_handle).unwrap();
+    let config = configuration::read_config_file(app_handle).unwrap();
     let mut audio_files: Vec<String> = Vec::new();
 
     if config.audio_directories.len() == 0 {
@@ -118,5 +120,29 @@ pub async fn play_audio_file(file_path: String, file_type: String, file_index: u
         return true;
     } else {
         return false;
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct AppInfo {
+    os: String,
+    name: String, 
+    version: String,
+    description: String,
+}
+
+#[tauri::command(async)]
+pub async fn get_app_info(app_handle: tauri::AppHandle) -> AppInfo {
+    let package_info = app_handle.package_info();
+    let os = std::env::consts::OS.to_string();
+    let name = package_info.name.to_string();
+    let version = package_info.version.to_string();
+    let description = package_info.description.to_string();
+
+    return AppInfo {
+        os,
+        name,
+        version,
+        description,
     }
 }
