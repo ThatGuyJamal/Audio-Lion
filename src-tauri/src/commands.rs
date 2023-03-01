@@ -4,7 +4,6 @@ use crate::{
     audio_player::{self, core::AudioCommands, stream::{AudioFileTypes, AudioCommandResult}},
     helpers::configuration::{self},
 };
-
 use serde::{Deserialize, Serialize};
 
 #[tauri::command(async)]
@@ -124,6 +123,8 @@ pub async fn play_audio_file() -> Result<AudioCommandResult, Box<dyn std::error:
 #[tauri::command(async)]
 pub async fn pause_audio_file() -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
      let result =  audio_player::core::handle_audio(AudioCommands::Pause, None).await.unwrap();
+
+    Ok(result)
 }
 
 #[tauri::command(async)]

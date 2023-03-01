@@ -80,7 +80,6 @@ pub mod stream {
     use anyhow::{anyhow, Result};
     use rodio::Sink;
     use serde::{Deserialize, Serialize};
-    use std::error::Error;
     use std::io::BufReader;
 
     #[derive(PartialEq, Debug, Serialize, Deserialize)]
@@ -197,7 +196,7 @@ pub mod stream {
     /// Pauses the currently playing audio file
     ///
     /// Returns true if the audio file was paused successfully, false otherwise
-    pub async fn pause_audio(sink: Sink) -> Result<AudioCommandResult, Box<dyn Error>> {
+    pub async fn pause_audio(sink: Sink) -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
         sink.pause();
 
         Ok(AudioCommandResult {
