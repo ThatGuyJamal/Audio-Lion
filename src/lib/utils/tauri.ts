@@ -1,7 +1,6 @@
 import { invoke } from "@tauri-apps/api";
 import { TauriCommands, type AppInfo } from "$lib/types/commands";
 import type { AppConfig, AudioFileType } from "$lib/types/AppConfig";
-import { getDirectoryPath } from "./format";
 
 /**
  * Loads the current app config. If non is found, it will create a new one
@@ -82,8 +81,7 @@ export type AudioCommandResult = {
 };
 
 /**
- * Sends a command to the backend to play an audio file
- * @returns
+ * @returns {AudioCommandResult} The result of the command
  */
 export async function playAudioFile({
 	filePath,

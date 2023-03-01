@@ -10,7 +10,7 @@
 		getIndexByName,
 	} from "$lib/utils/format";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
-	import { ApplicationConfigurationState } from "$lib/store/AppConfig";
+	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
 
 	// the array of audio files to display to the user
 	let audio_files_arr: string[] = [];

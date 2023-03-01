@@ -4,7 +4,7 @@
 	import { loadAppConfig, resetAppConfig, setAppConfig } from "$lib/utils/tauri";
 	import config from "$lib/config";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
-	import { ApplicationConfigurationState } from "$lib/store/AppConfig";
+	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
 	// import { getCurrentPlatform, isValidDirectory } from "$lib/utils/format";
 
 	// load the current app config when the component is mounted
