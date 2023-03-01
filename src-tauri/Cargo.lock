@@ -183,6 +183,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-single-instance",
+ "thiserror",
  "tokio",
 ]
 

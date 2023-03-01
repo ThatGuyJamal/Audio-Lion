@@ -1,10 +1,30 @@
 #![allow(dead_code)]
 
 use crate::{
-    audio_player::{self, core::AudioCommands, stream::{AudioFileTypes, AudioCommandResult}},
+    audio_player::{
+        self,
+        core::AudioCommands,
+        stream::{AudioCommandResult, AudioFileTypes},
+    },
     helpers::configuration::{self},
 };
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, thiserror::Error)]
+pub enum AudioCommandResultError {
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
+}
+
+// we must manually implement serde::Serialize
+impl serde::Serialize for AudioCommandResultError {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::ser::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
 
 #[tauri::command(async)]
 pub async fn view_app_config(
@@ -114,29 +134,37 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
 }
 
 #[tauri::command(async)]
-pub async fn play_audio_file() -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
-   let result = audio_player::core::handle_audio(AudioCommands::Play, None).await.unwrap();
-
-   Ok(result)
-}
-
-#[tauri::command(async)]
-pub async fn pause_audio_file() -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
-     let result =  audio_player::core::handle_audio(AudioCommands::Pause, None).await.unwrap();
+pub async fn play_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
+    let result = audio_player::core::handle_audio(AudioCommands::Play, None)
+        .await
+        .unwrap();
 
     Ok(result)
 }
 
 #[tauri::command(async)]
-pub async fn resume_audio_file() -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
-     let result =  audio_player::core::handle_audio(AudioCommands::Resume, None).await.unwrap();
+pub async fn pause_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
+    let result = audio_player::core::handle_audio(AudioCommands::Pause, None)
+        .await
+        .unwrap();
 
     Ok(result)
 }
 
 #[tauri::command(async)]
-pub async fn stop_audio_file() -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
-   let result =  audio_player::core::handle_audio(AudioCommands::Stop, None).await.unwrap();
+pub async fn resume_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
+    let result = audio_player::core::handle_audio(AudioCommands::Resume, None)
+        .await
+        .unwrap();
+
+    Ok(result)
+}
+
+#[tauri::command(async)]
+pub async fn stop_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
+    let result = audio_player::core::handle_audio(AudioCommands::Stop, None)
+        .await
+        .unwrap();
 
     Ok(result)
 }

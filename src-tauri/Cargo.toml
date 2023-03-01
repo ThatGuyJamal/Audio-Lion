@@ -20,6 +20,7 @@ tauri = { version = "1.2", features = ["shell-open"] }
 tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 tokio = "1.25.0"
 anyhow = "1.0.69"
+thiserror = "1.0.38"
 
 [features]
 # by default Tauri runs in production mode
