@@ -4,6 +4,7 @@ pub mod core {
     use anyhow::{anyhow, Result};
     use rodio::{OutputStream, Sink};
     use tauri::{App, Manager};
+    use tokio_util::task::LocalPoolHandle;
 
     use crate::helpers;
 
@@ -40,39 +41,52 @@ pub mod core {
         command: AudioCommands,
         play_params: Option<stream::PlayAudioParams>,
     ) -> Result<AudioCommandResult> {
-        let (_stream, stream_handle) = OutputStream::try_default().map_err(anyhow::Error::msg)?;
-        let sink = Sink::try_new(&stream_handle).map_err(anyhow::Error::msg)?;
+        let pool = LocalPoolHandle::new(2);
 
-        match command {
-            AudioCommands::Play => {
-                if let Some(params) = play_params {
-                    let result = stream::play_audio(params, sink)
-                        .await
-                        .map_err(|e| anyhow!(e.to_string()))?;
-                    Ok(result)
-                } else {
-                    Err(anyhow!("Play command called without play_params"))
+        let output = pool
+            .spawn_pinned(|| {
+                async move {
+                    let (_stream, stream_handle) =
+                        OutputStream::try_default().map_err(anyhow::Error::msg)?;
+                    //let stream = tokio::sync::Mutex::new(_stream);
+                    let sink = Sink::try_new(&stream_handle).map_err(anyhow::Error::msg)?;
+
+                    match command {
+                        AudioCommands::Play => {
+                            if let Some(params) = play_params {
+                                let result = stream::play_audio(params, sink)
+                                    .await
+                                    .map_err(|e| anyhow!(e.to_string()))?;
+                                Ok(result)
+                            } else {
+                                Err(anyhow!("Play command called without play_params"))
+                            }
+                        }
+                        AudioCommands::Pause => {
+                            let result = stream::pause_audio(sink)
+                                .await
+                                .map_err(|e| anyhow!(e.to_string()))?;
+                            Ok(result)
+                        }
+                        AudioCommands::Resume => {
+                            let result = stream::resume_audio(sink)
+                                .await
+                                .map_err(|e| anyhow!(e.to_string()))?;
+                            Ok(result)
+                        }
+                        AudioCommands::Stop => {
+                            let result = stream::stop_audio(sink)
+                                .await
+                                .map_err(|e| anyhow!(e.to_string()))?;
+                            Ok(result)
+                        }
+                    }
                 }
-            }
-            AudioCommands::Pause => {
-                let result = stream::pause_audio(sink)
-                    .await
-                    .map_err(|e| anyhow!(e.to_string()))?;
-                Ok(result)
-            }
-            AudioCommands::Resume => {
-                let result = stream::resume_audio(sink)
-                    .await
-                    .map_err(|e| anyhow!(e.to_string()))?;
-                Ok(result)
-            }
-            AudioCommands::Stop => {
-                let result = stream::stop_audio(sink)
-                    .await
-                    .map_err(|e| anyhow!(e.to_string()))?;
-                Ok(result)
-            }
-        }
+            })
+            .await
+            .unwrap();
+
+        output
     }
 }
 
@@ -127,7 +141,10 @@ pub mod stream {
     }
 
     /// Plays an audio file
-    pub async fn play_audio(params: PlayAudioParams, sink: Sink) -> Result<AudioCommandResult> where PlayAudioParams: Send + Sync + 'static {
+    pub async fn play_audio(params: PlayAudioParams, sink: Sink) -> Result<AudioCommandResult>
+    where
+        PlayAudioParams: Send + Sync + 'static,
+    {
         let PlayAudioParams {
             file_path,
             file_type,
