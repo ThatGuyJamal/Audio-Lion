@@ -18,6 +18,8 @@ serde = { version = "1.0", features = ["derive"] }
 rodio = "0.17.1"
 tauri = { version = "1.2", features = ["shell-open"] }
 tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
+tokio = "1.25.0"
+anyhow = "1.0.69"
 
 [features]
 # by default Tauri runs in production mode

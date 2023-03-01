@@ -1,38 +1,87 @@
 #![allow(dead_code)]
 
 pub mod core {
+    use anyhow::{anyhow, Result};
+    use rodio::{OutputStream, Sink};
     use tauri::{App, Manager};
 
     use crate::helpers;
 
+    use super::stream::{self, AudioCommandResult};
+
     // Invokes the Audio Resource Manager for Audio Lion
     pub fn init(app: &mut App) {
-        // println!("Audio Lion Core is now running!");
-
-        // Load the configuration file
         load_config(app.app_handle())
     }
 
     fn load_config(app_handle: tauri::AppHandle) {
-        // Load the configuration file
         match helpers::configuration::read_config_file(app_handle) {
-            Ok(_config) => {
-                // Use the configuration data here
-                // println!("{:?}", config);
+            Ok(_config) => {}
+            Err(_) => {}
+        }
+    }
+
+    /// # Commands
+    /// - Play
+    /// - Pause
+    /// - Resume
+    /// - Stop
+    pub enum AudioCommands {
+        Play,
+        Pause,
+        Resume,
+        Stop,
+    }
+
+    /// ## Handles audio commands
+    /// - `command`: The command to execute
+    /// - `play_params`: The parameters to use when playing audio
+    pub async fn handle_audio(
+        command: AudioCommands,
+        play_params: Option<stream::PlayAudioParams>,
+    ) -> Result<AudioCommandResult> {
+        let (_stream, stream_handle) = OutputStream::try_default().map_err(anyhow::Error::msg)?;
+        let sink = Sink::try_new(&stream_handle).map_err(anyhow::Error::msg)?;
+
+        match command {
+            AudioCommands::Play => {
+                if let Some(params) = play_params {
+                    let result = stream::play_audio(params, sink)
+                        .await
+                        .map_err(|e| anyhow!(e.to_string()))?;
+                    Ok(result)
+                } else {
+                    Err(anyhow!("Play command called without play_params"))
+                }
             }
-            Err(_) => {
-                // Handle the error here
-                // println!("Error: {:?}", e);
+            AudioCommands::Pause => {
+                let result = stream::pause_audio(sink)
+                    .await
+                    .map_err(|e| anyhow!(e.to_string()))?;
+                Ok(result)
+            }
+            AudioCommands::Resume => {
+                let result = stream::resume_audio(sink)
+                    .await
+                    .map_err(|e| anyhow!(e.to_string()))?;
+                Ok(result)
+            }
+            AudioCommands::Stop => {
+                let result = stream::stop_audio(sink)
+                    .await
+                    .map_err(|e| anyhow!(e.to_string()))?;
+                Ok(result)
             }
         }
     }
 }
 
 pub mod stream {
-    use std::io::BufReader;
-
-    use rodio::{OutputStream, Sink};
+    use anyhow::{anyhow, Result};
+    use rodio::Sink;
     use serde::{Deserialize, Serialize};
+    use std::error::Error;
+    use std::io::BufReader;
 
     #[derive(PartialEq, Debug, Serialize, Deserialize)]
     pub enum AudioFileTypes {
@@ -100,60 +149,103 @@ pub mod stream {
         return audio_files;
     }
 
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct AudioCommandResult {
+        pub success: bool,
+        pub is_paused: bool,
+    }
+
+    pub struct PlayAudioParams {
+        pub file_path: String,
+        pub file_type: String,
+        pub file_index: usize,
+    }
+
     /// Plays an audio file
-    pub async fn play_audio(file_path: String, file_type: String, file_index: usize) -> bool {
+    pub async fn play_audio(params: PlayAudioParams, sink: Sink) -> Result<AudioCommandResult> {
+        let PlayAudioParams {
+            file_path,
+            file_type,
+            file_index,
+        } = params;
+
         let audio_file_type = match AudioFileTypes::convert_audio_type_from_str(file_type) {
             Some(file_type) => file_type,
-            None => return false, // invalid file type, return false
+            None => return Err(anyhow!("Invalid file type")), // invalid file type, return error
         };
-
-        // println!("[play_audio] File type: {:?}", audio_file_type);
-        // println!("[play_audio] File index: {}", file_index);
-        // println!("[play_audio] File path: {}", file_path);
 
         let audio_files = get_audio_files(&file_path, audio_file_type);
 
-        // println!("[play_audio] Audio files: {:?}", audio_files);
-
         let file_index = match audio_files.get(file_index) {
             Some(file_index) => file_index,
-            None => {
-                // println!("[play_audio] Invalid index: {}", file_index);
-                return false;
-            } // invalid index, return false
+            None => return Err(anyhow!("Invalid file index")),
         };
 
-        // println!("[play_audio] Selected file: {}", file_index.display());
+        let file = std::fs::File::open(file_index)?;
+        let decoder = rodio::Decoder::new(BufReader::new(file))?;
 
-        // Get a output stream handle to the default physical sound device
-        let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-        let sink = Sink::try_new(&stream_handle).unwrap();
-
-        // Loads the audio file into a file buffer
-        let file = match std::fs::File::open(file_index) {
-            Ok(file) => file,
-            Err(_) => {
-                // println!("[play_audio] Error opening file: {}", e);
-                return false;
-            } // error opening file, return false
-        };
-
-        // Decode that sound file into a source
-        let decoder = match rodio::Decoder::new(BufReader::new(file)) {
-            Ok(decoder) => decoder,
-            Err(_) => {
-                // println!("[play_audio] Error creating decoder: {}", e);
-                return false;
-            } // error creating decoder, return false
-        };
-
-        // Play the sound directly on the device
         sink.append(decoder);
-
-        // println!("[play_audio] Playing audio file: {}", file_index.display());
 
         sink.sleep_until_end();
 
-        return true;
+        Ok(AudioCommandResult {
+            success: true,
+            is_paused: sink.is_paused(),
+        })
+    }
+
+    /// Pauses the currently playing audio file
+    ///
+    /// Returns true if the audio file was paused successfully, false otherwise
+    pub async fn pause_audio(sink: Sink) -> Result<AudioCommandResult, Box<dyn Error>> {
+        sink.pause();
+
+        Ok(AudioCommandResult {
+            success: true,
+            is_paused: sink.is_paused(),
+        })
+    }
+
+    /// Resumes the currently paused audio file
+    ///
+    /// Returns true if the audio file was resumed successfully, false otherwise
+    pub async fn resume_audio(
+        sink: Sink,
+    ) -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
+        sink.play();
+
+        Ok(AudioCommandResult {
+            success: true,
+            is_paused: sink.is_paused(),
+        })
+    }
+
+    /// Stops the currently playing audio file and plays the next audio file in the queue
+    ///
+    /// Returns true if the audio file was stopped successfully, false otherwise
+    pub async fn skip_audio(sink: Sink) -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
+        sink.skip_one();
+
+        Ok(AudioCommandResult {
+            success: true,
+            is_paused: sink.is_paused(),
+        })
+    }
+
+    /// Empty's the audio queue and stops all music
+    ///
+    /// Returns true if the audio file was stopped successfully, false otherwise
+    pub async fn stop_audio(sink: Sink) -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
+        sink.stop();
+
+        Ok(AudioCommandResult {
+            success: true,
+            is_paused: sink.is_paused(),
+        })
+    }
+
+    /// Returns the number of audio files in the queue
+    pub async fn queue_size(sink: Sink) -> usize {
+        sink.len()
     }
 }

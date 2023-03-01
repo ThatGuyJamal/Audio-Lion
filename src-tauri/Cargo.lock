@@ -176,12 +176,14 @@ dependencies = [
 name = "audio_lion"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "rodio",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-single-instance",
+ "tokio",
 ]
 
 [[package]]

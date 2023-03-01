@@ -31,8 +31,11 @@ fn main() {
             commands::reset_app_config,
             commands::set_app_config,
             commands::get_audio_files,
+            commands::get_app_info,
             commands::play_audio_file,
-            commands::get_app_info
+            commands::pause_audio_file,
+            commands::resume_audio_file,
+            commands::stop_audio_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
