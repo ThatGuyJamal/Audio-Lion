@@ -4,7 +4,7 @@ use crate::{
     audio_player::{
         self,
         core::AudioCommands,
-        stream::{AudioCommandResult, AudioFileTypes},
+        stream::{AudioCommandResult, AudioFileTypes, PlayAudioParams},
     },
     helpers::configuration::{self},
 };
@@ -134,8 +134,8 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
 }
 
 #[tauri::command]
-pub async fn play_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
-    let result = audio_player::core::handle_audio(AudioCommands::Play, None)
+pub async fn play_audio_file(play_params: Option<PlayAudioParams>) -> Result<AudioCommandResult, AudioCommandResultError> {
+    let result = audio_player::core::handle_audio(AudioCommands::Play, play_params)
         .await
         .unwrap();
 

@@ -41,6 +41,7 @@ pub mod core {
         command: AudioCommands,
         play_params: Option<stream::PlayAudioParams>,
     ) -> Result<AudioCommandResult> {
+        // see https://docs.rs/tokio-util/latest/tokio_util/task/struct.LocalPoolHandle.html
         let pool = LocalPoolHandle::new(2);
 
         let output = pool
@@ -84,7 +85,7 @@ pub mod core {
             .await
             .unwrap();
 
-        output
+        return output
     }
 }
 
@@ -132,6 +133,7 @@ pub mod stream {
         pub is_paused: bool,
     }
 
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct PlayAudioParams {
         pub file_path: String,
         pub file_type: String,

@@ -99,17 +99,17 @@
 
 		if (fileExtension === "mp3") {
 			await playAudioFile({
-				file_path: filePath,
-				file_type: AudioFileType.MP3,
-				file_index: fileIndex,
+				filePath: filePath,
+				fileType: AudioFileType.MP3,
+				fileIndex: fileIndex,
 			});
 		}
 
 		if (fileExtension === "wav") {
 			await playAudioFile({
-				file_path: filePath,
-				file_type: AudioFileType.WAV,
-				file_index: fileIndex,
+				filePath: filePath,
+				fileType: AudioFileType.WAV,
+				fileIndex: fileIndex,
 			});
 		}
 	}
