@@ -109,7 +109,10 @@ export async function resumeAudioFile(): Promise<AudioCommandResult> {
 	return await invoke<AudioCommandResult>(TauriCommands.RESUME_AUDIO_FILE);
 }
 
-// TODO - Implement these
+export async function skipAudioFile(): Promise<AudioCommandResult> {
+	return await invoke<AudioCommandResult>(TauriCommands.SKIP_AUDIO_FILE);
+}
+
 export async function stopAudioFile(): Promise<AudioCommandResult> {
 	return await invoke<AudioCommandResult>(TauriCommands.STOP_AUDIO_FILE);
 }

@@ -153,6 +153,15 @@ pub async fn stop_audio_file() -> Result<AudioCommandResult, AudioCommandResultE
     Ok(result)
 }
 
+#[tauri::command]
+pub async fn skip_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
+    let result = audio_player::core::handle_audio(AudioCommands::Skip, None)
+        .await
+        .unwrap();
+
+    Ok(result)
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct AppInfo {
     os: String,

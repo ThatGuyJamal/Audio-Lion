@@ -31,6 +31,7 @@ pub mod core {
         Play,
         Pause,
         Resume,
+        Skip,
         Stop,
     }
 
@@ -54,7 +55,7 @@ pub mod core {
                 match command {
                     AudioCommands::Play => {
                         if let Some(params) = play_params {
-                            let result = stream::play_audio(params, &sink)
+                            let result = stream::play_audio(params, sink)
                                 .await
                                 .map_err(|e| anyhow!(e.to_string()))?;
                             Ok(result)
@@ -63,19 +64,25 @@ pub mod core {
                         }
                     }
                     AudioCommands::Pause => {
-                        let result = stream::pause_audio(&sink)
+                        let result = stream::pause_audio(sink)
                             .await
                             .map_err(|e| anyhow!(e.to_string()))?;
                         Ok(result)
                     }
                     AudioCommands::Resume => {
-                        let result = stream::resume_audio(&sink)
+                        let result = stream::resume_audio(sink)
                             .await
                             .map_err(|e| anyhow!(e.to_string()))?;
                         Ok(result)
                     }
                     AudioCommands::Stop => {
-                        let result = stream::stop_audio(&sink)
+                        let result = stream::stop_audio(sink)
+                            .await
+                            .map_err(|e| anyhow!(e.to_string()))?;
+                        Ok(result)
+                    }
+                    AudioCommands::Skip => {
+                        let result = stream::skip_audio(sink)
                             .await
                             .map_err(|e| anyhow!(e.to_string()))?;
                         Ok(result)
@@ -141,7 +148,7 @@ pub mod stream {
     }
 
     /// Plays an audio file
-    pub async fn play_audio(params: PlayAudioParams, sink: &Sink) -> Result<AudioCommandResult>
+    pub async fn play_audio(params: PlayAudioParams, sink: Sink) -> Result<AudioCommandResult>
     where
         PlayAudioParams: Send + Sync + 'static,
     {
@@ -168,7 +175,9 @@ pub mod stream {
 
         sink.append(decoder);
 
-        sink.sleep_until_end();
+        println!("playing audio");
+
+        // sink.sleep_until_end();
 
         Ok(AudioCommandResult {
             success: true,
@@ -179,8 +188,10 @@ pub mod stream {
     /// Pauses the currently playing audio file
     ///
     /// Returns true if the audio file was paused successfully, false otherwise
-    pub async fn pause_audio(sink: &Sink) -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
+    pub async fn pause_audio(sink: Sink) -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
         sink.pause();
+
+        println!("paused audio");
 
         Ok(AudioCommandResult {
             success: true,
@@ -192,9 +203,11 @@ pub mod stream {
     ///
     /// Returns true if the audio file was resumed successfully, false otherwise
     pub async fn resume_audio(
-        sink: &Sink,
+        sink: Sink,
     ) -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
         sink.play();
+
+        println!("resumed audio");
 
         Ok(AudioCommandResult {
             success: true,
@@ -205,8 +218,10 @@ pub mod stream {
     /// Stops the currently playing audio file and plays the next audio file in the queue
     ///
     /// Returns true if the audio file was stopped successfully, false otherwise
-    pub async fn skip_audio(sink: &Sink) -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
+    pub async fn skip_audio(sink: Sink) -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
         sink.skip_one();
+
+        println!("skipped audio");
 
         Ok(AudioCommandResult {
             success: true,
@@ -217,8 +232,10 @@ pub mod stream {
     /// Empty's the audio queue and stops all music
     ///
     /// Returns true if the audio file was stopped successfully, false otherwise
-    pub async fn stop_audio(sink: &Sink) -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
+    pub async fn stop_audio(sink: Sink) -> Result<AudioCommandResult, Box<dyn std::error::Error>> {
         sink.stop();
+
+        println!("stopped audio")
 
         Ok(AudioCommandResult {
             success: true,

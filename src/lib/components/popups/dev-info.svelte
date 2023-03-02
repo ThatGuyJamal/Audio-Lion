@@ -1,15 +1,18 @@
-<script>
+<script lang="ts">
 	import config from "$lib/config";
-	import { getCurrentPlatform } from "$lib/utils/format";
+ import type { ValidPlatforms } from "$lib/utils/format";
 	import { getAppInfo } from "$lib/utils/tauri";
 	import { onMount } from "svelte";
+	import DiWindows from 'svelte-icons/di/DiWindows.svelte'
+	import DiLinux from 'svelte-icons/di/DiLinux.svelte'
+	import DiApple from 'svelte-icons/di/DiApple.svelte'
 
-	let os = "Unknown";
+	let os = "unknown" as ValidPlatforms
 	let v = "0.0.0";
 
 	async function getSystemInfo() {
 		let info = await getAppInfo();
-		os = info.os;
+		os = info.os as ValidPlatforms;
 		v = info.version;
 	}
 
@@ -31,7 +34,7 @@
 				></pre>
 			<button class="main-page-buttons mb-2">
 				<a href={config.app.github_repo} target="_blank" rel="noreferrer">
-					{config.app.name} GitHub
+					GitHub
 				</a>
 			</button>
 
@@ -40,9 +43,20 @@
 					The developer
 				</a>
 			</button>
-			<p class="mt-2 subpixel-antialiased">
-				Build Version: {config.app.version_state}-{v}-{os}
-			</p>
+			<div class="flex justify-center">
+				<p class="mt-2 subpixel-antialiased">
+					Build Version: {config.app.version_state}-{v}-{os} 
+				</p>
+				{#if os === "windows"}
+					<svg class="h-8 w-8 mt-1"><DiWindows ></DiWindows></svg>
+				{/if}
+				{#if os === "linux"}
+					<svg class="h-8 w-8 mt-1"><DiLinux ></DiLinux></svg>
+				{/if}
+				{#if os === "mac"}
+					<svg class="h-8 w-8 mt-1"><DiApple ></DiApple></svg>
+				{/if}
+			</div>
 		</div>
 	</div>
 </div>

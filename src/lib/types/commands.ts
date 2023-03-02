@@ -8,6 +8,7 @@ export enum TauriCommands {
 	PAUSE_AUDIO_FILE = "pause_audio_file",
 	RESUME_AUDIO_FILE = "resume_audio_file",
 	STOP_AUDIO_FILE = "stop_audio_file",
+	SKIP_AUDIO_FILE = "skip_audio_file",
 	GET_APP_INFO = "get_app_info",
 }
 

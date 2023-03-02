@@ -98,11 +98,12 @@
 		let fileIndex = getIndexByName(path, audio_files_arr);
 
 		if (fileExtension === "mp3") {
-			await playAudioFile({
+			let d = await playAudioFile({
 				filePath: filePath,
 				fileType: AudioFileType.MP3,
 				fileIndex: fileIndex,
 			});
+			console.table(d)
 		}
 
 		if (fileExtension === "wav") {
@@ -125,7 +126,10 @@
 		{#if canDisplay}
 			{#if audio_files_arr}
 				{#each audio_files_arr as file}
-					<button class="btn btn-sm mb-5 text-teal-600" on:click={async () => await play(file)}>
+					<button
+						class="btn btn-sm mb-5 text-teal-600"
+						on:click={async () => await play(file)}
+					>
 						{extractFileName(file)}
 					</button>
 					<br />

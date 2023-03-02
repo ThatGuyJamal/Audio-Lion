@@ -93,14 +93,13 @@
 <DevInfo />
 
 <main>
-	<h1 class="text-4xl mb-6 underline decoration-double">App Configurations</h1>
 	{#await $ApplicationConfigurationState}
 		<p>fetching config file from system...</p>
 	{:then result}
 		{#if result === null}
 			<div>
 				It looks like the configuration file is missing or corrupted!
-				<div class="dropdown dropdown-end">
+				<div class="dropdown dropdown-end animate-pulse">
 					<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 					<!-- svelte-ignore a11y-label-has-associated-control -->
 					<label tabindex="0" class="btn btn-circle btn-ghost btn-xs text-info">

@@ -26,6 +26,7 @@ fn main() {
 
     let file = std::fs::File::open(selected_file).unwrap();
     let decoder = rodio::Decoder::new(BufReader::new(file)).unwrap();
+    
     sink.append(decoder);
 
     // Wait for the audio to finish playing or for the user to type "stop"
@@ -34,18 +35,27 @@ fn main() {
         let stdin = stdin();
 
         // Check if the user has typed "stop"
-        if stdin.read_line(&mut input).unwrap_or(0) > 0 && input.trim() == "stop" {
+        if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "stop" {
+            println!("Stopping");
             sink.stop();
+            println!("Stopped playing");
             break;
-        } else {
-            println!("Type 'stop' to stop the audio")
+        } else if stdin.read_line(&mut input).unwrap() > 0 && input.trim()  == "skip" {
+            println!("Skipping");
+            sink.skip_one();
+            println!("Skipped one song");
+            break;
+        } else if stdin.read_line(&mut input).unwrap() > 0 && input.trim()  == "pause" {
+            println!("Pausing");
+            sink.pause();
+            println!("Paused");
+            break;
+        } else if stdin.read_line(&mut input).unwrap() > 0 && input.trim()  == "resume" {
+            println!("Resuming");
+            sink.play();
+            println!("Resumed");
+            break;
         }
-
-        // Check if the audio has finished playing
-        if !sink.empty() {
-            continue;
-        }
-
         // If the audio has finished playing and the user has not typed "stop", the program ends
         break;
     }
