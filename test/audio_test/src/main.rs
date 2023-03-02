@@ -1,64 +1,103 @@
-use std::io::{stdin, BufReader};
+use std::{
+    io::{stdin, BufReader},
+    thread,
+};
 
 fn main() {
-    // Get a output stream handle to the default physical sound device
-    let (_stream, handle) = rodio::OutputStream::try_default().unwrap();
-    let sink = rodio::Sink::try_new(&handle).unwrap();
+    let handle = thread::spawn(|| {
+        // Get a output stream handle to the default physical sound device
+        let (_stream, handle) = rodio::OutputStream::try_default().unwrap();
+        let sink = rodio::Sink::try_new(&handle).unwrap();
 
-    // The path to the mp3 local files
-    let dir = "resources/mp3";
+        // The path to the mp3 local files
+        let dir = "resources/mp3";
 
-    // Get a list of all the mp3 files in the directory
-    let audio_files = get_audio_files(&dir, AudioFileTypes::MP3);
+        // Get a list of all the mp3 files in the directory
+        let audio_files = get_audio_files(&dir, AudioFileTypes::MP3);
 
-    // Display the mp3 files to the user
-    println!("Audio files in {}: ", dir);
-    for (i, mp3_file) in audio_files.iter().enumerate() {
-        println!("{}: {}", i + 1, mp3_file.display());
-    }
+        // Display the mp3 files to the user
+        println!("Audio files in {}: ", dir);
+        for (i, mp3_file) in audio_files.iter().enumerate() {
+            println!("{}: {}", i + 1, mp3_file.display());
+        }
 
-    // Prompt the user to select a file
-    let file_index = get_file_selection(audio_files.len());
+        // Prompt the user to select a file
+        let file_index = get_file_selection(audio_files.len());
 
-    // Log the file selection to the console
-    let selected_file = &audio_files[file_index];
-    println!("Selected file: {}", selected_file.display());
+        // Log the file selection to the console
+        let selected_file = &audio_files[file_index];
+        println!("Selected file: {}", selected_file.display());
 
-    let file = std::fs::File::open(selected_file).unwrap();
-    let decoder = rodio::Decoder::new(BufReader::new(file)).unwrap();
-    
-    sink.append(decoder);
+        let file = std::fs::File::open(selected_file).unwrap();
+        let decoder = rodio::Decoder::new(BufReader::new(file)).unwrap();
 
-    // Wait for the audio to finish playing or for the user to type "stop"
-    loop {
+        println!("Audio in sink: {:?}", sink.len());
+        sink.append(decoder);
+        println!("Audio in sink: {:?}", sink.len());
+
         let mut input = String::new();
         let stdin = stdin();
-
+        // Wait for the audio to finish playing or for the user to type "stop"
         // Check if the user has typed "stop"
-        if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "stop" {
-            println!("Stopping");
-            sink.stop();
-            println!("Stopped playing");
-            break;
-        } else if stdin.read_line(&mut input).unwrap() > 0 && input.trim()  == "skip" {
-            println!("Skipping");
-            sink.skip_one();
-            println!("Skipped one song");
-            break;
-        } else if stdin.read_line(&mut input).unwrap() > 0 && input.trim()  == "pause" {
-            println!("Pausing");
-            sink.pause();
-            println!("Paused");
-            break;
-        } else if stdin.read_line(&mut input).unwrap() > 0 && input.trim()  == "resume" {
-            println!("Resuming");
-            sink.play();
-            println!("Resumed");
-            break;
+        loop {
+            if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "stop" {
+                println!("Stopping");
+                println!("Audio in sink: {:?}", sink.len());
+                sink.stop();
+                println!("Stopped playing");
+                println!("Audio in sink: {:?}", sink.len());
+            }
+
+            if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "skip" {
+                println!("Skipping");
+                println!("Audio in sink: {:?}", sink.len());
+                if sink.len() > 0 {
+                    println!("Skipping");
+                    sink.skip_one();
+                    println!("Skipped");
+                } else {
+                    println!("No more songs to skip");
+                    println!("Audio in sink: {:?}", sink.len());
+                }
+            }
+
+            if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "pause" {
+                println!("Pausing");
+                println!("Audio in sink: {:?}", sink.len());
+                if sink.is_paused() {
+                    println!("Already paused");
+                } else {
+                    sink.pause();
+                    println!("Paused");
+                    println!("Audio in sink: {:?}", sink.len());
+                }
+            }
+
+            if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "resume" {
+                println!("Resuming");
+                println!("Audio in sink: {:?}", sink.len());
+                if sink.is_paused() {
+                    sink.play();
+                    println!("Resumed");
+                } else {
+                    println!("Not paused");
+                    println!("Audio in sink: {:?}", sink.len());
+                }
+            }
+
+            if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "add" {
+                println!("Adding");
+                println!("Audio in sink{:?}", sink.len());
+                let file = std::fs::File::open(selected_file).unwrap();
+                let decoder = rodio::Decoder::new(BufReader::new(file)).unwrap();
+                sink.append(decoder);
+                println!("Added");
+                println!("Audio in sink: {:?}", sink.len());
+            }
         }
-        // If the audio has finished playing and the user has not typed "stop", the program ends
-        break;
-    }
+    });
+
+    handle.join().unwrap();
 }
 
 #[derive(PartialEq, Debug)]
@@ -109,7 +148,7 @@ pub fn get_audio_files(dir: &str, file_type: AudioFileTypes) -> Vec<std::path::P
         }
     }
 
-    return audio_files
+    return audio_files;
 }
 
 fn get_file_selection(num_files: usize) -> usize {
