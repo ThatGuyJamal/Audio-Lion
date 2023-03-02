@@ -1,7 +1,12 @@
 #![allow(dead_code)]
 
 use crate::{
-    helpers::{configuration::{self}, self, player::AudioFileTypes},
+    helpers::{
+        self,
+        configuration::{self},
+        player::AudioFileTypes,
+    },
+    manager::{handle_audio_command, AudioCommandResult, AudioCommands}
 };
 use serde::{Deserialize, Serialize};
 
@@ -113,8 +118,18 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
 }
 
 #[tauri::command]
-pub async fn handle_audio_input() {
-    
+pub async fn handle_audio_input(
+    command: AudioCommands,
+    player_path: Option<String>,
+) -> Result<AudioCommandResult, AudioCommandResultError> {
+    // println!("Command: {:?}", command);
+    // println!("Player Path: {:?}", player_path);
+
+    let result = handle_audio_command(command, player_path).await.unwrap();
+
+    println!("Result: {:?}", result);
+
+    Ok(result)
 }
 
 #[derive(Serialize, Deserialize)]

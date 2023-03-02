@@ -71,9 +71,20 @@ export async function getAudioFiles(
 
 export type PlayAudioParams = {
 	filePath: String;
-	fileType: String;
-	fileIndex: number;
 };
+
+export enum AudioCommands {
+	PLAY = "Play",
+	PAUSE = "Pause",
+	RESUME = "Resume",
+	SKIP = "Skip",
+	STOP = "Stop",
+}
+
+export interface InputParams {
+	command: AudioCommands;
+	player_path?: string;
+}
 
 export type AudioCommandResult = {
 	success: boolean;
@@ -83,38 +94,13 @@ export type AudioCommandResult = {
 /**
  * @returns {AudioCommandResult} The result of the command
  */
-export async function playAudioFile({
-	filePath,
-	fileType,
-	fileIndex,
-}: PlayAudioParams): Promise<AudioCommandResult> {
-	let params = {
-		file_path: filePath,
-		file_type: fileType,
-		file_index: fileIndex,
-	};
-
-	return await invoke<AudioCommandResult>(TauriCommands.PLAY_AUDIO_FILE, {
-		playParams: params,
+export async function handle_audio_input(
+	params: InputParams
+): Promise<AudioCommandResult> {
+	return await invoke<AudioCommandResult>(TauriCommands.HANDLE_AUDIO_INPUT, {
+		command: params.command,
+		playerPath: params.player_path,
 	})
-}
-
-// TODO - Implement these
-export async function pauseAudioFile(): Promise<AudioCommandResult> {
-	return await invoke<AudioCommandResult>(TauriCommands.PAUSE_AUDIO_FILE);
-}
-
-// TODO - Implement these
-export async function resumeAudioFile(): Promise<AudioCommandResult> {
-	return await invoke<AudioCommandResult>(TauriCommands.RESUME_AUDIO_FILE);
-}
-
-export async function skipAudioFile(): Promise<AudioCommandResult> {
-	return await invoke<AudioCommandResult>(TauriCommands.SKIP_AUDIO_FILE);
-}
-
-export async function stopAudioFile(): Promise<AudioCommandResult> {
-	return await invoke<AudioCommandResult>(TauriCommands.STOP_AUDIO_FILE);
 }
 
 /**

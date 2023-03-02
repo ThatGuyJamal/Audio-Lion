@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-	import { getAudioFiles, loadAppConfig, playAudioFile } from "$lib/utils/tauri";
+	import { AudioCommands, getAudioFiles, handle_audio_input, loadAppConfig, type InputParams } from "$lib/utils/tauri";
 	import { AudioFileType, type AppConfig } from "$lib/types/AppConfig";
 	import {
 		extractFileName,
@@ -66,7 +66,7 @@
 			if (shouldLoadMp3 === "yes") {
 				const mp3Files = await getAudioFiles(AudioFileType.MP3);
 
-				// console.log("MP3", mp3Files);
+				console.log("MP3", mp3Files);
 
 				for (let i = 0; i < mp3Files.length; i++) {
 					audio_files_arr.push(mp3Files[i]);
@@ -92,27 +92,12 @@
 	}
 
 	async function play(path: string) {
-		// let fileName = extractFileName(path);
-		let fileExtension = getFileExtension(path);
-		let filePath = getDirectoryPath(path, getCurrentPlatform());
-		let fileIndex = getIndexByName(path, audio_files_arr);
-
-		if (fileExtension === "mp3") {
-			let d = await playAudioFile({
-				filePath: filePath,
-				fileType: AudioFileType.MP3,
-				fileIndex: fileIndex,
-			});
-			console.table(d)
+		let params: InputParams = {
+			command: AudioCommands.PLAY,
+			player_path: path
 		}
 
-		if (fileExtension === "wav") {
-			await playAudioFile({
-				filePath: filePath,
-				fileType: AudioFileType.WAV,
-				fileIndex: fileIndex,
-			});
-		}
+		await handle_audio_input(params)
 	}
 </script>
 

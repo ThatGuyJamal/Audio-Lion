@@ -1,0 +1,56 @@
+#![allow(dead_code)]
+
+use std::error::Error;
+use std::ffi::OsStr;
+use std::fs::File;
+use std::path::Path;
+
+use symphonia::core::formats::{FormatOptions, FormatReader};
+use symphonia::core::io::MediaSourceStream;
+use symphonia::core::meta::MetadataOptions;
+use symphonia::core::probe::Hint;
+
+use super::from_path_to_name_without_ext;
+
+/// The basics where everything is built upon
+pub struct MusicTrack {
+    file: File,
+    name: String,
+    ext: String,
+}
+
+impl MusicTrack {
+    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, Box<dyn Error>>
+    where
+        P: AsRef<OsStr>,
+    {
+        let path = Path::new(&path);
+        let file = File::open(path)?;
+        Ok(MusicTrack {
+            file,
+            name: from_path_to_name_without_ext(path),
+            ext: path.extension().unwrap().to_str().unwrap().to_string(),
+        })
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Returns the `FormatReader` provided by Symphonia
+    pub fn get_format(&self) -> Box<dyn FormatReader> {
+        let file = self.file.try_clone().expect("Can't copy file");
+        let media_stream = MediaSourceStream::new(Box::new(file), std::default::Default::default());
+        let mut hint = Hint::new();
+        hint.with_extension(self.ext.as_ref());
+        let meta_ops = MetadataOptions::default();
+        let fmt_ops = FormatOptions {
+            enable_gapless: true,
+            ..Default::default()
+        };
+        let probed = symphonia::default::get_probe()
+            .format(&hint, media_stream, &fmt_ops, &meta_ops)
+            .expect("Format not supported");
+        probed.format
+    }
+}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getAppConfig, skipAudioFile, stopAudioFile } from "$lib/utils/tauri";
+	import { getAppConfig } from "$lib/utils/tauri";
   
 	import FaArrowUp from "svelte-icons/fa/FaArrowUp.svelte";
 
@@ -23,8 +23,6 @@
 	}
 
   const skip = async () => {
-    let d = await skipAudioFile();
-	console.table(d)
     console.log("skip")
   }
 </script>
