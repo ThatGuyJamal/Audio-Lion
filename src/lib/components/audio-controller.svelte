@@ -23,7 +23,7 @@
 	}
 
   const skip = async () => {
-    let d = await stopAudioFile();
+    let d = await skipAudioFile();
 	console.table(d)
     console.log("skip")
   }
