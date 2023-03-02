@@ -6,7 +6,7 @@
 use serde::Serialize;
 use tauri::Manager;
 
-mod audio_player;
+mod manager;
 mod commands;
 mod helpers;
 
@@ -19,7 +19,7 @@ struct Payload {
 fn main() {
  tauri::Builder::default()
         .setup(|app| {
-            audio_player::core::init(app);
+            manager::init(app);
             Ok(())
         })
          .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
@@ -32,11 +32,7 @@ fn main() {
             commands::set_app_config,
             commands::get_audio_files,
             commands::get_app_info,
-            commands::play_audio_file,
-            commands::pause_audio_file,
-            commands::resume_audio_file,
-            commands::skip_audio_file,
-            commands::stop_audio_file,
+            commands::handle_audio_input,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

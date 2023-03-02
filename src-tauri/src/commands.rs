@@ -1,12 +1,7 @@
 #![allow(dead_code)]
 
 use crate::{
-    audio_player::{
-        self,
-        core::AudioCommands,
-        stream::{AudioCommandResult, AudioFileTypes, PlayAudioParams},
-    },
-    helpers::configuration::{self},
+    helpers::{configuration::{self}, self, player::AudioFileTypes},
 };
 use serde::{Deserialize, Serialize};
 
@@ -92,7 +87,7 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
     }
 
     if config.audio_file_types_allowed.len() == 1 {
-        let files = audio_player::stream::get_audio_files(
+        let files = helpers::player::get_audio_files(
             &config.audio_directories[0],
             AudioFileTypes::from_extension(&audio_file_type).unwrap(),
         );
@@ -105,7 +100,7 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
     }
 
     for directory in config.audio_directories {
-        let files = audio_player::stream::get_audio_files(
+        let files = helpers::player::get_audio_files(
             &directory,
             AudioFileTypes::from_extension(&audio_file_type).unwrap(),
         );
@@ -118,48 +113,8 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
 }
 
 #[tauri::command]
-pub async fn play_audio_file(play_params: Option<PlayAudioParams>) -> Result<AudioCommandResult, AudioCommandResultError> {
-    let result = audio_player::core::handle_audio(AudioCommands::Play, play_params)
-        .await
-        .unwrap();
-
-    Ok(result)
-}
-
-#[tauri::command]
-pub async fn pause_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
-    let result = audio_player::core::handle_audio(AudioCommands::Pause, None)
-        .await
-        .unwrap();
-
-    Ok(result)
-}
-
-#[tauri::command]
-pub async fn resume_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
-    let result = audio_player::core::handle_audio(AudioCommands::Resume, None)
-        .await
-        .unwrap();
-
-    Ok(result)
-}
-
-#[tauri::command]
-pub async fn stop_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
-    let result = audio_player::core::handle_audio(AudioCommands::Stop, None)
-        .await
-        .unwrap();
-
-    Ok(result)
-}
-
-#[tauri::command]
-pub async fn skip_audio_file() -> Result<AudioCommandResult, AudioCommandResultError> {
-    let result = audio_player::core::handle_audio(AudioCommands::Skip, None)
-        .await
-        .unwrap();
-
-    Ok(result)
+pub async fn handle_audio_input() {
+    
 }
 
 #[derive(Serialize, Deserialize)]
