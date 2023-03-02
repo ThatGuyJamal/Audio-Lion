@@ -1,170 +1,202 @@
-use std::{
-    io::{stdin, BufReader},
-    thread,
-};
+use std::sync::{Arc, Mutex};
+
+use nconsole::{Command, CommandsRegister, Console, LogTypes};
+
+use n_audio::player::Player;
+
+struct PlayCommand {
+    player: Arc<Mutex<Player>>,
+}
+
+impl PlayCommand {
+    fn new(player: Arc<Mutex<Player>>) -> Self {
+        PlayCommand { player }
+    }
+}
+
+impl Command for PlayCommand {
+    fn get_command_name(&self) -> &str {
+        "play"
+    }
+
+    fn get_command_alias(&self) -> Vec<&str> {
+        vec!["p"]
+    }
+
+    fn get_help(&self) -> &str {
+        "Play a specific music file.\nUsage: play file.mp3"
+    }
+
+    fn on_command(&mut self, args: Vec<&str>) {
+        if args.len() == 1 {
+            let mut player = self.player.lock().unwrap();
+            if !player.has_ended() {
+                player.end_current().unwrap();
+            }
+
+            Console::log(LogTypes::INFO, String::from("Playing song"));
+            let i = args[0]
+            player.play(i, true)
+        }
+    }
+}
+
+struct StopCommand {
+    player: Arc<Mutex<Player>>,
+}
+
+impl StopCommand {
+    fn new(player: Arc<Mutex<Player>>) -> Self {
+        StopCommand { player }
+    }
+}
+
+impl Command for StopCommand {
+    fn get_command_name(&self) -> &str {
+        "stop"
+    }
+
+    fn get_command_alias(&self) -> Vec<&str> {
+        vec!["s"]
+    }
+
+    fn get_help(&self) -> &str {
+        "Toggle pause the music.\nUsage: stop"
+    }
+
+    fn on_command(&mut self, _args: Vec<&str>) {
+        let mut player = self.player.lock().unwrap();
+
+        Console::log(LogTypes::INFO, String::from("Toggling pause"));
+
+        if player.is_paused() {
+            player.unpause().unwrap();
+        } else {
+            player.pause().unwrap();
+        }
+    }
+}
+
+struct VolumeCommand {
+    player: Arc<Mutex<Player>>,
+}
+
+impl VolumeCommand {
+    fn new(player: Arc<Mutex<Player>>) -> Self {
+        VolumeCommand { player }
+    }
+}
+
+impl Command for VolumeCommand {
+    fn get_command_name(&self) -> &str {
+        "volume"
+    }
+
+    fn get_command_alias(&self) -> Vec<&str> {
+        vec!["v"]
+    }
+
+    fn get_help(&self) -> &str {
+        "Sets the volume (min: 0.0, max: 1.0).\nUsage: volume 0.5"
+    }
+
+    fn on_command(&mut self, args: Vec<&str>) {
+        if args.len() == 1 {
+            let mut player = self.player.lock().unwrap();
+            let mut volume = args[0].parse::<f32>().unwrap();
+            volume = volume.min(1.0);
+            volume = volume.max(0.0);
+
+            Console::log(LogTypes::INFO, String::from("Setting volume"));
+
+            player.set_volume(volume).unwrap();
+        }
+    }
+}
+
+struct SeekToCommand {
+    player: Arc<Mutex<Player>>,
+}
+
+impl SeekToCommand {
+    fn new(player: Arc<Mutex<Player>>) -> Self {
+        SeekToCommand { player }
+    }
+}
+
+impl Command for SeekToCommand {
+    fn get_command_name(&self) -> &str {
+        "seekto"
+    }
+
+    fn get_command_alias(&self) -> Vec<&str> {
+        vec!["seek", "sk", "skt"]
+    }
+
+    fn get_help(&self) -> &str {
+        "Seeks to the second specified.\nUsage: seek 10"
+    }
+
+    fn on_command(&mut self, args: Vec<&str>) {
+        if args.len() == 1 {
+            let player = self.player.lock().unwrap();
+            let seekto = args[0].parse::<u64>().unwrap();
+
+            Console::log(LogTypes::INFO, String::from("Seeking to"));
+
+            player.seek_to(seekto, 0.0).unwrap();
+        }
+    }
+}
+
+struct PlaybackSpeedCommand {
+    player: Arc<Mutex<Player>>,
+}
+
+impl PlaybackSpeedCommand {
+    fn new(player: Arc<Mutex<Player>>) -> Self {
+        PlaybackSpeedCommand { player }
+    }
+}
+
+impl Command for PlaybackSpeedCommand {
+    fn get_command_name(&self) -> &str {
+        "speed"
+    }
+
+    fn get_command_alias(&self) -> Vec<&str> {
+        vec!["sp"]
+    }
+
+    fn get_help(&self) -> &str {
+        "Sets the playback speed.\nUsage: speed 2.0"
+    }
+
+    fn on_command(&mut self, args: Vec<&str>) {
+        if args.len() == 1 {
+            let mut player = self.player.lock().unwrap();
+            let speed = args[0].parse::<f32>().unwrap();
+
+            Console::log(LogTypes::INFO, String::from("Setting playback speed"));
+        }
+    }
+}
 
 fn main() {
-    let handle = thread::spawn(|| {
-        // Get a output stream handle to the default physical sound device
-        let (_stream, handle) = rodio::OutputStream::try_default().unwrap();
-        let sink = rodio::Sink::try_new(&handle).unwrap();
+    let player = Arc::new(Mutex::new(Player::new(
+        String::from("N Cli Player"),
+    )));
+    let mut commands_register = CommandsRegister::new();
 
-        // The path to the mp3 local files
-        let dir = "resources/mp3";
+    commands_register.register_command(PlayCommand::new(player.clone()));
+    commands_register.register_command(StopCommand::new(player.clone()));
+    commands_register.register_command(SeekToCommand::new(player.clone()));
+    commands_register.register_command(VolumeCommand::new(player.clone()));
+    commands_register.register_command(PlaybackSpeedCommand::new(player.clone()));
 
-        // Get a list of all the mp3 files in the directory
-        let audio_files = get_audio_files(&dir, AudioFileTypes::MP3);
+    let mut console = Console::new(String::from(">>> "), commands_register);
 
-        // Display the mp3 files to the user
-        println!("Audio files in {}: ", dir);
-        for (i, mp3_file) in audio_files.iter().enumerate() {
-            println!("{}: {}", i + 1, mp3_file.display());
-        }
-
-        // Prompt the user to select a file
-        let file_index = get_file_selection(audio_files.len());
-
-        // Log the file selection to the console
-        let selected_file = &audio_files[file_index];
-        println!("Selected file: {}", selected_file.display());
-
-        let file = std::fs::File::open(selected_file).unwrap();
-        let decoder = rodio::Decoder::new(BufReader::new(file)).unwrap();
-
-        println!("Audio in sink: {:?}", sink.len());
-        sink.append(decoder);
-        println!("Audio in sink: {:?}", sink.len());
-
-        let mut input = String::new();
-        let stdin = stdin();
-        // Wait for the audio to finish playing or for the user to type "stop"
-        // Check if the user has typed "stop"
-        loop {
-            if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "stop" {
-                println!("Stopping");
-                println!("Audio in sink: {:?}", sink.len());
-                sink.stop();
-                println!("Stopped playing");
-                println!("Audio in sink: {:?}", sink.len());
-            }
-
-            if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "skip" {
-                println!("Skipping");
-                println!("Audio in sink: {:?}", sink.len());
-                if sink.len() > 0 {
-                    println!("Skipping");
-                    sink.skip_one();
-                    println!("Skipped");
-                } else {
-                    println!("No more songs to skip");
-                    println!("Audio in sink: {:?}", sink.len());
-                }
-            }
-
-            if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "pause" {
-                println!("Pausing");
-                println!("Audio in sink: {:?}", sink.len());
-                if sink.is_paused() {
-                    println!("Already paused");
-                } else {
-                    sink.pause();
-                    println!("Paused");
-                    println!("Audio in sink: {:?}", sink.len());
-                }
-            }
-
-            if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "resume" {
-                println!("Resuming");
-                println!("Audio in sink: {:?}", sink.len());
-                if sink.is_paused() {
-                    sink.play();
-                    println!("Resumed");
-                } else {
-                    println!("Not paused");
-                    println!("Audio in sink: {:?}", sink.len());
-                }
-            }
-
-            if stdin.read_line(&mut input).unwrap() > 0 && input.trim() == "add" {
-                println!("Adding");
-                println!("Audio in sink{:?}", sink.len());
-                let file = std::fs::File::open(selected_file).unwrap();
-                let decoder = rodio::Decoder::new(BufReader::new(file)).unwrap();
-                sink.append(decoder);
-                println!("Added");
-                println!("Audio in sink: {:?}", sink.len());
-            }
-        }
-    });
-
-    handle.join().unwrap();
-}
-
-#[derive(PartialEq, Debug)]
-pub enum AudioFileTypes {
-    MP3,
-    WAV,
-}
-
-impl AudioFileTypes {
-    /// Returns an `AudioFileTypes` object from a file extension
-    fn from_extension(extension: &str) -> Option<Self> {
-        match extension.to_lowercase().as_str() {
-            "mp3" => Some(Self::MP3),
-            "wav" => Some(Self::WAV),
-            _ => None,
-        }
-    }
-}
-
-/// Returns a vector of `PathBuf` objects for all audio files in the given directory
-pub fn get_audio_files(dir: &str, file_type: AudioFileTypes) -> Vec<std::path::PathBuf> {
-    let mut audio_files = vec![];
-
-    if let Ok(entries) = std::fs::read_dir(dir) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-                // Check if the path is a file
-                if let Some(extension) = path.extension() {
-                    // Check if the file type is the same as the file type we're looking for
-                    if let Some(file_type_from_ext) =
-                        AudioFileTypes::from_extension(&extension.to_string_lossy())
-                    {
-                        // If the file type is the same as the file type we're looking for, add it to the vector
-                        if file_type_from_ext == file_type {
-                            audio_files.push(path.to_path_buf());
-                            println!("Added file: {}", path.display());
-                        } else {
-                            continue;
-                        }
-                    }
-                } else {
-                    continue;
-                }
-            } else {
-                continue;
-            }
-        }
-    }
-
-    return audio_files;
-}
-
-fn get_file_selection(num_files: usize) -> usize {
     loop {
-        println!("Select a file (1-{}):", num_files);
-        let mut input = String::new();
-        std::io::stdin()
-            .read_line(&mut input)
-            .expect("Failed to read input");
-
-        match input.trim().parse::<usize>() {
-            Ok(num) if num >= 1 && num <= num_files => return num - 1,
-            _ => println!(
-                "Invalid input. Please enter a number between 1 and {}",
-                num_files
-            ),
-        }
+        console.update();
     }
 }
