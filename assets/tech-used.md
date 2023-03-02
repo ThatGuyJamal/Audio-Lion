@@ -24,3 +24,4 @@ All the current technologies used to make Audio Lion are listed below. This list
 
 # Audio API
 - [Rodio](https://github.com/RustAudio/rodio)
+- [Audio-Visualizer](https://github.com/phip1611/audio-visualizer)
