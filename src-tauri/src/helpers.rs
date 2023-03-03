@@ -165,20 +165,6 @@ pub mod configuration {
             }
         };
 
-        // let device = match host.default_output_device() {
-        //     Some(device) => {
-        //         println!(
-        //             "Using default audio output device: {}",
-        //             device.name().unwrap()
-        //         );
-        //         device
-        //     }
-        //     _ => {
-        //         eprintln!("Failed to get default audio output device");
-        //         return Err(AudioOutputError::OpenStreamError);
-        //     }
-        // };
-
         // Get the default stream configuration for the device.
         let config = device
             .default_output_config()
