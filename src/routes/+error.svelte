@@ -1,5 +1,9 @@
 <script>
-  import { page } from '$app/stores';
+	import { page } from "$app/stores";
 </script>
 
-<h1 class="text-xl text-red-600">{$page.error?.message}</h1>
+<div class="text-center">
+	<h1 class="tracking-widest text-gray-500 uppercase">
+		404 | {$page.error?.message}
+	</h1>
+</div>

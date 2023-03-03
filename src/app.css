@@ -31,6 +31,7 @@
 .container {
 	margin: 0;
 	padding-top: 10vh;
+	padding-bottom: 10vh;
 	display: flex;
 	/* flex-direction: column; */
 	justify-content: center;
@@ -57,7 +58,7 @@
 }
 
 h1 {
-	@apply text-indigo-500
+	@apply text-indigo-400
 }
 
 a {

@@ -4,11 +4,13 @@
 )]
 
 use serde::Serialize;
-use tauri::Manager;
+use tauri::{Manager, App};
 
-mod audio_player;
+mod manager;
 mod commands;
 mod helpers;
+
+mod audio;
 
 #[derive(Clone, Serialize)]
 struct Payload {
@@ -19,7 +21,7 @@ struct Payload {
 fn main() {
  tauri::Builder::default()
         .setup(|app| {
-            audio_player::core::init(app);
+            init(app);
             Ok(())
         })
          .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
@@ -31,9 +33,19 @@ fn main() {
             commands::reset_app_config,
             commands::set_app_config,
             commands::get_audio_files,
-            commands::play_audio_file,
-            commands::get_app_info
+            commands::get_app_info,
+            commands::handle_audio_input,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+
+pub fn init(app: &mut App) {
+    match helpers::configuration::read_config_file(app.handle()) {
+        Ok(_config) => {}
+        Err(error) => {
+            println!("Error: {}", error);
+        }
+    }
 }

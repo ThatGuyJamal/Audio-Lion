@@ -4,12 +4,14 @@
 	import { loadAppConfig, resetAppConfig, setAppConfig } from "$lib/utils/tauri";
 	import config from "$lib/config";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
-	import { ApplicationConfigurationState } from "$lib/store/AppConfig";
+	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
 	// import { getCurrentPlatform, isValidDirectory } from "$lib/utils/format";
 
 	// load the current app config when the component is mounted
 	onMount(async () => {
 		const load = await loadAppConfig();
+
+		// console.table(load);
 
 		if (load) {
 			ApplicationConfigurationState.set(load);
@@ -19,11 +21,10 @@
 		await tick();
 	});
 
-	// reset the app config to the default values
 	const runReset = async () => {
 		let result = await resetAppConfig();
 
-		console.table(result);
+		// console.table(result);
 
 		if (result) {
 			ApplicationConfigurationState.set(result);
@@ -52,6 +53,10 @@
 
 		if (!currentData) {
 			throw new Error("No config data found");
+		}
+
+		if(!currentData.audio_device_name) {
+			currentData.audio_device_name = config.audio_device_name;
 		}
 
 		// let checkDir = isValidDirectory(dirPath, getCurrentPlatform());
@@ -93,14 +98,13 @@
 <DevInfo />
 
 <main>
-	<h1 class="text-4xl mb-6 underline decoration-double">App Configurations</h1>
 	{#await $ApplicationConfigurationState}
 		<p>fetching config file from system...</p>
 	{:then result}
 		{#if result === null}
 			<div>
 				It looks like the configuration file is missing or corrupted!
-				<div class="dropdown dropdown-end">
+				<div class="dropdown dropdown-end animate-pulse">
 					<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 					<!-- svelte-ignore a11y-label-has-associated-control -->
 					<label tabindex="0" class="btn btn-circle btn-ghost btn-xs text-info">

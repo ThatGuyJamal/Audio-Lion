@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-	import { getAudioFiles, loadAppConfig, playAudioFile } from "$lib/utils/tauri";
+	import { AudioCommands, getAudioFiles, handle_audio_input, loadAppConfig, type InputParams } from "$lib/utils/tauri";
 	import { AudioFileType, type AppConfig } from "$lib/types/AppConfig";
 	import {
 		extractFileName,
@@ -10,7 +10,7 @@
 		getIndexByName,
 	} from "$lib/utils/format";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
-	import { ApplicationConfigurationState } from "$lib/store/AppConfig";
+	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
 
 	// the array of audio files to display to the user
 	let audio_files_arr: string[] = [];
@@ -92,26 +92,12 @@
 	}
 
 	async function play(path: string) {
-		// let fileName = extractFileName(path);
-		let fileExtension = getFileExtension(path);
-		let filePath = getDirectoryPath(path, getCurrentPlatform());
-		let fileIndex = getIndexByName(path, audio_files_arr);
-
-		if (fileExtension === "mp3") {
-			await playAudioFile({
-				file_path: filePath,
-				file_type: AudioFileType.MP3,
-				file_index: fileIndex,
-			});
+		let params: InputParams = {
+			command: AudioCommands.PLAY,
+			player_path: path
 		}
 
-		if (fileExtension === "wav") {
-			await playAudioFile({
-				file_path: filePath,
-				file_type: AudioFileType.WAV,
-				file_index: fileIndex,
-			});
-		}
+		await handle_audio_input(params)
 	}
 </script>
 
@@ -125,7 +111,10 @@
 		{#if canDisplay}
 			{#if audio_files_arr}
 				{#each audio_files_arr as file}
-					<button class="btn btn-sm mb-5 text-teal-600" on:click={async () => await play(file)}>
+					<button
+						class="btn btn-sm mb-5 text-teal-600"
+						on:click={async () => await play(file)}
+					>
 						{extractFileName(file)}
 					</button>
 					<br />

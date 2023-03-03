@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import { TauriCommands, type AppInfo } from "$lib/types/commands";
 import type { AppConfig, AudioFileType } from "$lib/types/AppConfig";
-import { getDirectoryPath } from "./format";
+import config from "$lib/config";
 
 /**
  * Loads the current app config. If non is found, it will create a new one
@@ -10,9 +10,7 @@ import { getDirectoryPath } from "./format";
 export async function loadAppConfig(): Promise<AppConfig | null> {
 	// Get the data from the backend
 	// This should not be null, but in case of errors making the file, it will be null
-	const result = await invoke<AppConfig | null>(TauriCommands.VIEW_APP_CONFIG);
-	// update the store with the new app config data
-	return result;
+	return await invoke<AppConfig | null>(TauriCommands.VIEW_APP_CONFIG);
 }
 
 /**
@@ -28,10 +26,7 @@ export async function getAppConfig(): Promise<AppConfig | null> {
  * @returns
  */
 export async function resetAppConfig(): Promise<AppConfig> {
-	const result = await invoke<boolean>(TauriCommands.RESET_APP_CONFIG);
-	// After the reset, reload the the app config
-	const data = (await loadAppConfig()) as AppConfig;
-	return data;
+	return await invoke<AppConfig>(TauriCommands.RESET_APP_CONFIG);
 }
 
 /**
@@ -45,6 +40,7 @@ export async function setAppConfig(
 	await invoke<boolean>(TauriCommands.SET_APP_CONFIG, {
 		audioDirectories: newAppConfig.audio_directories ?? [],
 		audioFileTypesAllowed: newAppConfig.audio_file_types_allowed ?? [],
+		audioDeviceName: newAppConfig.audio_device_name, 
 	});
 	const data = await loadAppConfig();
 	return data!;
@@ -70,49 +66,37 @@ export async function getAudioFiles(
 	return result;
 }
 
-type PlayAudioFile = {
-	file_path: string;
-	file_type: AudioFileType;
-	/** The index of the file. This is used as a ref when the backend searches for the file later. */
-	file_index: number;
+export type PlayAudioParams = {
+	filePath: String;
+};
+
+export enum AudioCommands {
+	PLAY = "Play",
+	PAUSE = "Pause",
+	RESUME = "Resume",
+	SKIP = "Skip",
+	STOP = "Stop",
+}
+
+export interface InputParams {
+	command: AudioCommands;
+	player_path?: string;
+}
+
+export type AudioCommandResult = {
+	success: boolean;
+	is_paused: boolean;
 };
 
 /**
- * Sends a command to the backend to play an audio file
- * @returns
+ * @returns {AudioCommandResult} The result of the command
  */
-export async function playAudioFile({
-	file_path,
-	file_type,
-	file_index,
-}: PlayAudioFile): Promise<boolean> {
-	return await invoke<boolean>(TauriCommands.PLAY_AUDIO_FILE, {
-		filePath: file_path,
-		fileType: file_type,
-		fileIndex: file_index,
-	}).catch(() => {
-		return false;
-	});
-}
-
-// TODO - Implement these
-export async function pauseAudioFile(): Promise<boolean> {
-	return await invoke<boolean>(TauriCommands.PAUSE_AUDIO_FILE).catch(() => {
-		return false;
-	});
-}
-
-// TODO - Implement these
-export async function resumeAudioFile(): Promise<boolean> {
-	return await invoke<boolean>(TauriCommands.RESUME_AUDIO_FILE).catch(() => {
-		return false;
-	});
-}
-
-// TODO - Implement these
-export async function stopAudioFile(): Promise<boolean> {
-	return await invoke<boolean>(TauriCommands.STOP_AUDIO_FILE).catch(() => {
-		return false;
+export async function handle_audio_input(
+	params: InputParams
+): Promise<AudioCommandResult> {
+	return await invoke<AudioCommandResult>(TauriCommands.HANDLE_AUDIO_INPUT, {
+		command: params.command,
+		playerPath: params.player_path,
 	});
 }
 
@@ -120,5 +104,5 @@ export async function stopAudioFile(): Promise<boolean> {
  * @returns	The app info from the backend
  */
 export async function getAppInfo(): Promise<AppInfo> {
-	return await invoke<AppInfo>(TauriCommands.GET_APP_INFO).then((data) => data)
+	return await invoke<AppInfo>(TauriCommands.GET_APP_INFO).then((data) => data);
 }

@@ -1,11 +1,32 @@
+#![allow(dead_code)]
+
 use crate::{
-    audio_player::{self, stream::AudioFileTypes},
-    helpers::configuration::{self},
+    helpers::{
+        self,
+        configuration::{self, AppConfig},
+        player::AudioFileTypes,
+    },
+    manager::{handle_audio_command, AudioCommandResult, AudioCommands}
 };
+use serde::{Deserialize, Serialize};
 
-use serde::{Serialize, Deserialize};
+#[derive(Debug, thiserror::Error)]
+pub enum AudioCommandResultError {
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
+}
 
-#[tauri::command(async)]
+// we must manually implement serde::Serialize
+impl serde::Serialize for AudioCommandResultError {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::ser::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+#[tauri::command]
 pub async fn view_app_config(
     app_handle: tauri::AppHandle,
 ) -> Result<configuration::AppConfig, String> {
@@ -19,7 +40,7 @@ pub async fn view_app_config(
     }
 }
 
-#[tauri::command(async)]
+#[tauri::command]
 pub async fn reset_app_config(app_handle: tauri::AppHandle) -> bool {
     match configuration::delete_config_file(&app_handle).await {
         // If the configuration file was deleted successfully, create a new one
@@ -41,15 +62,17 @@ pub async fn reset_app_config(app_handle: tauri::AppHandle) -> bool {
     }
 }
 
-#[tauri::command(async)]
+#[tauri::command]
 pub async fn set_app_config(
     app_handle: tauri::AppHandle,
     audio_directories: Vec<String>,
     audio_file_types_allowed: Vec<String>,
+    audio_device_name: Option<String>
 ) -> bool {
-    let config = configuration::AppConfig {
+    let config = AppConfig {
         audio_directories,
         audio_file_types_allowed,
+        audio_device_name: audio_device_name
     };
     match configuration::update_config_file(&app_handle, &config).await {
         Ok(_) => {
@@ -71,7 +94,7 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
     }
 
     if config.audio_file_types_allowed.len() == 1 {
-        let files = audio_player::stream::get_audio_files(
+        let files = helpers::player::get_audio_files(
             &config.audio_directories[0],
             AudioFileTypes::from_extension(&audio_file_type).unwrap(),
         );
@@ -84,7 +107,7 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
     }
 
     for directory in config.audio_directories {
-        let files = audio_player::stream::get_audio_files(
+        let files = helpers::player::get_audio_files(
             &directory,
             AudioFileTypes::from_extension(&audio_file_type).unwrap(),
         );
@@ -96,26 +119,31 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
     return audio_files;
 }
 
-#[tauri::command(async)]
-pub async fn play_audio_file(file_path: String, file_type: String, file_index: usize) -> bool {
-    let result = audio_player::stream::play_audio(file_path, file_type, file_index).await;
+#[tauri::command]
+pub async fn handle_audio_input(
+    app_handle: tauri::AppHandle,
+    command: AudioCommands,
+    player_path: Option<String>,
+) -> Result<AudioCommandResult, AudioCommandResultError> {
+    // println!("Command: {:?}", command);
+    // println!("Player Path: {:?}", player_path);
 
-    if result == true {
-        return true;
-    } else {
-        return false;
-    }
+    let result = handle_audio_command(app_handle, command, player_path).await.unwrap();
+
+    println!("Result: {:?}", result);
+
+    Ok(result)
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct AppInfo {
     os: String,
-    name: String, 
+    name: String,
     version: String,
     description: String,
 }
 
-#[tauri::command(async)]
+#[tauri::command]
 pub async fn get_app_info(app_handle: tauri::AppHandle) -> AppInfo {
     let package_info = app_handle.package_info();
     let os = std::env::consts::OS.to_string();
@@ -128,5 +156,5 @@ pub async fn get_app_info(app_handle: tauri::AppHandle) -> AppInfo {
         name,
         version,
         description,
-    }
+    };
 }
