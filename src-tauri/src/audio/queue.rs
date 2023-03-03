@@ -70,30 +70,30 @@ impl QueuePlayer {
         &self.queue.get(self.index).unwrap().name
     }
 
-    pub fn play(&mut self, index: usize) {
+    pub fn play(&mut self, app_handle: tauri::AppHandle, index: usize) {
         self.index = index;
 
-        self.player.play(self.queue[self.index].format.clone());
+        self.player.play(app_handle, self.queue[self.index].format.clone());
     }
 
-    pub fn play_next(&mut self) {
+    pub fn play_next(&mut self, app_handle: tauri::AppHandle) {
         self.index += 1;
 
         if self.index >= self.queue.len() {
             self.index = 0;
         }
 
-        self.player.play(self.queue[self.index].format.clone());
+        self.player.play(app_handle, self.queue[self.index].format.clone());
     }
 
-    pub fn play_previous(&mut self) {
+    pub fn play_previous(&mut self, app_handle: tauri::AppHandle) {
         if self.index == 0 {
             self.index = self.queue.len();
         }
 
         self.index -= 1;
 
-        self.player.play(self.queue[self.index].format.clone());
+        self.player.play(app_handle, self.queue[self.index].format.clone());
     }
 
     pub fn get_index_from_track_name(&self, name: &str) -> Result<usize, NError> {

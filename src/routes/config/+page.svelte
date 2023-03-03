@@ -11,6 +11,8 @@
 	onMount(async () => {
 		const load = await loadAppConfig();
 
+		console.table(load);
+
 		if (load) {
 			ApplicationConfigurationState.set(load);
 		} else {
@@ -19,7 +21,6 @@
 		await tick();
 	});
 
-	// reset the app config to the default values
 	const runReset = async () => {
 		let result = await resetAppConfig();
 
@@ -52,6 +53,10 @@
 
 		if (!currentData) {
 			throw new Error("No config data found");
+		}
+
+		if(!currentData.audio_device_name) {
+			currentData.audio_device_name = config.audio_device_name;
 		}
 
 		// let checkDir = isValidDirectory(dirPath, getCurrentPlatform());

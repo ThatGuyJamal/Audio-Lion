@@ -37,14 +37,14 @@ impl PlayCommand {
         PlayCommand { player }
     }
 
-    fn on_command(&mut self, path: PathBuf) {
+    fn on_command(&mut self, app_handle: tauri::AppHandle, path: PathBuf) {
         let mut player = self.player.lock().unwrap();
         if !player.has_ended() {
             player.end_current().unwrap();
         }
 
         println!("Playing: {:?}", path.display());
-        player.play_from_path(path).unwrap();
+        player.play_from_path(app_handle, path).unwrap();
     }
 }
 
@@ -60,6 +60,7 @@ pub struct PlayAudioParams {
 }
 
 pub async fn handle_audio_command(
+    app_handle: tauri::AppHandle,
     command: AudioCommands,
     play_params: Option<String>,
 ) -> Result<AudioCommandResult> {
@@ -69,7 +70,8 @@ pub async fn handle_audio_command(
         AudioCommands::Play => {
             if let Some(params) = play_params {
                 let mut play_command = PlayCommand::new(player.clone());
-                play_command.on_command(PathBuf::from(params));
+                let app = app_handle.clone();
+                play_command.on_command(app, PathBuf::from(params));
                 Ok(AudioCommandResult {
                     success: true,
                     is_paused: player.lock().unwrap().is_paused(),

@@ -174,12 +174,14 @@ mod pulseaudio {
 
 #[cfg(not(target_os = "linux"))]
 mod cpal {
-    use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+    use cpal::traits::{DeviceTrait, StreamTrait};
     use dasp::Sample;
     use rb::*;
     use symphonia::core::audio::{AudioBufferRef, RawSample, SampleBuffer, SignalSpec};
     use symphonia::core::conv::ConvertibleSample;
     use symphonia::core::units::Duration;
+
+    use crate::helpers;
 
     use super::{AudioOutput, AudioOutputError, Result};
 
@@ -194,38 +196,8 @@ mod cpal {
     impl AudioOutputSample for u16 {}
 
     impl CpalAudioOutput {
-        pub fn try_open(spec: SignalSpec, duration: Duration) -> Result<Box<dyn AudioOutput>> {
-            // Get default host.
-            let host = cpal::default_host();
-
-            // Get the default audio output device.
-            let device = match host.default_output_device() {
-                Some(device) => {
-                    println!("Using default audio output device: {}", device.name().unwrap());
-                    device
-                },
-                _ => {
-                    eprintln!("Failed to get default audio output device");
-                    return Err(AudioOutputError::OpenStreamError);
-                }
-            };
-
-            let config = match device.default_output_config() {
-                Ok(config) => {
-                    println!(
-                        "Using default audio output device config: {:?}",
-                        config
-                    );
-                    config
-                },
-                Err(err) => {
-                    eprintln!(
-                        "Failed to get default audio output device config: {:?}",
-                        err
-                    );
-                    return Err(AudioOutputError::OpenStreamError);
-                }
-            };
+        pub fn try_open(app_handle: tauri::AppHandle, spec: SignalSpec, duration: Duration) -> Result<Box<dyn AudioOutput>> {
+            let (device, config) = helpers::configuration::selected_device(app_handle).unwrap();
 
             // Select proper playback routine based on sample format.
             match config.sample_format() {
@@ -351,9 +323,10 @@ pub fn try_open(
 
 #[cfg(not(target_os = "linux"))]
 pub fn try_open(
+    app_handle: tauri::AppHandle,
     spec: SignalSpec,
     duration: Duration,
     _app_name: &str,
 ) -> Result<Box<dyn AudioOutput>> {
-    cpal::CpalAudioOutput::try_open(spec, duration)
+    cpal::CpalAudioOutput::try_open(app_handle, spec, duration)
 }

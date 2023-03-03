@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import { TauriCommands, type AppInfo } from "$lib/types/commands";
 import type { AppConfig, AudioFileType } from "$lib/types/AppConfig";
+import config from "$lib/config";
 
 /**
  * Loads the current app config. If non is found, it will create a new one
@@ -9,9 +10,7 @@ import type { AppConfig, AudioFileType } from "$lib/types/AppConfig";
 export async function loadAppConfig(): Promise<AppConfig | null> {
 	// Get the data from the backend
 	// This should not be null, but in case of errors making the file, it will be null
-	const result = await invoke<AppConfig | null>(TauriCommands.VIEW_APP_CONFIG);
-	// update the store with the new app config data
-	return result;
+	return await invoke<AppConfig | null>(TauriCommands.VIEW_APP_CONFIG);
 }
 
 /**
@@ -27,10 +26,7 @@ export async function getAppConfig(): Promise<AppConfig | null> {
  * @returns
  */
 export async function resetAppConfig(): Promise<AppConfig> {
-	const result = await invoke<boolean>(TauriCommands.RESET_APP_CONFIG);
-	// After the reset, reload the the app config
-	const data = (await loadAppConfig()) as AppConfig;
-	return data;
+	return await invoke<AppConfig>(TauriCommands.RESET_APP_CONFIG);
 }
 
 /**
@@ -44,6 +40,7 @@ export async function setAppConfig(
 	await invoke<boolean>(TauriCommands.SET_APP_CONFIG, {
 		audioDirectories: newAppConfig.audio_directories ?? [],
 		audioFileTypesAllowed: newAppConfig.audio_file_types_allowed ?? [],
+		audioDeviceName: newAppConfig.audio_device_name, 
 	});
 	const data = await loadAppConfig();
 	return data!;
@@ -100,7 +97,7 @@ export async function handle_audio_input(
 	return await invoke<AudioCommandResult>(TauriCommands.HANDLE_AUDIO_INPUT, {
 		command: params.command,
 		playerPath: params.player_path,
-	})
+	});
 }
 
 /**

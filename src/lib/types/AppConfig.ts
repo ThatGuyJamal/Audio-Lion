@@ -12,6 +12,13 @@ export type AppConfig = {
 	 * These can be file types of "mp3" or "wav" as of now.
 	 */
 	audio_file_types_allowed: string[];
+
+	/**
+	 * The name of the audio device to use for audio playback.
+	 *
+	 * This is set by the user in the app's settings or by the system.
+	 */
+	audio_device_name?: string;
 };
 
 /** The supported audio file types returned from the backend */

@@ -3,7 +3,7 @@
 use crate::{
     helpers::{
         self,
-        configuration::{self},
+        configuration::{self, AppConfig},
         player::AudioFileTypes,
     },
     manager::{handle_audio_command, AudioCommandResult, AudioCommands}
@@ -67,10 +67,12 @@ pub async fn set_app_config(
     app_handle: tauri::AppHandle,
     audio_directories: Vec<String>,
     audio_file_types_allowed: Vec<String>,
+    audio_device_name: Option<String>
 ) -> bool {
-    let config = configuration::AppConfig {
+    let config = AppConfig {
         audio_directories,
         audio_file_types_allowed,
+        audio_device_name: audio_device_name
     };
     match configuration::update_config_file(&app_handle, &config).await {
         Ok(_) => {
@@ -119,13 +121,14 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
 
 #[tauri::command]
 pub async fn handle_audio_input(
+    app_handle: tauri::AppHandle,
     command: AudioCommands,
     player_path: Option<String>,
 ) -> Result<AudioCommandResult, AudioCommandResultError> {
     // println!("Command: {:?}", command);
     // println!("Player Path: {:?}", player_path);
 
-    let result = handle_audio_command(command, player_path).await.unwrap();
+    let result = handle_audio_command(app_handle, command, player_path).await.unwrap();
 
     println!("Result: {:?}", result);
 

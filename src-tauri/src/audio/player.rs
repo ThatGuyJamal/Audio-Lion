@@ -11,8 +11,7 @@ use symphonia::core::formats::{FormatReader, SeekMode, SeekTo};
 use symphonia::core::units::Time;
 
 use super::music_track::MusicTrack;
-use super::{TrackTime, Message, output};
-
+use super::{output, Message, TrackTime};
 
 /// The main actor for everything.
 /// Using this struct is really easy, just add a file you want to play (be sure of it being an audio file supported by Symphonia) and call `Player::play_next` and you've done everything!
@@ -165,23 +164,31 @@ impl Player {
     }
 
     /// Plays a certain track given its file path
-    pub fn play_from_path<P: AsRef<Path>>(&mut self, path: P) -> Result<(), Box<dyn Error>>
+    pub fn play_from_path<P: AsRef<Path>>(
+        &mut self,
+        app_handle: tauri::AppHandle,
+        path: P,
+    ) -> Result<(), Box<dyn Error>>
     where
         P: AsRef<OsStr>,
     {
         let music_track = MusicTrack::new(path)?;
-        self.play(Arc::new(Mutex::new(music_track.get_format())));
+        self.play(app_handle, Arc::new(Mutex::new(music_track.get_format())));
 
         Ok(())
     }
 
     /// Plays a certain track
-    pub fn play_from_track(&mut self, track: &MusicTrack) {
-        self.play(Arc::new(Mutex::new(track.get_format())));
+    pub fn play_from_track(&mut self, app_handle: tauri::AppHandle, track: &MusicTrack) {
+        self.play(app_handle, Arc::new(Mutex::new(track.get_format())));
     }
 
     /// Plays a certain track given its format
-    pub fn play(&mut self, format: Arc<Mutex<Box<dyn FormatReader>>>) {
+    pub fn play(
+        &mut self,
+        app_handle: tauri::AppHandle,
+        format: Arc<Mutex<Box<dyn FormatReader>>>,
+    ) {
         let app_name = self.app_name.clone();
         let volume = self.volume;
         let playback_speed = self.playback_speed;
@@ -191,7 +198,16 @@ impl Player {
         let (tx_e, rx_e) = mpsc::channel();
 
         let thread = thread::spawn(move || {
-            Self::thread_fn(format, rx, tx_t, tx_e, app_name, volume, playback_speed)
+            Self::thread_fn(
+                app_handle,
+                format,
+                rx,
+                tx_t,
+                tx_e,
+                app_name,
+                volume,
+                playback_speed,
+            )
         });
 
         self.rx_e = Some(rx_e);
@@ -201,6 +217,7 @@ impl Player {
     }
 
     fn thread_fn(
+        app_handle: tauri::AppHandle,
         format: Arc<Mutex<Box<dyn FormatReader>>>,
         rx: Receiver<Message>,
         tx_t: Sender<Message>,
@@ -314,7 +331,13 @@ impl Player {
                             spec = Some(tmp_spec);
                             dur = Some(decoded.capacity() as u64);
                             audio_output = Some(
-                                output::try_open(spec.unwrap(), dur.unwrap(), &app_name).unwrap(),
+                                output::try_open(
+                                    app_handle.clone(),
+                                    spec.unwrap(),
+                                    dur.unwrap(),
+                                    &app_name,
+                                )
+                                .unwrap(),
                             );
                         } else {
                             let mut new_spec = *decoded.spec();
@@ -336,8 +359,13 @@ impl Player {
 
                             if changed {
                                 audio_output = Some(
-                                    output::try_open(spec.unwrap(), dur.unwrap(), &app_name)
-                                        .unwrap(),
+                                    output::try_open(
+                                        app_handle.clone(),
+                                        spec.unwrap(),
+                                        dur.unwrap(),
+                                        &app_name,
+                                    )
+                                    .unwrap(),
                                 );
                             }
                         }
