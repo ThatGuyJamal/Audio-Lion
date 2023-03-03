@@ -1,6 +1,10 @@
 <script lang="ts">
-	import { getAppConfig } from "$lib/utils/tauri";
-  
+	import {
+		AudioCommands,
+		getAppConfig,
+		handle_audio_input,
+	} from "$lib/utils/tauri";
+
 	import FaArrowUp from "svelte-icons/fa/FaArrowUp.svelte";
 
 	import FaPlay from "svelte-icons/fa/FaPlay.svelte";
@@ -18,13 +22,30 @@
 		windowPosition = window.scrollY;
 	});
 
-	function scrollToTop() {
-		window.scrollTo({ top: 0, behavior: "smooth" });
-	}
+	// function scrollToTop() {
+	// 	window.scrollTo({ top: 0, behavior: "smooth" });
+	// }
 
-  const skip = async () => {
-    console.log("skip")
-  }
+	const skip = async () => {
+		let d = await handle_audio_input({
+			command: AudioCommands.SKIP,
+		});
+		console.log("skip", d);
+	};
+
+	const resume = async () => {
+		let d = await handle_audio_input({
+			command: AudioCommands.RESUME,
+		});
+		console.log("resume", d);
+	};
+
+	const stop = async () => {
+		let d = await handle_audio_input({
+			command: AudioCommands.STOP,
+		});
+		console.log("stop", d);
+	};
 </script>
 
 {#if appConfig !== null}
@@ -35,17 +56,17 @@
 			<!-- Play/Pause/Stop buttons -->
 			<di class="flex flex-row justify-center">
 				<div class="flex flex-row justify-center items-center m-3">
-					<button class="btn btn-circle btn-xs glass ml-5 mr-5">
+					<button class="btn btn-circle btn-xs glass ml-5 mr-5" on:click={resume}>
 						<svg class="h-4 w-4 justify-end">
 							<FaPlay />
 						</svg>
 					</button>
-					<button class="btn btn-circle btn-xs glass ml-5 mr-5">
+					<button class="btn btn-circle btn-xs glass ml-5 mr-5" on:click={skip}>
 						<svg class="h-4 w-4 justify-end">
 							<FaPause />
 						</svg>
 					</button>
-					<button class="btn btn-circle btn-xs glass ml-5 mr-5" on:click={skip}>
+					<button class="btn btn-circle btn-xs glass ml-5 mr-5" on:click={stop}>
 						<svg class="h-4 w-4 justify-end">
 							<FaStop />
 						</svg>

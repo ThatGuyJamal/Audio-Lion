@@ -11,7 +11,7 @@
 	onMount(async () => {
 		const load = await loadAppConfig();
 
-		console.table(load);
+		// console.table(load);
 
 		if (load) {
 			ApplicationConfigurationState.set(load);
@@ -24,7 +24,7 @@
 	const runReset = async () => {
 		let result = await resetAppConfig();
 
-		console.table(result);
+		// console.table(result);
 
 		if (result) {
 			ApplicationConfigurationState.set(result);

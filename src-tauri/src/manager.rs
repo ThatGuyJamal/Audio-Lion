@@ -81,19 +81,19 @@ pub async fn handle_audio_command(
             }
         }
         AudioCommands::Pause => Ok(AudioCommandResult {
-            success: false,
+            success: true,
             is_paused: player.lock().unwrap().is_paused(),
         }),
         AudioCommands::Resume => Ok(AudioCommandResult {
-            success: false,
+            success: true,
             is_paused: player.lock().unwrap().is_paused(),
         }),
         AudioCommands::Skip => Ok(AudioCommandResult {
-            success: false,
+            success: true,
             is_paused: player.lock().unwrap().is_paused(),
         }),
         AudioCommands::Stop => Ok(AudioCommandResult {
-            success: false,
+            success: true,
             is_paused: player.lock().unwrap().is_paused(),
         }),
     }
