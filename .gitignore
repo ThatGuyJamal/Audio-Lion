@@ -31,3 +31,7 @@ dist-ssr
 !.env.example
 
 /target
+
+# Yarn files
+.yarn/install-state.gz
+.yarn/build-state.yml

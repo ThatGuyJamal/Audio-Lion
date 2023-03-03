@@ -4,7 +4,7 @@ export default {
 	app: {
 		name: "Audio Lion",
 		description: "A simple audio player for your desktop",
-		github_repo: "https://github.com/ThatGuyJamal/Audio-Lion",
+		github_repo: "https://github.com/audio-lion-dev/Audio-Lion",
 		developer: {
 			name: "ThatGuyJamal",
 			github: "https://github.com/ThatGuyJamal",
