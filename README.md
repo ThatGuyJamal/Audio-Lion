@@ -1,48 +1,27 @@
-# Audio Lion
+# `Audio Lion`
 
 ![icon](./static/lion/128px.png)
 
-Audio Lion is a simple audio player for windows (currently) and is written in [Rust](https://www.rust-lang.org/) and [Svelte](https://svelte.dev/). 
+**Audio Lion** is a simple audio player and downloader for windows.
 
-It is currently in development and is not ready for use. [Click here](https://github.com/users/ThatGuyJamal/projects/4) to view the current development road-map.
+## Features
 
-## Development Information
+- [ ] Download audio from YouTube, SoundCloud, etc.
 
-Audio Lion at its core is using [Tauri](https://tauri.app/) for its Backend API, [Svelte](https://svelte.dev/) for its GUI and [Rodio](https://github.com/RustAudio/rodio) for its audio API library. 
+- [ ] Play audio from local disk
 
-More information on how I am developing Audio Lion can be found will be posted when the project becomes more stable. For now message me on discord if you have any questions.
+- [ ] Play audio from URL
 
-My discord is: `ThatGuyJamal#2695`
+## Download
 
+Downloading Audio Lion is easy. Just go to the [release page](https://github.com/audio-lion-dev/Audio-Lion/releases) and download the latest version. Or you can download the latest version from the [website](https://example.com/) here.
 
-## Installing
+## Contributing
 
-You can install the public build of Audio Lion (recommended) by downloading the latest release from the [releases](https://github.com/ThatGuyJamal/Audio-Lion/releases) page or from [our website](https://example.com/).
+If you want to contribute to Audio Lion, you can do so by forking the repository and making a pull request. If you want to add a feature, please open an issue first so we can discuss it.
 
-You can also view all past builds of the app [here](./installers/alpha-build/windows/) (Windows only right now).
+You can read [here](https://github.com/users/ThatGuyJamal/projects/4?fullscreen=true) to learn about my current plans for the application and future features.
 
-## Building (Windows)
+## License
 
-To build Audio Lion you will need to have [Rust](https://www.rust-lang.org/) and [Node.js](https://nodejs.org/en/) installed.
-
-To build Audio Lion you will need to run the following commands:
-
-```bash
-git clone https://github.com/ThatGuyJamal/Audio-Lion audio_lion_app
-
-cd audio_lion_app
-
-yarn install
-
-yarn tauri build
-```
-
-After building you will find the executable in the [this](./src-tauri/target/release/bundle/msi/) folder. *This link be clickable once the project is built.*
-
-## Building (Linux)
-
-Coming soon...
-
-## Building (Mac)
-
-Not supported yet...
+coming soon...
