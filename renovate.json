@@ -4,6 +4,6 @@
     "config:base"
   ],
   "platform": "github",
-  "forkMode": true,
+  "includeForks": true
   "baseBranches": ["stable", "master"]
 }
