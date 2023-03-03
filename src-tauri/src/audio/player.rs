@@ -326,10 +326,16 @@ impl Player {
                 match decoder.decode(&packet) {
                     Ok(decoded) => {
                         if audio_output.is_none() {
+
                             let mut tmp_spec = *decoded.spec();
                             tmp_spec.rate = (tmp_spec.rate as f32 * playback_speed).round() as u32;
                             spec = Some(tmp_spec);
                             dur = Some(decoded.capacity() as u64);
+
+                            println!("Opening audio output with app_name: {:?}", app_name);
+                            println!("Opening audio output with spec: {:?}", spec.unwrap());
+                            println!("Opening audio output with dur: {:?}", dur.unwrap());
+
                             audio_output = Some(
                                 output::try_open(
                                     app_handle.clone(),
