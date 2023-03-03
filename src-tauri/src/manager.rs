@@ -64,7 +64,7 @@ pub async fn handle_audio_command(
     command: AudioCommands,
     play_params: Option<String>,
 ) -> Result<AudioCommandResult> {
-    let player = Arc::new(Mutex::new(Player::new(String::from("audio"), 1.0, 1.0)));
+    let player = Arc::new(Mutex::new(Player::new(String::from("Audio Player"), 1.0, 1.0)));
 
     match command {
         AudioCommands::Play => {
