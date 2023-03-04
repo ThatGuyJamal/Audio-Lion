@@ -20,12 +20,12 @@ pub fn init(app: &mut App) {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Type)]
+/// Commands for the audio player to handle.
 pub enum AudioCommands {
     Play,
     Pause,
     Resume,
-    Skip,
     Stop,
 }
 
@@ -38,26 +38,129 @@ impl PlayCommand {
         PlayCommand { player }
     }
 
-    fn on_command(&mut self, app_handle: tauri::AppHandle, path: PathBuf) {
+    fn run(&mut self, app_handle: tauri::AppHandle, path: PathBuf) -> Result<AudioCommandResult> {
         let mut player = self.player.lock().unwrap();
+
+        let path_clone = path.clone();
+
         if !player.has_ended() {
             player.end_current().unwrap();
         }
 
-        println!("Playing: {:?}", path.display());
+        println!("Playing: {:?}", path_clone.display());
         player.play_from_path(app_handle, path).unwrap();
+
+        Ok(AudioCommandResult {
+            command_name: "Play".to_string(),
+            success: true,
+            is_paused: player.is_paused(),
+            path: Some(path_clone.to_str().unwrap().to_string()),
+        })
+    }
+}
+
+struct PauseCommand {
+    player: Arc<Mutex<Player>>,
+}
+
+impl PauseCommand {
+    fn new(player: Arc<Mutex<Player>>) -> Self {
+        PauseCommand { player }
+    }
+
+    fn run(&mut self) -> Result<AudioCommandResult> {
+        let mut player = self.player.lock().unwrap();
+
+        if !player.is_paused() {
+            player.pause().unwrap();
+
+            return Ok(AudioCommandResult {
+                command_name: "Pause".to_string(),
+                success: true,
+                is_paused: player.is_paused(),
+                path: None,
+            });
+        }
+
+        Ok(AudioCommandResult {
+            command_name: "Pause".to_string(),
+            success: false,
+            is_paused: player.is_paused(),
+            path: None,
+        })
+    }
+}
+
+struct ResumeCommand {
+    player: Arc<Mutex<Player>>,
+}
+
+impl ResumeCommand {
+    fn new(player: Arc<Mutex<Player>>) -> Self {
+        ResumeCommand { player }
+    }
+
+    fn run(&mut self) -> Result<AudioCommandResult> {
+        let mut player = self.player.lock().unwrap();
+
+        if player.is_paused() {
+            player.unpause().unwrap();
+
+            return Ok(AudioCommandResult {
+                command_name: "Resume".to_string(),
+                success: true,
+                is_paused: player.is_paused(),
+                path: None,
+            });
+        }
+
+        Ok(AudioCommandResult {
+            command_name: "Resume".to_string(),
+            success: false,
+            is_paused: player.is_paused(),
+            path: None,
+        })
+    }
+}
+
+struct StopCommand {
+    player: Arc<Mutex<Player>>,
+}
+
+impl StopCommand {
+    fn new(player: Arc<Mutex<Player>>) -> Self {
+        StopCommand { player }
+    }
+
+    fn run(&mut self) -> Result<AudioCommandResult> {
+        let player = self.player.lock().unwrap();
+
+        if !player.has_ended() {
+            player.end_current().unwrap();
+
+            return Ok(AudioCommandResult {
+                command_name: "Stop".to_string(),
+                success: true,
+                is_paused: player.is_paused(),
+                path: None,
+            });
+        }
+
+        Ok(AudioCommandResult {
+            command_name: "Stop".to_string(),
+            success: false,
+            is_paused: player.is_paused(),
+            path: None,
+        })
     }
 }
 
 #[derive(Debug, Serialize, Deserialize, Type)]
 pub struct AudioCommandResult {
+    pub command_name: String,
     pub success: bool,
     pub is_paused: bool,
-}
-
-#[derive(Debug, Serialize, Deserialize, Type)]
-pub struct PlayAudioParams {
-    pub file_path: String,
+    pub path: Option<String>,
 }
 
 pub async fn handle_audio_command(
@@ -65,37 +168,45 @@ pub async fn handle_audio_command(
     command: AudioCommands,
     play_params: Option<String>,
 ) -> Result<AudioCommandResult> {
-    let player = Arc::new(Mutex::new(Player::new(String::from("Audio Player"), 1.0, 1.0)));
+    let player = Arc::new(Mutex::new(Player::new(
+        String::from("Audio Player"),
+        1.0,
+        1.0,
+    )));
 
     match command {
         AudioCommands::Play => {
             if let Some(params) = play_params {
                 let mut play_command = PlayCommand::new(player.clone());
                 let app = app_handle.clone();
-                play_command.on_command(app, PathBuf::from(params));
-                Ok(AudioCommandResult {
-                    success: true,
-                    is_paused: player.lock().unwrap().is_paused(),
-                })
+                match play_command.run(app, PathBuf::from(params)) {
+                    Ok(result) => Ok(result),
+                    Err(error) => Err(error),
+                }
             } else {
                 Err(anyhow!("No params provided for play command."))
             }
         }
-        AudioCommands::Pause => Ok(AudioCommandResult {
-            success: true,
-            is_paused: player.lock().unwrap().is_paused(),
-        }),
-        AudioCommands::Resume => Ok(AudioCommandResult {
-            success: true,
-            is_paused: player.lock().unwrap().is_paused(),
-        }),
-        AudioCommands::Skip => Ok(AudioCommandResult {
-            success: true,
-            is_paused: player.lock().unwrap().is_paused(),
-        }),
-        AudioCommands::Stop => Ok(AudioCommandResult {
-            success: true,
-            is_paused: player.lock().unwrap().is_paused(),
-        }),
+        AudioCommands::Pause => {
+            let mut pause_command = PauseCommand::new(player.clone());
+            match pause_command.run() {
+                Ok(result) => Ok(result),
+                Err(error) => Err(error),
+            }
+        }
+        AudioCommands::Resume => {
+            let mut resume_command = ResumeCommand::new(player.clone());
+            match resume_command.run() {
+                Ok(result) => Ok(result),
+                Err(error) => Err(error),
+            }
+        }
+        AudioCommands::Stop => {
+            let mut stop_command = StopCommand::new(player.clone());
+            match stop_command.run() {
+                Ok(result) => Ok(result),
+                Err(error) => Err(error),
+            }
+        }
     }
 }

@@ -60,9 +60,9 @@ fn export_bindings() {
             commands::reset_app_config,
             commands::set_app_config,
             commands::get_audio_files,
-            commands::get_app_info
+            commands::get_app_info,
             // todo - Fix types for this command so they can be exported
-            // commands::handle_audio_input,
+            commands::handle_audio_input
         ],
         "../src/lib/bindings.ts",
     )

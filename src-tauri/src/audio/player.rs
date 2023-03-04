@@ -197,18 +197,21 @@ impl Player {
         let (tx_t, rx_t) = mpsc::channel();
         let (tx_e, rx_e) = mpsc::channel();
 
-        let thread = thread::spawn(move || {
-            Self::thread_fn(
-                app_handle,
-                format,
-                rx,
-                tx_t,
-                tx_e,
-                app_name,
-                volume,
-                playback_speed,
-            )
-        });
+        let thread = thread::Builder::new()
+            .name("audio-codec".to_string())
+            .spawn(move || {
+                Self::thread_fn(
+                    app_handle,
+                    format,
+                    rx,
+                    tx_t,
+                    tx_e,
+                    app_name,
+                    volume,
+                    playback_speed,
+                )
+            })
+            .unwrap();
 
         self.rx_e = Some(rx_e);
         self.rx_t = Some(rx_t);
@@ -326,7 +329,6 @@ impl Player {
                 match decoder.decode(&packet) {
                     Ok(decoded) => {
                         if audio_output.is_none() {
-
                             let mut tmp_spec = *decoded.spec();
                             tmp_spec.rate = (tmp_spec.rate as f32 * playback_speed).round() as u32;
                             spec = Some(tmp_spec);

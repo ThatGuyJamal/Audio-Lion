@@ -8,12 +8,14 @@ pub mod configuration {
     use std::io::{prelude::*, ErrorKind};
     use specta::Type;
 
+    use super::player::AudioFileTypes;
+
     #[derive(Serialize, Deserialize, Debug, Type)]
     /// The configuration file for the application
     pub struct AppConfig {
         pub audio_directories: Vec<String>,
         /// A vector of audio file types to search for, e.g. MP3, WAV, etc.
-        pub audio_file_types_allowed: Vec<String>,
+        pub audio_file_types_allowed: Vec<AudioFileTypes>,
         // The name of the audio device to use for playback
         pub audio_device_name: Option<String>,
     }
@@ -28,7 +30,7 @@ pub mod configuration {
     ) -> Result<(), Box<dyn std::error::Error>> {
         let config = AppConfig {
             audio_directories: vec![],
-            audio_file_types_allowed: vec![String::from("mp3"), String::from("wav")],
+            audio_file_types_allowed: vec![AudioFileTypes::MP3, AudioFileTypes::WAV],
             audio_device_name: None,
         };
         let config_json = serde_json::to_string(&config)?;
@@ -180,8 +182,9 @@ pub mod configuration {
 
 pub mod player {
     use serde::{Deserialize, Serialize};
+    use specta::Type;
 
-    #[derive(PartialEq, Debug, Serialize, Deserialize)]
+    #[derive(PartialEq, Debug, Serialize, Deserialize, Type, Clone)]
     pub enum AudioFileTypes {
         MP3,
         WAV,

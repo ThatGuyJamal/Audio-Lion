@@ -16,11 +16,11 @@ export function resetAppConfig() {
     return invoke<boolean>("reset_app_config")
 }
 
-export function setAppConfig(audioDirectories: string[], audioFileTypesAllowed: string[], audioDeviceName: string | null) {
+export function setAppConfig(audioDirectories: string[], audioFileTypesAllowed: AudioFileTypes[], audioDeviceName: string | null) {
     return invoke<AppConfig>("set_app_config", { audioDirectories,audioFileTypesAllowed,audioDeviceName })
 }
 
-export function getAudioFiles(audioFileType: string) {
+export function getAudioFiles(audioFileType: AudioFileTypes) {
     return invoke<string[]>("get_audio_files", { audioFileType })
 }
 
@@ -28,8 +28,18 @@ export function getAppInfo() {
     return invoke<AppInfo>("get_app_info")
 }
 
+export function handleAudioInput(command: AudioCommands, playerPath: string | null) {
+    return invoke<AudioCommandResult>("handle_audio_input", { command,playerPath })
+}
+
+export type AudioFileTypes = "MP3" | "WAV"
 /**
  *  The configuration file for the application
  */
-export type AppConfig = { audio_directories: string[]; audio_file_types_allowed: string[]; audio_device_name: string | null }
+export type AppConfig = { audio_directories: string[]; audio_file_types_allowed: AudioFileTypes[]; audio_device_name: string | null }
+export type AudioCommandResult = { command_name: string; success: boolean; is_paused: boolean; path: string | null }
+/**
+ *  Commands for the audio player to handle.
+ */
+export type AudioCommands = "Play" | "Pause" | "Resume" | "Stop"
 export type AppInfo = { os: string; name: string; version: string; description: string }

@@ -70,7 +70,7 @@ pub async fn reset_app_config(app_handle: tauri::AppHandle) -> bool {
 pub async fn set_app_config(
     app_handle: tauri::AppHandle,
     audio_directories: Vec<String>,
-    audio_file_types_allowed: Vec<String>,
+    audio_file_types_allowed: Vec<AudioFileTypes>,
     audio_device_name: Option<String>
 ) -> Result<AppConfig, String> {
     let config = AppConfig {
@@ -90,7 +90,7 @@ pub async fn set_app_config(
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: String) -> Vec<String> {
+pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: AudioFileTypes) -> Vec<String> {
     let config = configuration::read_config_file(app_handle).unwrap();
     let mut audio_files: Vec<String> = Vec::new();
 
@@ -101,7 +101,7 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
     if config.audio_file_types_allowed.len() == 1 {
         let files = helpers::player::get_audio_files(
             &config.audio_directories[0],
-            AudioFileTypes::from_extension(&audio_file_type).unwrap(),
+            audio_file_type,
         );
 
         for file in files {
@@ -114,7 +114,7 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
     for directory in config.audio_directories {
         let files = helpers::player::get_audio_files(
             &directory,
-            AudioFileTypes::from_extension(&audio_file_type).unwrap(),
+            audio_file_type.clone(),
         );
 
         for file in files {
@@ -130,15 +130,17 @@ pub async fn handle_audio_input(
     app_handle: tauri::AppHandle,
     command: AudioCommands,
     player_path: Option<String>,
-) -> Result<AudioCommandResult, AudioCommandResultError> {
+) -> Result<AudioCommandResult, String> {
     // println!("Command: {:?}", command);
     // println!("Player Path: {:?}", player_path);
-
-    let result = handle_audio_command(app_handle, command, player_path).await.unwrap();
-
-    println!("Result: {:?}", result);
-
-    Ok(result)
+    match handle_audio_command(app_handle, command, player_path).await {
+        Ok(result) => {
+            return Ok(result);
+        }
+        Err(e) => {
+            return Err(e.to_string());
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Type)]

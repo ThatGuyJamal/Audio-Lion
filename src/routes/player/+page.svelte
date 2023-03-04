@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-	import { AudioCommands, handle_audio_input, type InputParams } from "$lib/utils/tauri";
-	import { AudioFileType } from "$lib/types/AppConfig";
 	import {
 		extractFileName,
 		getCurrentPlatform,
@@ -11,7 +9,12 @@
 	} from "$lib/utils/format";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
 	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
- import { getAudioFiles, viewAppConfig, type AppConfig } from "$lib/bindings";
+	import {
+		getAudioFiles,
+		handleAudioInput,
+		viewAppConfig,
+		type AppConfig,
+	} from "$lib/bindings";
 
 	// the array of audio files to display to the user
 	let audio_files_arr: string[] = [];
@@ -54,18 +57,18 @@
 			}
 
 			let shouldLoadMp3 = data.audio_file_types_allowed.find(
-				(type) => type === "mp3"
+				(type) => type === "MP3"
 			)
 				? "yes"
 				: "no";
 			let shouldLoadWav = data.audio_file_types_allowed.find(
-				(type) => type === "wav"
+				(type) => type === "WAV"
 			)
 				? "yes"
 				: "no";
 
 			if (shouldLoadMp3 === "yes") {
-				const mp3Files = await getAudioFiles(AudioFileType.MP3);
+				const mp3Files = await getAudioFiles("MP3");
 
 				// console.log("MP3", mp3Files);
 
@@ -75,7 +78,7 @@
 			}
 
 			if (shouldLoadWav === "yes") {
-				const wavFiles = await getAudioFiles(AudioFileType.WAV);
+				const wavFiles = await getAudioFiles("WAV");
 
 				// console.log("WAV", wavFiles);
 
@@ -93,12 +96,7 @@
 	}
 
 	async function play(path: string) {
-		let params: InputParams = {
-			command: AudioCommands.PLAY,
-			player_path: path
-		}
-
-		await handle_audio_input(params)
+		await handleAudioInput("Play", path);
 	}
 </script>
 
