@@ -9,6 +9,7 @@ use crate::{
     manager::{handle_audio_command, AudioCommandResult, AudioCommands}
 };
 use serde::{Deserialize, Serialize};
+use specta::Type;
 
 #[derive(Debug, thiserror::Error)]
 pub enum AudioCommandResultError {
@@ -27,6 +28,7 @@ impl serde::Serialize for AudioCommandResultError {
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn view_app_config(
     app_handle: tauri::AppHandle,
 ) -> Result<configuration::AppConfig, String> {
@@ -41,6 +43,7 @@ pub async fn view_app_config(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn reset_app_config(app_handle: tauri::AppHandle) -> bool {
     match configuration::delete_config_file(&app_handle).await {
         // If the configuration file was deleted successfully, create a new one
@@ -63,12 +66,13 @@ pub async fn reset_app_config(app_handle: tauri::AppHandle) -> bool {
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn set_app_config(
     app_handle: tauri::AppHandle,
     audio_directories: Vec<String>,
     audio_file_types_allowed: Vec<String>,
     audio_device_name: Option<String>
-) -> bool {
+) -> Result<AppConfig, String> {
     let config = AppConfig {
         audio_directories,
         audio_file_types_allowed,
@@ -76,15 +80,16 @@ pub async fn set_app_config(
     };
     match configuration::update_config_file(&app_handle, &config).await {
         Ok(_) => {
-            return true;
+            return Ok(config);
         }
         Err(_) => {
-            return false;
+            return Err("Error updating config file".to_string());
         }
     }
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: String) -> Vec<String> {
     let config = configuration::read_config_file(app_handle).unwrap();
     let mut audio_files: Vec<String> = Vec::new();
@@ -120,6 +125,7 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn handle_audio_input(
     app_handle: tauri::AppHandle,
     command: AudioCommands,
@@ -135,7 +141,7 @@ pub async fn handle_audio_input(
     Ok(result)
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Type)]
 pub struct AppInfo {
     os: String,
     name: String,
@@ -144,6 +150,7 @@ pub struct AppInfo {
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn get_app_info(app_handle: tauri::AppHandle) -> AppInfo {
     let package_info = app_handle.package_info();
     let os = std::env::consts::OS.to_string();

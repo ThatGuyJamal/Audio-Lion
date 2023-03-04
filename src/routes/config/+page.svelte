@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { AppConfigLimits, type AppConfig } from "$lib/types/AppConfig";
+	import { AppConfigLimits } from "$lib/types/AppConfig";
 	import { onMount, tick } from "svelte";
-	import { loadAppConfig, resetAppConfig, setAppConfig } from "$lib/utils/tauri";
 	import config from "$lib/config";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
 	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
+	import { resetAppConfig, setAppConfig, viewAppConfig } from "$lib/bindings";
 	// import { getCurrentPlatform, isValidDirectory } from "$lib/utils/format";
 
 	// load the current app config when the component is mounted
 	onMount(async () => {
-		const load = await loadAppConfig();
+		const load = await viewAppConfig();
 
 		// console.table(load);
 
@@ -22,12 +22,13 @@
 	});
 
 	const runReset = async () => {
-		let result = await resetAppConfig();
+		await resetAppConfig();
+		const load = await viewAppConfig();
 
 		// console.table(result);
 
-		if (result) {
-			ApplicationConfigurationState.set(result);
+		if (load) {
+			ApplicationConfigurationState.set(load);
 		} else {
 			ApplicationConfigurationState.set(null);
 		}
@@ -38,7 +39,7 @@
 	$: dirInputStatus = "loading" as "invalid" | "valid" | "loading";
 
 	const runNewFolder = async (event: Event) => {
-		const config = (await loadAppConfig()) as AppConfig;
+		const config = await viewAppConfig()
 		const input = event.target as HTMLInputElement;
 
 		// Makes sure we don't add the same directory twice
@@ -49,13 +50,13 @@
 
 		dirPath = input.value;
 
-		const currentData = await loadAppConfig();
+		const currentData = await viewAppConfig();
 
 		if (!currentData) {
 			throw new Error("No config data found");
 		}
 
-		if(!currentData.audio_device_name) {
+		if (!currentData.audio_device_name) {
 			currentData.audio_device_name = config.audio_device_name;
 		}
 
@@ -70,7 +71,7 @@
 			currentData.audio_directories.push(dirPath);
 			let newData = currentData;
 			// console.table(currentData);
-			await setAppConfig(currentData);
+			await setAppConfig(newData.audio_directories, newData.audio_file_types_allowed, newData.audio_device_name);
 			ApplicationConfigurationState.set(newData);
 			dirPath = "";
 			await tick();
@@ -79,14 +80,14 @@
 
 	// Handles the checkbox for each folder
 	async function handleFolderChecks(dir: string) {
-		const config = await loadAppConfig();
+		const config = await viewAppConfig();
 
 		if (config) {
 			let index = config.audio_directories.indexOf(dir);
 			if (index > -1) {
 				config.audio_directories.splice(index, 1);
 			}
-			const newConfig = await setAppConfig(config);
+			const newConfig = await setAppConfig(config.audio_directories, config.audio_file_types_allowed, config.audio_device_name);
 			ApplicationConfigurationState.set(newConfig);
 			await tick();
 		} else {
@@ -146,7 +147,7 @@
 									<!-- We can hard code the checked (true) value because if its loaded then it must be enabled by default -->
 									<input
 										type="checkbox"
-										checked={true} 
+										checked={true}
 										class="checkbox"
 										on:click={() => handleFolderChecks(dir)}
 									/>

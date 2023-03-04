@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-	import { AudioCommands, getAudioFiles, handle_audio_input, loadAppConfig, type InputParams } from "$lib/utils/tauri";
-	import { AudioFileType, type AppConfig } from "$lib/types/AppConfig";
+	import { AudioCommands, handle_audio_input, type InputParams } from "$lib/utils/tauri";
+	import { AudioFileType } from "$lib/types/AppConfig";
 	import {
 		extractFileName,
 		getCurrentPlatform,
@@ -11,6 +11,7 @@
 	} from "$lib/utils/format";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
 	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
+ import { getAudioFiles, viewAppConfig, type AppConfig } from "$lib/bindings";
 
 	// the array of audio files to display to the user
 	let audio_files_arr: string[] = [];
@@ -20,7 +21,7 @@
 
 	// load the current app config when the component is mounted
 	onMount(async () => {
-		const config = await loadAppConfig();
+		const config = await viewAppConfig();
 
 		// If the config exists, set the state and load the audio files
 		if (config) {

@@ -1,17 +1,14 @@
 <script lang="ts">
-	import {
-		AudioCommands,
-		getAppConfig,
-		handle_audio_input,
-	} from "$lib/utils/tauri";
+	import { AudioCommands, handle_audio_input } from "$lib/utils/tauri";
 
 	import FaArrowUp from "svelte-icons/fa/FaArrowUp.svelte";
 
 	import FaPlay from "svelte-icons/fa/FaPlay.svelte";
 	import FaPause from "svelte-icons/fa/FaPause.svelte";
 	import FaStop from "svelte-icons/fa/FaStop.svelte";
+	import { viewAppConfig } from "$lib/bindings";
 
-	let appConfig = getAppConfig()
+	let appConfig = viewAppConfig()
 		.then((data) => data)
 		.catch(() => null);
 

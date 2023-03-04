@@ -1,4 +1,4 @@
-import type { AppConfig } from "$lib/types/AppConfig";
+import type { AppConfig } from "$lib/bindings";
 import { writable } from "svelte/store";
 
 /**

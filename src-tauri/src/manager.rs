@@ -8,6 +8,7 @@ use std::{
 use crate::{audio::player::Player, helpers};
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
+use specta::Type;
 use tauri::App;
 
 pub fn init(app: &mut App) {
@@ -48,13 +49,13 @@ impl PlayCommand {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Type)]
 pub struct AudioCommandResult {
     pub success: bool,
     pub is_paused: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Type)]
 pub struct PlayAudioParams {
     pub file_path: String,
 }

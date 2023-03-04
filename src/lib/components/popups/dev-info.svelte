@@ -1,11 +1,11 @@
 <script lang="ts">
 	import config from "$lib/config";
  import type { ValidPlatforms } from "$lib/utils/format";
-	import { getAppInfo } from "$lib/utils/tauri";
 	import { onMount } from "svelte";
 	import DiWindows from 'svelte-icons/di/DiWindows.svelte'
 	import DiLinux from 'svelte-icons/di/DiLinux.svelte'
 	import DiApple from 'svelte-icons/di/DiApple.svelte'
+ import { getAppInfo } from "$lib/bindings";
 
 	let os = "unknown" as ValidPlatforms
 	let v = "0.0.0";

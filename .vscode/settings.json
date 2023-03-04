@@ -1,3 +1,22 @@
 {
-    "cSpell.words": ["fullscreen", "icns", "rodio", "tailwindcss", "tauri"]
+    "cSpell.words": [
+        "channelmap",
+        "conv",
+        "dasp",
+        "fragsize",
+        "fullscreen",
+        "icns",
+        "libpulse",
+        "maxlength",
+        "minreq",
+        "prebuf",
+        "psimple",
+        "pulseaudio",
+        "rodio",
+        "specta",
+        "Spsc",
+        "tailwindcss",
+        "tauri",
+        "tlength"
+    ]
 }

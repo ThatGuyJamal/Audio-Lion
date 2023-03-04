@@ -6,8 +6,9 @@ pub mod configuration {
     use serde::{Deserialize, Serialize};
     use std::fs::File;
     use std::io::{prelude::*, ErrorKind};
+    use specta::Type;
 
-    #[derive(Serialize, Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug, Type)]
     /// The configuration file for the application
     pub struct AppConfig {
         pub audio_directories: Vec<String>,
