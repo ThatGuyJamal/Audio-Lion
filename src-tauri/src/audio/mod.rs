@@ -49,7 +49,7 @@ pub fn from_path_to_name_without_ext(path: &Path) -> String {
 /// Used to represent the timestamp
 /// ts_* is used to represent the *current* timestamp (as in where is currently the player playing inside the track)
 /// dur_* is used to represent the *entire* timestamp (as is how long is the track)
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct TrackTime {
     pub ts_secs: u64,
     pub ts_frac: f64,

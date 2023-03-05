@@ -41,6 +41,8 @@ impl PlayCommand {
     fn run(&mut self, app_handle: tauri::AppHandle, path: PathBuf) -> Result<AudioCommandResult> {
         let mut player = self.player.lock().unwrap();
 
+        println!("playing: {:?}", player);
+
         let path_clone = path.clone();
 
         if !player.has_ended() {
@@ -71,8 +73,10 @@ impl PauseCommand {
     fn run(&mut self) -> Result<AudioCommandResult> {
         let mut player = self.player.lock().unwrap();
 
-        if !player.is_paused() {
+        if !player.is_paused() && player.is_playing() {
             player.pause().unwrap();
+
+            println!("Pausing: {:?}", player);
 
             return Ok(AudioCommandResult {
                 command_name: "Pause".to_string(),
@@ -106,6 +110,8 @@ impl ResumeCommand {
         if player.is_paused() {
             player.unpause().unwrap();
 
+            println!("Resuming: {:?}", player);
+
             return Ok(AudioCommandResult {
                 command_name: "Resume".to_string(),
                 success: true,
@@ -134,6 +140,8 @@ impl StopCommand {
 
     fn run(&mut self) -> Result<AudioCommandResult> {
         let player = self.player.lock().unwrap();
+
+        println!("Stopping: {:?}", player);
 
         if !player.has_ended() {
             player.end_current().unwrap();
@@ -168,11 +176,14 @@ pub async fn handle_audio_command(
     command: AudioCommands,
     play_params: Option<String>,
 ) -> Result<AudioCommandResult> {
+    
     let player = Arc::new(Mutex::new(Player::new(
         String::from("Audio Player"),
         1.0,
         1.0,
     )));
+
+    println!("handle_audio_command: {:?}", player);
 
     match command {
         AudioCommands::Play => {

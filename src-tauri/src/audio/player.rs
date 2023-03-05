@@ -15,6 +15,7 @@ use super::{output, Message, TrackTime};
 
 /// The main actor for everything.
 /// Using this struct is really easy, just add a file you want to play (be sure of it being an audio file supported by Symphonia) and call `Player::play_next` and you've done everything!
+#[derive(Debug)]
 pub struct Player {
     is_paused: bool,
     volume: f32,
@@ -211,12 +212,12 @@ impl Player {
                     playback_speed,
                 )
             })
-            .unwrap();
-
+            .expect("Failed to spawn thread");
+        
+        self.thread = Some(thread);
+        self.tx = Some(tx);
         self.rx_e = Some(rx_e);
         self.rx_t = Some(rx_t);
-        self.tx = Some(tx);
-        self.thread = Some(thread);
     }
 
     fn thread_fn(
@@ -229,17 +230,16 @@ impl Player {
         mut volume: f32,
         mut playback_speed: f32,
     ) {
-        let mut format = format.lock().unwrap();
+        let mut format = format.lock().expect("Can't lock format");
 
         // Vars used for audio output
         let track = format.default_track().expect("Can't load tracks");
         let track_id = track.id;
-        let time_base = track.codec_params.time_base.unwrap();
+        let time_base = track.codec_params.time_base.expect("Can't load time base");
         let duration = track
             .codec_params
             .n_frames
-            .map(|frames| track.codec_params.start_ts + frames)
-            .unwrap();
+            .map(|frames| track.codec_params.start_ts + frames).expect("Can't load duration");
 
         let mut decoder = symphonia::default::get_codecs()
             .make(&track.codec_params, &DecoderOptions::default())
@@ -345,7 +345,7 @@ impl Player {
                                     dur.unwrap(),
                                     &app_name,
                                 )
-                                .unwrap(),
+                                .expect("Can't open audio output device for line 348")
                             );
                         } else {
                             let mut new_spec = *decoded.spec();
@@ -373,7 +373,7 @@ impl Player {
                                         dur.unwrap(),
                                         &app_name,
                                     )
-                                    .unwrap(),
+                                    .expect("Can't open audio output device for line 376")
                                 );
                             }
                         }
@@ -392,9 +392,11 @@ impl Player {
                 }
             }
         }
+        
         if !exit {
             tx_e.send(Message::End).expect("Can't send End message");
         }
+
         format
             .seek(
                 SeekMode::Coarse,
@@ -406,7 +408,7 @@ impl Player {
                     track_id: None,
                 },
             )
-            .unwrap();
+            .expect("Can't seek to start");
     }
 }
 
