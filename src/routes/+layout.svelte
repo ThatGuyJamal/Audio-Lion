@@ -12,6 +12,6 @@
 	<slot />
 </main>
 
-<!-- Controls the audio player views -->
+<!-- Controls the audio player views. -->
 
 <AudioController />
