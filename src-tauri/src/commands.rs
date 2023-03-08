@@ -1,17 +1,11 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-
-use std::sync::{Arc, Mutex};
-
-use serde::{Deserialize, Serialize};
-use specta::Type;
-use tauri::App;
+// #![allow(dead_code)]
+// #![allow(unused_imports)]
+// #![allow(unused_variables)]
 
 use crate::{
     config::AppConfig,
     manager::handle_audio_command,
-    types::{AppInfo, AudioCommandResult, AudioCommands, ConfigResult, TauriCommandError},
+    types::{AppInfo, AudioCommandResult, AudioCommands, ConfigResult},
     utils::{self, AudioFileTypes},
 };
 

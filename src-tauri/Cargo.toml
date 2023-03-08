@@ -14,7 +14,7 @@ tauri-build = { version = "1.2", features = [] }
 
 [dependencies]
 # Core
-tauri = { version = "1.2", features = ["shell-open"] }
+tauri = { version = "1.2", features = ["notification-all", "shell-open"] }
 symphonia = { version = "0.5.2", features = ["aac", "alac", "isomp4", "mp3"] }
 
 # Plugins

@@ -1,3 +1,7 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+
 //! Platform-dependant Audio Outputs
 
 /// This is a modified version of [symphonia-play's `output.rs`](https://github.com/pdeljanov/Symphonia/blob/master/symphonia-play/src/output.rs)
@@ -33,6 +37,8 @@ mod cpal {
     use symphonia::core::audio::{AudioBufferRef, RawSample, SampleBuffer, SignalSpec};
     use symphonia::core::conv::ConvertibleSample;
     use symphonia::core::units::Duration;
+
+    use crate::manager::PLAYERS;
 
     use super::{AudioOutput, AudioOutputError, Result};
 
@@ -134,9 +140,10 @@ mod cpal {
             if let Err(err) = stream_result {
                 eprintln!("audio output stream open error: {:?}", err);
 
-                // Restart the tauri process
+                // Restart the player process
                 // todo - remove this later when we fix the config crash bug
-                app_handle.restart();
+                let mut players = PLAYERS.lock().unwrap();
+                players.clear();
 
                 return Err(AudioOutputError::OpenStreamError);
             }

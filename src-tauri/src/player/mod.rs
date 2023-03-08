@@ -1,6 +1,6 @@
 #![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
+// #![allow(unused_imports)]
+// #![allow(unused_variables)]
 
 mod music_track;
 mod output;
@@ -8,7 +8,6 @@ mod queue;
 mod types;
 mod utils;
 
-use std::collections::HashMap;
 use std::error::Error;
 use std::ffi::OsStr;
 use std::path::Path;

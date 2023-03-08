@@ -4,11 +4,7 @@ use std::{
     path::PathBuf,
     sync::{Arc, Mutex},
 };
-
 use lazy_static::lazy_static;
-use serde::{Deserialize, Serialize};
-use specta::Type;
-use tauri::App;
 
 use crate::{
     player::Player,
@@ -18,7 +14,7 @@ use crate::{
 // Global Vectors for storing the players and their ids. This is a bit of a hack, but it works for now.
 // It allows us to control the players from the main thread, and the audio thread.
 lazy_static! {
-    static ref PLAYERS: Arc<Mutex<Vec<Arc<Mutex<Player>>>>> = Arc::new(Mutex::new(Vec::new()));
+    pub static ref PLAYERS: Arc<Mutex<Vec<Arc<Mutex<Player>>>>> = Arc::new(Mutex::new(Vec::new()));
 }
 
 struct PlayCommand {

@@ -1,6 +1,3 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
 #![cfg_attr(
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
@@ -8,12 +5,13 @@
 
 // Imports
 use config::AppConfig;
-use serde::Serialize;
 use specta::collect_types;
 use tauri::{App, Manager};
 use tauri_specta::ts;
 use types::Payload;
 use window_shadows::set_shadow;
+
+use crate::utils::AudioFileTypes;
 
 // Sub modules
 mod api;
@@ -28,12 +26,29 @@ mod utils;
 // Start the application backend process
 pub fn init(app: &mut App) {
     // Load the config file and make sure it exists
-    AppConfig::new().load(app.handle()).unwrap();
+    match AppConfig::new().load(app.handle()) {
+        Ok(_) => (),
+        Err(e) => {
+            println!("Error loading config on startup: {}", e.message);
+            // Create the config file if it doesn't exist
+            let defaults = AppConfig {
+                audio_directories: vec![],
+                audio_device_name: None,
+                audio_file_types_allowed: vec![AudioFileTypes::MP3, AudioFileTypes::WAV],
+            };
+            match AppConfig::new().save(app.app_handle(), defaults) {
+                Ok(_) => (),
+                Err(e) => {
+                    println!("Error saving default config on startup: {}", e.message);
+                }
+            }
+        }
+    }
 }
 
 // Exports our rust types (converted to the similar js type) to a typescript file for use in the front end
 fn export_bindings() {
-    ts::export(
+    match ts::export(
         collect_types![
             commands::load_config,
             commands::save_config,
@@ -43,12 +58,17 @@ fn export_bindings() {
             commands::handle_audio_input
         ],
         "../src/lib/bindings.ts",
-    )
-    .unwrap();
+    ) {
+        Ok(_) => (),
+        Err(e) => {
+            println!("Error exporting bindings: {}", e);
+        }
+    }
 }
 
 fn main() {
-    export_bindings();
+    //! This must be disabled when building the app or it will not start.
+    // export_bindings();
 
     tauri::Builder::default()
         .setup(|app| {

@@ -1,16 +1,14 @@
 #![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
+// #![allow(unused_imports)]
+// #![allow(unused_variables)]
 
-use cpal::traits::{DeviceTrait, HostTrait};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::fs::{File, self};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use std::io::{prelude::*, ErrorKind};
 use std::path::Path;
 
-use crate::types::{ConfigResult, IError, ISuccess};
+use crate::types::{ConfigResult, IError};
 use crate::utils::AudioFileTypes;
 
 #[derive(Serialize, Deserialize, Debug, Type, Clone)]
