@@ -2,14 +2,17 @@
 #![allow(unused_imports)]
 #![allow(unused_variables)]
 
+use std::sync::{Arc, Mutex};
+
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::App;
 
 use crate::{
     config::AppConfig,
-    types::{AppInfo, ConfigResult, TauriCommandError, AudioCommands, AudioCommandResult},
-    utils::{self, AudioFileTypes}, manager::handle_audio_command,
+    manager::handle_audio_command,
+    types::{AppInfo, AudioCommandResult, AudioCommands, ConfigResult, TauriCommandError},
+    utils::{self, AudioFileTypes},
 };
 
 #[tauri::command]
@@ -105,9 +108,7 @@ pub async fn handle_audio_input(
     command: AudioCommands,
     player_path: Option<String>,
 ) -> Result<AudioCommandResult, String> {
-    // println!("Command: {:?}", command);
-    // println!("Player Path: {:?}", player_path);
-    match handle_audio_command(app_handle, command, player_path).await {
+        match handle_audio_command(app_handle, command, player_path).await {
         Ok(result) => {
             return Ok(result);
         }

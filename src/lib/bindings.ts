@@ -34,17 +34,17 @@ export function handleAudioInput(command: AudioCommands, playerPath: string | nu
 
 export type AudioCommandResult = { command_name: string; success: boolean; is_paused: boolean; path: string | null }
 /**
+ *  The configuration file for the application
+ */
+export type AppConfig = { audio_directories: string[]; audio_device_name: string | null; audio_file_types_allowed: AudioFileTypes[] }
+export type AudioFileTypes = "MP3" | "WAV"
+/**
  *  basic Errors returned by the application to the front end.
  */
 export type IError = { status: boolean; message: string }
-export type AudioFileTypes = "MP3" | "WAV"
 export type ConfigResult = { data: AppConfig; error: IError | null }
 export type AppInfo = { os: string; name: string; version: string; description: string }
 /**
  *  Commands for the audio player to handle.
  */
 export type AudioCommands = "Play" | "Pause" | "Resume" | "Stop"
-/**
- *  The configuration file for the application
- */
-export type AppConfig = { audio_directories: string[]; audio_device_name: string | null; audio_file_types_allowed: AudioFileTypes[] }

@@ -13,6 +13,7 @@ use specta::collect_types;
 use tauri::{App, Manager};
 use tauri_specta::ts;
 use types::Payload;
+use window_shadows::set_shadow;
 
 // Sub modules
 mod api;
@@ -58,6 +59,15 @@ fn main() {
             // println!("{}, {argv:?}, {cwd}", app.package_info().name);
             app.emit_all("single-instance", Payload { args: argv, cwd })
                 .unwrap();
+
+            // Set the window shadow.
+            let window = app.get_window("main").unwrap();
+            match set_shadow(&window, true) {
+                Ok(_) => {}
+                Err(e) => {
+                    println!("Error setting window shadow: {}", e);
+                }
+            }
         }))
         .invoke_handler(tauri::generate_handler![
             commands::load_config,

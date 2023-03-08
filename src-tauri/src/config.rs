@@ -5,7 +5,8 @@
 use cpal::traits::{DeviceTrait, HostTrait};
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use std::fs::File;
+use std::fs::{File, self};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use std::io::{prelude::*, ErrorKind};
 use std::path::Path;
 
@@ -53,7 +54,7 @@ impl AppConfig {
 
         if let Some(config_path) = app_handle.path_resolver().app_config_dir() {
             // Create the directory if it doesn't exist
-            match std::fs::create_dir_all(&config_path) {
+            match fs::create_dir_all(&config_path) {
                 Ok(_) => (),
                 Err(e) => {
                     return Err(IError {

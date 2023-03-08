@@ -5,6 +5,7 @@
 use crate::{config::AppConfig, types::AudioOutputError};
 use serde::{Deserialize, Serialize};
 use specta::Type;
+use tauri::{Manager, App, Wry, CustomMenuItem, AppHandle};
 
 #[derive(PartialEq, Debug, Serialize, Deserialize, Type, Clone)]
 pub enum AudioFileTypes {

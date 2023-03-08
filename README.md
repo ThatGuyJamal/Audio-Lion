@@ -6,11 +6,16 @@
 
 ## Features
 
+- [x] Play audio from local disk
+
 - [ ] Download audio from YouTube, SoundCloud, etc.
 
-- [ ] Play audio from local disk
-
 - [ ] Play audio from URL
+
+## Known Bugs
+
+1. Playing audio over 48kHz breaks the decoding process. This is a known bug and will be fixed before version 0.1.0.
+    - Temporary fix: convert audio to 48kHz or lower. You can do this by changing the sample rate in your sound settings on your device.
 
 ## Download
 

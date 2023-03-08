@@ -3,11 +3,12 @@
 #![allow(unused_variables)]
 
 mod music_track;
+mod output;
+mod queue;
 mod types;
 mod utils;
-mod queue;
-mod output;
 
+use std::collections::HashMap;
 use std::error::Error;
 use std::ffi::OsStr;
 use std::path::Path;
@@ -189,7 +190,7 @@ impl Player {
         Ok(())
     }
 
-     /// Plays a certain track
+    /// Plays a certain track
     pub fn play_from_track(&mut self, app_handle: tauri::AppHandle, track: &MusicTrack) {
         self.play(app_handle, Arc::new(Mutex::new(track.get_format())));
     }
@@ -224,7 +225,7 @@ impl Player {
                 );
             })
             .expect("Failed to spawn thread");
-        
+
         self.thread = Some(thread);
         self.tx = Some(tx);
         self.rx_e = Some(rx_e);
@@ -250,7 +251,8 @@ impl Player {
         let duration = track
             .codec_params
             .n_frames
-            .map(|frames| track.codec_params.start_ts + frames).expect("Can't load duration");
+            .map(|frames| track.codec_params.start_ts + frames)
+            .expect("Can't load duration");
 
         let mut decoder = symphonia::default::get_codecs()
             .make(&track.codec_params, &DecoderOptions::default())
@@ -356,7 +358,7 @@ impl Player {
                                     dur.unwrap(),
                                     &app_name,
                                 )
-                                .expect("Can't open audio output device for line 348")
+                                .expect("Can't open audio output device for line 348"),
                             );
                         } else {
                             let mut new_spec = *decoded.spec();
@@ -384,7 +386,7 @@ impl Player {
                                         dur.unwrap(),
                                         &app_name,
                                     )
-                                    .expect("Can't open audio output device for line 376")
+                                    .expect("Can't open audio output device for line 376"),
                                 );
                             }
                         }
@@ -403,7 +405,7 @@ impl Player {
                 }
             }
         }
-        
+
         if !exit {
             tx_e.send(Message::End).expect("Can't send End message");
         }
@@ -421,7 +423,6 @@ impl Player {
             )
             .expect("Can't seek to start");
     }
-
 }
 
 impl Default for Player {
