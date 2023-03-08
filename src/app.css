@@ -28,15 +28,14 @@
   display: none;
 }
 
-.container {
+/* .container {
 	margin: 0;
 	padding-top: 10vh;
 	padding-bottom: 10vh;
 	display: flex;
-	/* flex-direction: column; */
 	justify-content: center;
 	text-align: center;
-}
+} */
 
 .app-logo {
 	height: 8em;

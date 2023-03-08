@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-	import { AudioCommands, handle_audio_input, type InputParams } from "$lib/utils/tauri";
-	import { AudioFileType } from "$lib/types/AppConfig";
 	import {
 		extractFileName,
 		getCurrentPlatform,
@@ -11,7 +9,13 @@
 	} from "$lib/utils/format";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
 	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
- import { getAudioFiles, viewAppConfig, type AppConfig } from "$lib/bindings";
+	import {
+		getAudioFiles,
+		handleAudioInput,
+		loadConfig,
+		type AppConfig,
+		type ConfigResult,
+	} from "$lib/bindings";
 
 	// the array of audio files to display to the user
 	let audio_files_arr: string[] = [];
@@ -21,84 +25,67 @@
 
 	// load the current app config when the component is mounted
 	onMount(async () => {
-		const config = await viewAppConfig();
+		const config = await loadConfig();
 
 		// If the config exists, set the state and load the audio files
-		if (config) {
-			ApplicationConfigurationState.set(config);
+		ApplicationConfigurationState.set(config.data);
 
-			const audioFiles = await loadAudioFiles(config);
+		const audioFiles = await loadAudioFiles(config);
 
-			// If the audio files exist, store them in the array to display
-			if (audioFiles) {
-				audio_files_arr = audioFiles;
-			}
-		} else {
-			ApplicationConfigurationState.set(null);
+		// If the audio files exist, store them in the array to display
+		if (audioFiles) {
+			audio_files_arr = audioFiles;
 		}
 
 		await tick();
 	});
 
-	async function loadAudioFiles(
-		data: AppConfig | null
-	): Promise<string[] | null> {
-		if (data) {
-			ApplicationConfigurationState.set(data);
+	async function loadAudioFiles(config: ConfigResult): Promise<string[] | null> {
+		ApplicationConfigurationState.set(config.data);
 
-			if (data.audio_directories.length <= 0) {
-				canDisplay = false;
-				return null;
-			} else {
-				canDisplay = true;
-			}
-
-			let shouldLoadMp3 = data.audio_file_types_allowed.find(
-				(type) => type === "mp3"
-			)
-				? "yes"
-				: "no";
-			let shouldLoadWav = data.audio_file_types_allowed.find(
-				(type) => type === "wav"
-			)
-				? "yes"
-				: "no";
-
-			if (shouldLoadMp3 === "yes") {
-				const mp3Files = await getAudioFiles(AudioFileType.MP3);
-
-				// console.log("MP3", mp3Files);
-
-				for (let i = 0; i < mp3Files.length; i++) {
-					audio_files_arr.push(mp3Files[i]);
-				}
-			}
-
-			if (shouldLoadWav === "yes") {
-				const wavFiles = await getAudioFiles(AudioFileType.WAV);
-
-				// console.log("WAV", wavFiles);
-
-				for (let i = 0; i < wavFiles.length; i++) {
-					audio_files_arr.push(wavFiles[i]);
-				}
-			}
-
-			return audio_files_arr;
+		if (config.data.audio_directories.length <= 0) {
+			canDisplay = false;
+			return null;
+		} else {
+			canDisplay = true;
 		}
 
-		ApplicationConfigurationState.set(null);
-		await tick();
-		return [];
+		let shouldLoadMp3 = config.data.audio_file_types_allowed.find(
+			(type) => type === "MP3"
+		)
+			? "yes"
+			: "no";
+		let shouldLoadWav = config.data.audio_file_types_allowed.find(
+			(type) => type === "WAV"
+		)
+			? "yes"
+			: "no";
+
+		if (shouldLoadMp3 === "yes") {
+			const mp3Files = await getAudioFiles("MP3");
+
+			// console.log("MP3", mp3Files);
+
+			for (let i = 0; i < mp3Files.length; i++) {
+				audio_files_arr.push(mp3Files[i]);
+			}
+		}
+
+		if (shouldLoadWav === "yes") {
+			const wavFiles = await getAudioFiles("WAV");
+
+			// console.log("WAV", wavFiles);
+
+			for (let i = 0; i < wavFiles.length; i++) {
+				audio_files_arr.push(wavFiles[i]);
+			}
+		}
+
+		return audio_files_arr;
 	}
-
 	async function play(path: string) {
-		let params: InputParams = {
-			command: AudioCommands.PLAY,
-			player_path: path
-		}
-
-		await handle_audio_input(params)
+		let result = await handleAudioInput("Play", path);
+		console.table(result);
 	}
 </script>
 

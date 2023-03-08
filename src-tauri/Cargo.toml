@@ -13,19 +13,26 @@ edition = "2021"
 tauri-build = { version = "1.2", features = [] }
 
 [dependencies]
+# Core
+tauri = { version = "1.2", features = ["shell-open"] }
+symphonia = { version = "0.5.2", features = ["aac", "alac", "isomp4", "mp3"] }
+
+# Plugins
+tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
+
+# Serialization
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.2", features = ["shell-open"] }
-tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
+window-shadows = "0.2.1"
+
+# Utilities
 tokio = "1.25.0"
 anyhow = "1.0.69"
 thiserror = "1.0.38"
-tokio-util = { version = "0.7", features = ["rt"] }
-rodio = "0.17.1"
-symphonia = { version = "0.5.2", features = ["aac", "alac", "isomp4", "mp3"] }
-rand = "0.8.5"
 specta = "1.0.0"
 tauri-specta = { version = "1.0.0", features = ["typescript"] }
+lazy_static = "1.4.0"
+rand = "0.8.5"
 
 [features]
 # this feature is used used for production builds where `devPath` points to the filesystem
@@ -38,5 +45,5 @@ libpulse-simple-binding = "2.25.0"
 
 [target.'cfg(not(target_os = "linux"))'.dependencies]
 rb = "0.4.0"
-cpal = { version = "0.14.1"}
+cpal = { version = "0.14.1" }
 dasp = "0.11.0"

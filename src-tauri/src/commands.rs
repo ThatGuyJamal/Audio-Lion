@@ -1,108 +1,71 @@
 #![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
 
-use crate::{
-    helpers::{
-        self,
-        configuration::{self, AppConfig},
-        player::AudioFileTypes,
-    },
-    manager::{handle_audio_command, AudioCommandResult, AudioCommands}
-};
+use std::sync::{Arc, Mutex};
+
 use serde::{Deserialize, Serialize};
 use specta::Type;
+use tauri::App;
 
-#[derive(Debug, thiserror::Error)]
-pub enum AudioCommandResultError {
-    #[error(transparent)]
-    Io(#[from] std::io::Error),
-}
+use crate::{
+    config::AppConfig,
+    manager::handle_audio_command,
+    types::{AppInfo, AudioCommandResult, AudioCommands, ConfigResult, TauriCommandError},
+    utils::{self, AudioFileTypes},
+};
 
-// we must manually implement serde::Serialize
-impl serde::Serialize for AudioCommandResultError {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::ser::Serializer,
-    {
-        serializer.serialize_str(&self.to_string())
+#[tauri::command]
+#[specta::specta]
+pub async fn load_config(app_handle: tauri::AppHandle) -> Result<ConfigResult, String> {
+    match AppConfig::new().load(app_handle) {
+        Ok(config) => Ok(config),
+        Err(e) => Err(e.message),
     }
 }
 
 #[tauri::command]
 #[specta::specta]
-pub async fn view_app_config(
+pub async fn save_config(
     app_handle: tauri::AppHandle,
-) -> Result<configuration::AppConfig, String> {
-    match configuration::read_config_file(app_handle) {
-        Ok(config) => {
-            return Ok(config);
-        }
-        Err(e) => {
-            return Err(e.to_string());
-        }
+    config: AppConfig,
+) -> Result<ConfigResult, String> {
+    match AppConfig::new().save(app_handle, config.clone()) {
+        Ok(config) => Ok(config),
+        Err(e) => Err(e.message),
     }
 }
 
 #[tauri::command]
 #[specta::specta]
-pub async fn reset_app_config(app_handle: tauri::AppHandle) -> bool {
-    match configuration::delete_config_file(&app_handle).await {
-        // If the configuration file was deleted successfully, create a new one
-        true => {
-            // Clone app_handle and pass it to create_config_file
-            let app_handle_clone = app_handle.clone();
-            match configuration::create_config_file(app_handle_clone).await {
-                Ok(_) => {
-                    return true;
-                }
-                Err(_) => {
-                    return false;
-                }
-            }
-        }
-        false => {
-            return false;
-        }
+pub async fn reset_config(app_handle: tauri::AppHandle) -> Result<ConfigResult, String> {
+    match AppConfig::new().reset(app_handle) {
+        Ok(config) => Ok(config),
+        Err(e) => Err(e.message),
     }
 }
 
 #[tauri::command]
 #[specta::specta]
-pub async fn set_app_config(
+pub async fn get_audio_files(
     app_handle: tauri::AppHandle,
-    audio_directories: Vec<String>,
-    audio_file_types_allowed: Vec<String>,
-    audio_device_name: Option<String>
-) -> Result<AppConfig, String> {
-    let config = AppConfig {
-        audio_directories,
-        audio_file_types_allowed,
-        audio_device_name: audio_device_name
-    };
-    match configuration::update_config_file(&app_handle, &config).await {
-        Ok(_) => {
-            return Ok(config);
-        }
+    audio_file_type: AudioFileTypes,
+) -> Vec<String> {
+    let config = match AppConfig::new().load(app_handle) {
+        Ok(config) => config,
         Err(_) => {
-            return Err("Error updating config file".to_string());
+            return Vec::new();
         }
-    }
-}
+    };
 
-#[tauri::command]
-#[specta::specta]
-pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: String) -> Vec<String> {
-    let config = configuration::read_config_file(app_handle).unwrap();
     let mut audio_files: Vec<String> = Vec::new();
 
-    if config.audio_directories.len() == 0 {
+    if config.data.audio_directories.len() == 0 {
         return audio_files;
     }
 
-    if config.audio_file_types_allowed.len() == 1 {
-        let files = helpers::player::get_audio_files(
-            &config.audio_directories[0],
-            AudioFileTypes::from_extension(&audio_file_type).unwrap(),
-        );
+    if config.data.audio_file_types_allowed.len() == 1 {
+        let files = utils::get_audio_files(&config.data.audio_directories[0], audio_file_type);
 
         for file in files {
             audio_files.push(file.display().to_string());
@@ -111,42 +74,14 @@ pub async fn get_audio_files(app_handle: tauri::AppHandle, audio_file_type: Stri
         return audio_files;
     }
 
-    for directory in config.audio_directories {
-        let files = helpers::player::get_audio_files(
-            &directory,
-            AudioFileTypes::from_extension(&audio_file_type).unwrap(),
-        );
+    for directory in config.data.audio_directories {
+        let files = utils::get_audio_files(&directory, audio_file_type.clone());
 
         for file in files {
             audio_files.push(file.display().to_string());
         }
     }
     return audio_files;
-}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn handle_audio_input(
-    app_handle: tauri::AppHandle,
-    command: AudioCommands,
-    player_path: Option<String>,
-) -> Result<AudioCommandResult, AudioCommandResultError> {
-    // println!("Command: {:?}", command);
-    // println!("Player Path: {:?}", player_path);
-
-    let result = handle_audio_command(app_handle, command, player_path).await.unwrap();
-
-    println!("Result: {:?}", result);
-
-    Ok(result)
-}
-
-#[derive(Serialize, Deserialize, Type)]
-pub struct AppInfo {
-    os: String,
-    name: String,
-    version: String,
-    description: String,
 }
 
 #[tauri::command]
@@ -164,4 +99,21 @@ pub async fn get_app_info(app_handle: tauri::AppHandle) -> AppInfo {
         version,
         description,
     };
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn handle_audio_input(
+    app_handle: tauri::AppHandle,
+    command: AudioCommands,
+    player_path: Option<String>,
+) -> Result<AudioCommandResult, String> {
+        match handle_audio_command(app_handle, command, player_path).await {
+        Ok(result) => {
+            return Ok(result);
+        }
+        Err(e) => {
+            return Err(e.message);
+        }
+    }
 }

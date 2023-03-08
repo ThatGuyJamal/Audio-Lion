@@ -1,27 +1,55 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
 #![cfg_attr(
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
 
+// Imports
+use config::AppConfig;
 use serde::Serialize;
 use specta::collect_types;
 use tauri::{App, Manager};
 use tauri_specta::ts;
+use types::Payload;
+use window_shadows::set_shadow;
+
+// Sub modules
+mod api;
+mod player;
 
 mod commands;
-mod helpers;
+mod config;
 mod manager;
+mod types;
+mod utils;
 
-mod audio;
+// Start the application backend process
+pub fn init(app: &mut App) {
+    // Load the config file and make sure it exists
+    AppConfig::new().load(app.handle()).unwrap();
+}
 
-#[derive(Clone, Serialize)]
-struct Payload {
-    args: Vec<String>,
-    cwd: String,
+// Exports our rust types (converted to the similar js type) to a typescript file for use in the front end
+fn export_bindings() {
+    ts::export(
+        collect_types![
+            commands::load_config,
+            commands::save_config,
+            commands::reset_config,
+            commands::get_audio_files,
+            commands::get_app_info,
+            commands::handle_audio_input
+        ],
+        "../src/lib/bindings.ts",
+    )
+    .unwrap();
 }
 
 fn main() {
     export_bindings();
+
     tauri::Builder::default()
         .setup(|app| {
             init(app);
@@ -31,40 +59,24 @@ fn main() {
             // println!("{}, {argv:?}, {cwd}", app.package_info().name);
             app.emit_all("single-instance", Payload { args: argv, cwd })
                 .unwrap();
+
+            // Set the window shadow.
+            let window = app.get_window("main").unwrap();
+            match set_shadow(&window, true) {
+                Ok(_) => {}
+                Err(e) => {
+                    println!("Error setting window shadow: {}", e);
+                }
+            }
         }))
         .invoke_handler(tauri::generate_handler![
-            commands::view_app_config,
-            commands::reset_app_config,
-            commands::set_app_config,
+            commands::load_config,
+            commands::save_config,
+            commands::reset_config,
             commands::get_audio_files,
             commands::get_app_info,
-            commands::handle_audio_input,
+            commands::handle_audio_input
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-pub fn init(app: &mut App) {
-    match helpers::configuration::read_config_file(app.handle()) {
-        Ok(_config) => {}
-        Err(error) => {
-            println!("Error: {}", error);
-        }
-    }
-}
-
-fn export_bindings() {
-    ts::export(
-        collect_types![
-            commands::view_app_config,
-            commands::reset_app_config,
-            commands::set_app_config,
-            commands::get_audio_files,
-            commands::get_app_info
-            // todo - Fix types for this command so they can be exported
-            // commands::handle_audio_input,
-        ],
-        "../src/lib/bindings.ts",
-    )
-    .unwrap();
 }

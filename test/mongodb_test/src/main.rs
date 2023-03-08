@@ -8,12 +8,13 @@ use mongodb::{bson::doc, options::FindOptions, Client};
 use serde::{Deserialize, Serialize};
 use test::custom_print;
 
-const MONGO_URI: &str = "";
+const MONGO_URI: &str = "mongodb://localhost:27017/test";
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Book {
     title: String,
     author: String,
+    read_level: String,
 }
 
 #[tokio::main]
@@ -29,10 +30,12 @@ async fn main() {
         Book {
             title: "The Grapes of Wrath".to_string(),
             author: "John Steinbeck".to_string(),
+            read_level: "Easy".to_string(),
         },
         Book {
             title: "To Kill a Mockingbird".to_string(),
             author: "Harper Lee".to_string(),
+            read_level: "Hard".to_string(),
         },
     ];
 
@@ -42,7 +45,7 @@ async fn main() {
 
     custom_print("Starting to query the database...");
 
-    Query the books in the collection with a filter and an option.
+    // Query the books in the collection with a filter and an option.
     let filter = doc! { "author": "John Steinbeck" };
     let find_options = FindOptions::builder().sort(doc! { "title": 1 }).build();
     let mut cursor = collection.find(filter, find_options).await.unwrap();
@@ -54,11 +57,20 @@ async fn main() {
 
     custom_print("Finished querying the database!");
 
-    for i in 0..5 {
+    for i in 0..5000 {
         // Perform operations that work with directly our model.
-        collection.insert_one(Book { author: i.to_string(), title: i.to_string() }, None).await;
+        collection
+            .insert_one(
+                Book {
+                    author: i.to_string(),
+                    title: i.to_string(),
+                    read_level: i.to_string(),
+                },
+                None,
+            )
+            .await;
         custom_print("Inserted a document into the database!");
     }
 
-    custom_print("Finished running main.rs!")
+    custom_print("Finished running main.rs!");
 }

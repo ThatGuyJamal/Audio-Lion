@@ -8,10 +8,9 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use symphonia::core::formats::FormatReader;
 
-use super::{NError, TrackTime};
+use super::Player;
 use super::music_track::MusicTrack;
-use super::player::Player;
-
+use super::types::{NError, TrackTime};
 
 struct QueueTrack {
     format: Arc<Mutex<Box<dyn FormatReader>>>,

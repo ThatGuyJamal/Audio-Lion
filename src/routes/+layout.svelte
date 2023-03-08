@@ -8,10 +8,10 @@
 <Navbar />
 
 <!-- The container puts all the rest of the app code into the center of the screen -->
-<main class="container">
+<main class="row py-20 text-center">
 	<slot />
 </main>
 
-<!-- Controls the audio player views -->
+<!-- Controls the audio player views. -->
 
 <AudioController />
