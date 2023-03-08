@@ -76,13 +76,13 @@ mod cpal {
             // Select proper playback routine based on sample format.
             match config.sample_format() {
                 cpal::SampleFormat::F32 => {
-                    CpalAudioOutputImpl::<f32>::try_open(spec, duration, &device)
+                    CpalAudioOutputImpl::<f32>::try_open(app_handle, spec, duration, &device)
                 }
                 cpal::SampleFormat::I16 => {
-                    CpalAudioOutputImpl::<i16>::try_open(spec, duration, &device)
+                    CpalAudioOutputImpl::<i16>::try_open(app_handle, spec, duration, &device)
                 }
                 cpal::SampleFormat::U16 => {
-                    CpalAudioOutputImpl::<u16>::try_open(spec, duration, &device)
+                    CpalAudioOutputImpl::<u16>::try_open(app_handle, spec, duration, &device)
                 }
             }
         }
@@ -99,6 +99,7 @@ mod cpal {
 
     impl<T: AudioOutputSample> CpalAudioOutputImpl<T> {
         pub fn try_open(
+            app_handle: tauri::AppHandle,
             spec: SignalSpec,
             duration: Duration,
             device: &cpal::Device,
@@ -132,6 +133,10 @@ mod cpal {
 
             if let Err(err) = stream_result {
                 eprintln!("audio output stream open error: {:?}", err);
+
+                // Restart the tauri process
+                // todo - remove this later when we fix the config crash bug
+                app_handle.restart();
 
                 return Err(AudioOutputError::OpenStreamError);
             }

@@ -49,15 +49,7 @@
 
 		dirPath = input.value;
 
-		const currentData = await loadConfig();
-
-		if (!currentData) {
-			throw new Error("No config data found");
-		}
-
-		if (!currentData.data.audio_device_name) {
-			currentData.data.audio_device_name = config.data.audio_device_name;
-		}
+		const currentData = await loadConfig().then((result) => result.data);
 
 		// let checkDir = isValidDirectory(dirPath, getCurrentPlatform());
 		// todo - fix the isValidDirectory function
@@ -67,14 +59,19 @@
 			dirInputStatus = "invalid";
 		} else {
 			dirInputStatus = "valid";
-			currentData.data.audio_directories.push(dirPath);
-			let newData = currentData.data
+
+			currentData.audio_directories.push(dirPath);
+			let newData = currentData;
+
 			// console.table(currentData);
 			await saveConfig({
 				audio_device_name: newData.audio_device_name,
 				audio_directories: newData.audio_directories,
 				audio_file_types_allowed: newData.audio_file_types_allowed,
+			}).catch((err) => {
+				console.error(err);
 			});
+
 			ApplicationConfigurationState.set(newData);
 			dirPath = "";
 			await tick();

@@ -28,9 +28,9 @@ pub async fn load_config(app_handle: tauri::AppHandle) -> Result<ConfigResult, S
 #[specta::specta]
 pub async fn save_config(
     app_handle: tauri::AppHandle,
-    mut config: AppConfig,
+    config: AppConfig,
 ) -> Result<ConfigResult, String> {
-    match config.save(app_handle, config.clone()) {
+    match AppConfig::new().save(app_handle, config.clone()) {
         Ok(config) => Ok(config),
         Err(e) => Err(e.message),
     }

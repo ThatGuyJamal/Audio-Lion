@@ -12,8 +12,8 @@ export function loadConfig() {
     return invoke<ConfigResult>("load_config")
 }
 
-export function saveConfig(mutConfig: AppConfig) {
-    return invoke<ConfigResult>("save_config", { mutConfig })
+export function saveConfig(config: AppConfig) {
+    return invoke<ConfigResult>("save_config", { config })
 }
 
 export function resetConfig() {

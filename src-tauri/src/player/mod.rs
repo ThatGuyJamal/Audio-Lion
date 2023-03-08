@@ -358,7 +358,7 @@ impl Player {
                                     dur.unwrap(),
                                     &app_name,
                                 )
-                                .expect("Can't open audio output device for line 348"),
+                                .expect("Can't open audio output device"),
                             );
                         } else {
                             let mut new_spec = *decoded.spec();
