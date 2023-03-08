@@ -4,17 +4,16 @@
 	import config from "$lib/config";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
 	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
-	import { resetAppConfig, setAppConfig, viewAppConfig } from "$lib/bindings";
-	// import { getCurrentPlatform, isValidDirectory } from "$lib/utils/format";
+	import { resetConfig, saveConfig, loadConfig } from "$lib/bindings";
 
 	// load the current app config when the component is mounted
 	onMount(async () => {
-		const load = await viewAppConfig();
+		const load = await loadConfig();
 
-		// console.table(load);
+		console.table(load);
 
 		if (load) {
-			ApplicationConfigurationState.set(load);
+			ApplicationConfigurationState.set(load.data);
 		} else {
 			ApplicationConfigurationState.set(null);
 		}
@@ -22,13 +21,13 @@
 	});
 
 	const runReset = async () => {
-		await resetAppConfig();
-		const load = await viewAppConfig();
+		await resetConfig();
+		const load = await loadConfig();
 
 		// console.table(result);
 
 		if (load) {
-			ApplicationConfigurationState.set(load);
+			ApplicationConfigurationState.set(load.data);
 		} else {
 			ApplicationConfigurationState.set(null);
 		}
@@ -39,25 +38,25 @@
 	$: dirInputStatus = "loading" as "invalid" | "valid" | "loading";
 
 	const runNewFolder = async (event: Event) => {
-		const config = await viewAppConfig()
+		const config = await loadConfig()
 		const input = event.target as HTMLInputElement;
 
 		// Makes sure we don't add the same directory twice
-		if (config.audio_directories.includes(input.value)) {
+		if (config.data.audio_directories.includes(input.value)) {
 			dirPath = "";
 			return;
 		}
 
 		dirPath = input.value;
 
-		const currentData = await viewAppConfig();
+		const currentData = await loadConfig();
 
 		if (!currentData) {
 			throw new Error("No config data found");
 		}
 
-		if (!currentData.audio_device_name) {
-			currentData.audio_device_name = config.audio_device_name;
+		if (!currentData.data.audio_device_name) {
+			currentData.data.audio_device_name = config.data.audio_device_name;
 		}
 
 		// let checkDir = isValidDirectory(dirPath, getCurrentPlatform());
@@ -68,10 +67,14 @@
 			dirInputStatus = "invalid";
 		} else {
 			dirInputStatus = "valid";
-			currentData.audio_directories.push(dirPath);
-			let newData = currentData;
+			currentData.data.audio_directories.push(dirPath);
+			let newData = currentData.data
 			// console.table(currentData);
-			await setAppConfig(newData.audio_directories, newData.audio_file_types_allowed, newData.audio_device_name);
+			await saveConfig({
+				audio_device_name: newData.audio_device_name,
+				audio_directories: newData.audio_directories,
+				audio_file_types_allowed: newData.audio_file_types_allowed,
+			});
 			ApplicationConfigurationState.set(newData);
 			dirPath = "";
 			await tick();
@@ -80,15 +83,19 @@
 
 	// Handles the checkbox for each folder
 	async function handleFolderChecks(dir: string) {
-		const config = await viewAppConfig();
+		const config = await loadConfig();
 
 		if (config) {
-			let index = config.audio_directories.indexOf(dir);
+			let index = config.data.audio_directories.indexOf(dir);
 			if (index > -1) {
-				config.audio_directories.splice(index, 1);
+				config.data.audio_directories.splice(index, 1);
 			}
-			const newConfig = await setAppConfig(config.audio_directories, config.audio_file_types_allowed, config.audio_device_name);
-			ApplicationConfigurationState.set(newConfig);
+			const newConfig = await saveConfig({
+				audio_device_name: config.data.audio_device_name,
+				audio_directories: config.data.audio_directories,
+				audio_file_types_allowed: config.data.audio_file_types_allowed,
+			});
+			ApplicationConfigurationState.set(newConfig.data);
 			await tick();
 		} else {
 			alert("No config data found");

@@ -8,16 +8,16 @@ declare global {
 
 const invoke = window.__TAURI_INVOKE__;
 
-export function viewAppConfig() {
-    return invoke<AppConfig>("view_app_config")
+export function loadConfig() {
+    return invoke<ConfigResult>("load_config")
 }
 
-export function resetAppConfig() {
-    return invoke<boolean>("reset_app_config")
+export function saveConfig(mutConfig: AppConfig) {
+    return invoke<ConfigResult>("save_config", { mutConfig })
 }
 
-export function setAppConfig(audioDirectories: string[], audioFileTypesAllowed: AudioFileTypes[], audioDeviceName: string | null) {
-    return invoke<AppConfig>("set_app_config", { audioDirectories,audioFileTypesAllowed,audioDeviceName })
+export function resetConfig() {
+    return invoke<ConfigResult>("reset_config")
 }
 
 export function getAudioFiles(audioFileType: AudioFileTypes) {
@@ -32,14 +32,19 @@ export function handleAudioInput(command: AudioCommands, playerPath: string | nu
     return invoke<AudioCommandResult>("handle_audio_input", { command,playerPath })
 }
 
-export type AudioFileTypes = "MP3" | "WAV"
-/**
- *  The configuration file for the application
- */
-export type AppConfig = { audio_directories: string[]; audio_file_types_allowed: AudioFileTypes[]; audio_device_name: string | null }
 export type AudioCommandResult = { command_name: string; success: boolean; is_paused: boolean; path: string | null }
+/**
+ *  basic Errors returned by the application to the front end.
+ */
+export type IError = { status: boolean; message: string }
+export type AudioFileTypes = "MP3" | "WAV"
+export type ConfigResult = { data: AppConfig; error: IError | null }
+export type AppInfo = { os: string; name: string; version: string; description: string }
 /**
  *  Commands for the audio player to handle.
  */
 export type AudioCommands = "Play" | "Pause" | "Resume" | "Stop"
-export type AppInfo = { os: string; name: string; version: string; description: string }
+/**
+ *  The configuration file for the application
+ */
+export type AppConfig = { audio_directories: string[]; audio_device_name: string | null; audio_file_types_allowed: AudioFileTypes[] }

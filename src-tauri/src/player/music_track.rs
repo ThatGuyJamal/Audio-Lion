@@ -1,4 +1,6 @@
 #![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
 
 use std::error::Error;
 use std::ffi::OsStr;
@@ -10,7 +12,7 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 
-use super::from_path_to_name_without_ext;
+use super::utils::from_path_to_name_without_ext;
 
 /// The basics where everything is built upon
 pub struct MusicTrack {

@@ -4,10 +4,16 @@
 	import FaPlay from "svelte-icons/fa/FaPlay.svelte";
 	import FaPause from "svelte-icons/fa/FaPause.svelte";
 	import FaStop from "svelte-icons/fa/FaStop.svelte";
-	import { handleAudioInput, viewAppConfig } from "$lib/bindings";
+	import { handleAudioInput, loadConfig } from "$lib/bindings";
 
-	let appConfig = viewAppConfig()
-		.then((data) => data)
+	let appConfig = loadConfig()
+		.then((x) => {
+			if (x.data) {
+				return x.data;
+			} else {
+				return x.error
+			}
+		})
 		.catch(() => null);
 
 	$: windowPosition = 0;

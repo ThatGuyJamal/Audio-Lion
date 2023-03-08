@@ -1,3 +1,13 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+
+mod music_track;
+mod types;
+mod utils;
+mod queue;
+mod output;
+
 use std::error::Error;
 use std::ffi::OsStr;
 use std::path::Path;
@@ -10,8 +20,8 @@ use symphonia::core::codecs::DecoderOptions;
 use symphonia::core::formats::{FormatReader, SeekMode, SeekTo};
 use symphonia::core::units::Time;
 
-use super::music_track::MusicTrack;
-use super::{output, Message, TrackTime};
+use self::music_track::MusicTrack;
+use self::types::{Message, TrackTime};
 
 /// The main actor for everything.
 /// Using this struct is really easy, just add a file you want to play (be sure of it being an audio file supported by Symphonia) and call `Player::play_next` and you've done everything!
@@ -39,10 +49,10 @@ impl Player {
             playback_speed,
             app_name,
             cached_get_time: None,
-            thread: None,
             tx: None,
             rx_t: None,
             rx_e: None,
+            thread: None,
         }
     }
 
@@ -179,7 +189,7 @@ impl Player {
         Ok(())
     }
 
-    /// Plays a certain track
+     /// Plays a certain track
     pub fn play_from_track(&mut self, app_handle: tauri::AppHandle, track: &MusicTrack) {
         self.play(app_handle, Arc::new(Mutex::new(track.get_format())));
     }
@@ -199,8 +209,9 @@ impl Player {
         let (tx_e, rx_e) = mpsc::channel();
 
         let thread = thread::Builder::new()
-            .name("audio-codec".to_string())
+            .name("player-codec".to_string())
             .spawn(move || {
+                println!("Thread spawned");
                 Self::thread_fn(
                     app_handle,
                     format,
@@ -210,7 +221,7 @@ impl Player {
                     app_name,
                     volume,
                     playback_speed,
-                )
+                );
             })
             .expect("Failed to spawn thread");
         
@@ -410,6 +421,7 @@ impl Player {
             )
             .expect("Can't seek to start");
     }
+
 }
 
 impl Default for Player {
