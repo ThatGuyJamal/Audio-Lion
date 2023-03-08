@@ -13,7 +13,6 @@ edition = "2021"
 tauri-build = { version = "1.2", features = [] }
 
 [dependencies]
-
 # Core
 tauri = { version = "1.2", features = ["shell-open"] }
 symphonia = { version = "0.5.2", features = ["aac", "alac", "isomp4", "mp3"] }
@@ -30,11 +29,10 @@ window-shadows = "0.2.1"
 tokio = "1.25.0"
 anyhow = "1.0.69"
 thiserror = "1.0.38"
-tokio-util = { version = "0.7", features = ["rt"] }
-rand = "0.8.5"
 specta = "1.0.0"
 tauri-specta = { version = "1.0.0", features = ["typescript"] }
 lazy_static = "1.4.0"
+rand = "0.8.5"
 
 [features]
 # this feature is used used for production builds where `devPath` points to the filesystem

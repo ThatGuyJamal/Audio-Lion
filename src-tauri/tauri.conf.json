@@ -64,6 +64,8 @@
         "fullscreen": false,
         "height": 790,
         "resizable": true,
+        "center": true,
+        "decorations": true,
         "title": "Audio Lion",
         "width": 999
       }
