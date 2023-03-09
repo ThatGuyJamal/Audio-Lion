@@ -1,7 +1,9 @@
+#![allow(dead_code)]
 #![cfg_attr(
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
+
 
 // Imports
 use config::AppConfig;
@@ -14,8 +16,8 @@ use window_shadows::set_shadow;
 use crate::utils::AudioFileTypes;
 
 // Sub modules
-mod api;
 mod player;
+mod services;
 
 mod commands;
 mod config;
@@ -66,8 +68,9 @@ fn export_bindings() {
     }
 }
 
-fn main() {
-    //! This must be disabled when building the app or it will not start.
+#[tokio::main]
+async fn main() {
+    // ! This must be disabled when building the app or it will not start.
     // export_bindings();
 
     tauri::Builder::default()
