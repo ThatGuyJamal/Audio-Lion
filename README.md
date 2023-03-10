@@ -21,7 +21,7 @@
 
 ## Download
 
-Downloading Audio Lion is easy. Just go to the [release page](https://github.com/audio-lion-dev/Audio-Lion/releases) and download the latest version. Or you can download the latest version from the [website](https://example.com/) here.
+Downloading Audio Lion is easy. Just go to the [release page](https://github.com/audio-lion-dev/Audio-Lion/releases) and download the latest version. Or you can download the latest version from the [website](https://audio-lion-dev.github.io/download/) here.
 
 ## Contributing
 
