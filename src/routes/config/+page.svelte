@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { AppConfigLimits } from "$lib/types/AppConfig";
 	import { onMount, tick } from "svelte";
-	import config from "$lib/config";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
 	import { ApplicationConfigurationState } from "$lib/stores/ConfigStore";
 	import { resetConfig, saveConfig, loadConfig } from "$lib/bindings";
@@ -10,7 +9,7 @@
 	onMount(async () => {
 		const load = await loadConfig();
 
-		console.table(load);
+		console.debug("loadConfig", load);
 
 		if (load) {
 			ApplicationConfigurationState.set(load.data);
@@ -24,7 +23,7 @@
 		await resetConfig();
 		const load = await loadConfig();
 
-		// console.table(result);
+		console.debug("loadConfig", load);
 
 		if (load) {
 			ApplicationConfigurationState.set(load.data);
@@ -38,7 +37,7 @@
 	$: dirInputStatus = "loading" as "invalid" | "valid" | "loading";
 
 	const runNewFolder = async (event: Event) => {
-		const config = await loadConfig()
+		const config = await loadConfig();
 		const input = event.target as HTMLInputElement;
 
 		// Makes sure we don't add the same directory twice
@@ -63,10 +62,11 @@
 			currentData.audio_directories.push(dirPath);
 			let newData = currentData;
 
-			// console.table(currentData);
+			// console.debug("currentData", currentData);
 			await saveConfig({
 				audio_device_name: newData.audio_device_name,
 				audio_directories: newData.audio_directories,
+				audio_file_types_allowed: newData.audio_file_types_allowed,
 			}).catch((err) => {
 				console.error(err);
 			});
@@ -89,6 +89,7 @@
 			const newConfig = await saveConfig({
 				audio_device_name: config.data.audio_device_name,
 				audio_directories: config.data.audio_directories,
+				audio_file_types_allowed: config.data.audio_file_types_allowed,
 			});
 			ApplicationConfigurationState.set(newConfig.data);
 			await tick();

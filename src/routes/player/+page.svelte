@@ -19,7 +19,7 @@
 		ApplicationConfigurationState.set(config.data);
 
 		const audioFiles = await loadAudioFiles(config);
-		console.table(audioFiles);
+		console.debug("audioFiles", audioFiles);
 
 		// If the audio files exist, store them in the array to display
 		if (audioFiles) {
@@ -58,14 +58,14 @@
 
 		if (shouldLoadMp3 === "yes") {
 			const mp3Files = await getAudioFiles("MP3");
-			// console.log("MP3", mp3Files);
+			// console.debug("MP3", mp3Files);
 			for (let i = 0; i < mp3Files.length; i++) {
 				audio_files_arr.push(mp3Files[i]);
 			}
 		}
 		if (shouldLoadWav === "yes") {
 			const wavFiles = await getAudioFiles("WAV");
-			// console.log("WAV", wavFiles);
+			// console.debug("WAV", wavFiles);
 			for (let i = 0; i < wavFiles.length; i++) {
 				audio_files_arr.push(wavFiles[i]);
 			}
@@ -73,7 +73,7 @@
 
 		if (shouldLoadWebm === "yes") {
 			const webmFiles = await getAudioFiles("WEBM");
-			// console.log("WEBM", webmFiles);
+			// console.debug("WEBM", webmFiles);
 			for (let i = 0; i < webmFiles.length; i++) {
 				audio_files_arr.push(webmFiles[i]);
 			}

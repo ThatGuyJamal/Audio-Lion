@@ -22,10 +22,14 @@ export interface PlayerStoreSchema {
 }
 
 class PlayerStore {
-  private _store: Writable<PlayerStoreSchema>;
+  private static _store: Writable<PlayerStoreSchema>;
 
   public constructor() {
-    this._store = writable();
+    PlayerStore._store = writable();
+  }
+
+  public setStore(store: PlayerStoreSchema) {
+    PlayerStore._store.set(store);
   }
 }
 

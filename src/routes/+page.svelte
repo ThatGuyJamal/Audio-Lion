@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
 	import Config from "$lib/config";
 </script>

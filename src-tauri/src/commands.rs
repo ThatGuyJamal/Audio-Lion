@@ -70,8 +70,6 @@ pub async fn get_audio_files(
         }
     }
 
-    println!("Found {} audio files", audio_files.len());
-
     return audio_files;
 }
 
