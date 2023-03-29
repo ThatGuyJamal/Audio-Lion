@@ -3,7 +3,7 @@
 	import { onMount, tick } from "svelte";
 	import config from "$lib/config";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
-	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
+	import { ApplicationConfigurationState } from "$lib/stores/ConfigStore";
 	import { resetConfig, saveConfig, loadConfig } from "$lib/bindings";
 
 	// load the current app config when the component is mounted
@@ -67,7 +67,6 @@
 			await saveConfig({
 				audio_device_name: newData.audio_device_name,
 				audio_directories: newData.audio_directories,
-				audio_file_types_allowed: newData.audio_file_types_allowed,
 			}).catch((err) => {
 				console.error(err);
 			});
@@ -90,7 +89,6 @@
 			const newConfig = await saveConfig({
 				audio_device_name: config.data.audio_device_name,
 				audio_directories: config.data.audio_directories,
-				audio_file_types_allowed: config.data.audio_file_types_allowed,
 			});
 			ApplicationConfigurationState.set(newConfig.data);
 			await tick();
@@ -162,21 +160,6 @@
 					{:else}
 						<p class="text-amber-200">
 							No audio streaming directories configured yet.
-						</p>
-					{/if}
-					<div class="divider" />
-					{#if result?.audio_file_types_allowed != null && result.audio_file_types_allowed.length > 0}
-						<h1 class="text-xl mb-1">Audio File Type(s) Filter</h1>
-						<p>
-							The current audio file types below are supported by {config.app.name}:
-						</p>
-						{#each result.audio_file_types_allowed as fileExtensionType}
-							<p>{fileExtensionType}</p>
-						{/each}
-					{:else}
-						<p>
-							No audio file filters set, defaulting to {config.app.app_config_defaults
-								.audio_file_types_allowed}
 						</p>
 					{/if}
 				</div>

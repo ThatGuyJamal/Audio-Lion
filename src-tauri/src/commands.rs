@@ -4,8 +4,7 @@
 
 use crate::{
     config::AppConfig,
-    manager::handle_audio_command,
-    types::{AppInfo, AudioCommandResult, AudioCommands, ConfigResult},
+    types::{AppInfo, ConfigResult},
     utils::{self, AudioFileTypes},
 };
 
@@ -58,16 +57,6 @@ pub async fn get_audio_files(
         return audio_files;
     }
 
-    if config.data.audio_file_types_allowed.len() == 1 {
-        let files = utils::get_audio_files(&config.data.audio_directories[0], audio_file_type);
-
-        for file in files {
-            audio_files.push(file.display().to_string());
-        }
-
-        return audio_files;
-    }
-
     for directory in config.data.audio_directories {
         let files = utils::get_audio_files(&directory, audio_file_type.clone());
 
@@ -93,21 +82,4 @@ pub async fn get_app_info(app_handle: tauri::AppHandle) -> AppInfo {
         version,
         description,
     };
-}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn handle_audio_input(
-    app_handle: tauri::AppHandle,
-    command: AudioCommands,
-    player_path: Option<String>,
-) -> Result<AudioCommandResult, String> {
-        match handle_audio_command(app_handle, command, player_path).await {
-        Ok(result) => {
-            return Ok(result);
-        }
-        Err(e) => {
-            return Err(e.message);
-        }
-    }
 }
