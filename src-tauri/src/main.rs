@@ -31,6 +31,7 @@ pub fn init(app: &mut App) {
             let defaults = AppConfig {
                 audio_directories: vec![],
                 audio_device_name: None,
+                audio_file_types_allowed: vec![],
             };
             match AppConfig::new().save(app.app_handle(), defaults) {
                 Ok(_) => (),

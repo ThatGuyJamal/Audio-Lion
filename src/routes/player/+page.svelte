@@ -1,15 +1,9 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-	import {
-		extractFileName,
-		getCurrentPlatform,
-		getDirectoryPath,
-		getFileExtension,
-		getIndexByName,
-	} from "$lib/utils/format";
+	import { extractFileName } from "$lib/utils/format";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
 	import { ApplicationConfigurationState } from "$lib/stores/ConfigStore";
-	import { loadConfig, type ConfigResult } from "$lib/bindings";
+	import { getAudioFiles, loadConfig, type ConfigResult } from "$lib/bindings";
 
 	// the array of audio files to display to the user
 	let audio_files_arr: string[] = [];
@@ -25,6 +19,7 @@
 		ApplicationConfigurationState.set(config.data);
 
 		const audioFiles = await loadAudioFiles(config);
+		console.table(audioFiles);
 
 		// If the audio files exist, store them in the array to display
 		if (audioFiles) {
@@ -44,7 +39,45 @@
 			canDisplay = true;
 		}
 
-		// implement
+		let shouldLoadMp3 = config.data.audio_file_types_allowed.find(
+			(type) => type === "MP3"
+		)
+			? "yes"
+			: "no";
+		let shouldLoadWav = config.data.audio_file_types_allowed.find(
+			(type) => type === "WAV"
+		)
+			? "yes"
+			: "no";
+
+		let shouldLoadWebm = config.data.audio_file_types_allowed.find(
+			(type) => type === "WEBM"
+		)
+			? "yes"
+			: "no";
+
+		if (shouldLoadMp3 === "yes") {
+			const mp3Files = await getAudioFiles("MP3");
+			// console.log("MP3", mp3Files);
+			for (let i = 0; i < mp3Files.length; i++) {
+				audio_files_arr.push(mp3Files[i]);
+			}
+		}
+		if (shouldLoadWav === "yes") {
+			const wavFiles = await getAudioFiles("WAV");
+			// console.log("WAV", wavFiles);
+			for (let i = 0; i < wavFiles.length; i++) {
+				audio_files_arr.push(wavFiles[i]);
+			}
+		}
+
+		if (shouldLoadWebm === "yes") {
+			const webmFiles = await getAudioFiles("WEBM");
+			// console.log("WEBM", webmFiles);
+			for (let i = 0; i < webmFiles.length; i++) {
+				audio_files_arr.push(webmFiles[i]);
+			}
+		}
 
 		return audio_files_arr;
 	}

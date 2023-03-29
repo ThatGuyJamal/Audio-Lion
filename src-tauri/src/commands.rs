@@ -51,19 +51,27 @@ pub async fn get_audio_files(
         }
     };
 
-    let mut audio_files: Vec<String> = Vec::new();
+    let mut audio_files: Vec<String> = vec![];
 
+    // If no directories are set, return an empty vector
     if config.data.audio_directories.len() == 0 {
-        return audio_files;
+        return vec![];
     }
 
     for directory in config.data.audio_directories {
         let files = utils::get_audio_files(&directory, audio_file_type.clone());
 
+        if files.len() == 0 {
+            continue;
+        }
+
         for file in files {
             audio_files.push(file.display().to_string());
         }
     }
+
+    println!("Found {} audio files", audio_files.len());
+
     return audio_files;
 }
 

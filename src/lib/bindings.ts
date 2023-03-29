@@ -28,13 +28,13 @@ export function getAppInfo() {
     return invoke<AppInfo>("get_app_info")
 }
 
-export type AudioFileTypes = "MP3" | "WAV"
+export type AudioFileTypes = "MP3" | "WAV" | "WEBM"
 export type ConfigResult = { data: AppConfig; error: IError | null }
+export type AppInfo = { os: string; name: string; version: string; description: string }
 /**
  *  The configuration file for the application
  */
-export type AppConfig = { audio_directories: string[]; audio_device_name: string | null }
-export type AppInfo = { os: string; name: string; version: string; description: string }
+export type AppConfig = { audio_directories: string[]; audio_device_name: string | null; audio_file_types_allowed: AudioFileTypes[] }
 /**
  *  basic Errors returned by the application to the front end.
  */

@@ -11,20 +11,20 @@ import Hapi from "@hapi/hapi";
 import getPort from "get-port";
 
 const init = async () => {
-	const toPortOrNotToPort = await getPort({ port: [6969, 9696] });
+  const toPortOrNotToPort = await getPort({ port: [6969, 9696] });
 
-	const server = Hapi.server({
-		port: toPortOrNotToPort,
-		host: "localhost",
-	});
+  const server = Hapi.server({
+    port: toPortOrNotToPort,
+    host: "localhost",
+  });
 
-	await server.start();
-	console.log("Server running on %s", server.info.uri);
+  await server.start();
+  console.log("Server running on %s", server.info.uri);
 };
 
 process.on("unhandledRejection", (err) => {
-	console.log(err);
-	process.exit(1);
+  console.log(err);
+  process.exit(1);
 });
 
 init();

@@ -1,7 +1,7 @@
 {
   "name": "audio_lion",
   "private": true,
-  "version": "0.0.6",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite dev",
@@ -17,12 +17,14 @@
     "@tauri-apps/api": "^1.2.0",
     "daisyui": "^2.51.1",
     "get-port": "^6.1.2",
+    "howler": "^2.2.3",
     "svelte-icons": "^2.1.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^1.0.6",
     "@sveltejs/kit": "^1.3.10",
     "@tauri-apps/cli": "^1.2.3",
+    "@total-typescript/ts-reset": "^0.4.2",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.21",
     "prettier": "^2.8.4",

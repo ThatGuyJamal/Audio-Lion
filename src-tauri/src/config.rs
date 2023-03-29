@@ -9,6 +9,7 @@ use std::io::{prelude::*, ErrorKind};
 use std::path::Path;
 
 use crate::types::{ConfigResult, IError};
+use crate::utils::AudioFileTypes;
 
 #[derive(Serialize, Deserialize, Debug, Type, Clone)]
 /// The configuration file for the application
@@ -16,6 +17,8 @@ pub struct AppConfig {
     pub audio_directories: Vec<String>,
     // The name of the audio device to use for playback
     pub audio_device_name: Option<String>,
+     // The file types to allow for playback
+    pub audio_file_types_allowed: Vec<AudioFileTypes>,
 }
 
 impl AppConfig {
@@ -23,6 +26,7 @@ impl AppConfig {
         Self {
             audio_directories: vec![],
             audio_device_name: None,
+            audio_file_types_allowed: vec![AudioFileTypes::MP3, AudioFileTypes::WAV],
         }
     }
 
