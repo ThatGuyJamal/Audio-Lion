@@ -13,8 +13,10 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
+    "@hapi/hapi": "^21.3.1",
     "@tauri-apps/api": "^1.2.0",
     "daisyui": "^2.51.1",
+    "get-port": "^6.1.2",
     "svelte-icons": "^2.1.0"
   },
   "devDependencies": {
