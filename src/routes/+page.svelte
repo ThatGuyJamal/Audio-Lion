@@ -37,4 +37,6 @@
 			</div>
 		</div>
 	</div>
+
+	<a href="/user">test</a>
 </main>
