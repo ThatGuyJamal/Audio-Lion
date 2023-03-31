@@ -4,7 +4,6 @@
     windows_subsystem = "windows"
 )]
 
-
 // Imports
 use config::AppConfig;
 use specta::collect_types;
@@ -13,15 +12,11 @@ use tauri_specta::ts;
 use types::Payload;
 use window_shadows::set_shadow;
 
-use crate::utils::AudioFileTypes;
-
 // Sub modules
-mod player;
 mod services;
 
 mod commands;
 mod config;
-mod manager;
 mod types;
 mod utils;
 
@@ -36,7 +31,7 @@ pub fn init(app: &mut App) {
             let defaults = AppConfig {
                 audio_directories: vec![],
                 audio_device_name: None,
-                audio_file_types_allowed: vec![AudioFileTypes::MP3, AudioFileTypes::WAV],
+                audio_file_types_allowed: vec![],
             };
             match AppConfig::new().save(app.app_handle(), defaults) {
                 Ok(_) => (),
@@ -56,8 +51,7 @@ fn export_bindings() {
             commands::save_config,
             commands::reset_config,
             commands::get_audio_files,
-            commands::get_app_info,
-            commands::handle_audio_input
+            commands::get_app_info
         ],
         "../src/lib/bindings.ts",
     ) {
@@ -71,7 +65,7 @@ fn export_bindings() {
 #[tokio::main]
 async fn main() {
     // ! This must be disabled when building the app or it will not start.
-    // export_bindings();
+    export_bindings();
 
     tauri::Builder::default()
         .setup(|app| {
@@ -79,18 +73,21 @@ async fn main() {
             Ok(())
         })
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            // println!("{}, {argv:?}, {cwd}", app.package_info().name);
+            // Forces only one instance of the app to run at a time on the system.
             app.emit_all("single-instance", Payload { args: argv, cwd })
                 .unwrap();
 
             // Set the window shadow.
             let window = app.get_window("main").unwrap();
+
             match set_shadow(&window, true) {
                 Ok(_) => {}
                 Err(e) => {
                     println!("Error setting window shadow: {}", e);
                 }
             }
+
+            // println!("{}, {argv:?}, {cwd}", app.package_info().name);
         }))
         .invoke_handler(tauri::generate_handler![
             commands::load_config,
@@ -98,7 +95,6 @@ async fn main() {
             commands::reset_config,
             commands::get_audio_files,
             commands::get_app_info,
-            commands::handle_audio_input
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

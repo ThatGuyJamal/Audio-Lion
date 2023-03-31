@@ -4,7 +4,7 @@
 	import FaPlay from "svelte-icons/fa/FaPlay.svelte";
 	import FaPause from "svelte-icons/fa/FaPause.svelte";
 	import FaStop from "svelte-icons/fa/FaStop.svelte";
-	import { handleAudioInput, loadConfig } from "$lib/bindings";
+	import { loadConfig } from "$lib/bindings";
 
 	let appConfig = loadConfig()
 		.then((x) => {
@@ -28,21 +28,15 @@
 	// }
 
 	const resume = async () => {
-		await handleAudioInput("Resume", null).then((res) => {
-			console.table(res);
-		});
+		// implement
 	};
 
 	const pause = async () => {
-		await handleAudioInput("Pause", null).then((res) => {
-			console.table(res);
-		});
+		// implement
 	};
 
 	const stop = async () => {
-		await handleAudioInput("Stop", null).then((res) => {
-			console.table(res);
-		});
+		// implement
 	};
 </script>
 
