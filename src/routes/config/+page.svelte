@@ -1,16 +1,15 @@
 <script lang="ts">
 	import { AppConfigLimits } from "$lib/types/AppConfig";
 	import { onMount, tick } from "svelte";
-	import config from "$lib/config";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
-	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
+	import { ApplicationConfigurationState } from "$lib/stores/ConfigStore";
 	import { resetConfig, saveConfig, loadConfig } from "$lib/bindings";
 
 	// load the current app config when the component is mounted
 	onMount(async () => {
 		const load = await loadConfig();
 
-		console.table(load);
+		console.debug("loadConfig", load);
 
 		if (load) {
 			ApplicationConfigurationState.set(load.data);
@@ -24,7 +23,7 @@
 		await resetConfig();
 		const load = await loadConfig();
 
-		// console.table(result);
+		console.debug("loadConfig", load);
 
 		if (load) {
 			ApplicationConfigurationState.set(load.data);
@@ -38,7 +37,7 @@
 	$: dirInputStatus = "loading" as "invalid" | "valid" | "loading";
 
 	const runNewFolder = async (event: Event) => {
-		const config = await loadConfig()
+		const config = await loadConfig();
 		const input = event.target as HTMLInputElement;
 
 		// Makes sure we don't add the same directory twice
@@ -63,7 +62,7 @@
 			currentData.audio_directories.push(dirPath);
 			let newData = currentData;
 
-			// console.table(currentData);
+			// console.debug("currentData", currentData);
 			await saveConfig({
 				audio_device_name: newData.audio_device_name,
 				audio_directories: newData.audio_directories,
@@ -162,21 +161,6 @@
 					{:else}
 						<p class="text-amber-200">
 							No audio streaming directories configured yet.
-						</p>
-					{/if}
-					<div class="divider" />
-					{#if result?.audio_file_types_allowed != null && result.audio_file_types_allowed.length > 0}
-						<h1 class="text-xl mb-1">Audio File Type(s) Filter</h1>
-						<p>
-							The current audio file types below are supported by {config.app.name}:
-						</p>
-						{#each result.audio_file_types_allowed as fileExtensionType}
-							<p>{fileExtensionType}</p>
-						{/each}
-					{:else}
-						<p>
-							No audio file filters set, defaulting to {config.app.app_config_defaults
-								.audio_file_types_allowed}
 						</p>
 					{/if}
 				</div>

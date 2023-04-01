@@ -11,6 +11,7 @@ use tauri::{Manager, App, Wry, CustomMenuItem, AppHandle};
 pub enum AudioFileTypes {
     MP3,
     WAV,
+    WEBM,
 }
 
 impl AudioFileTypes {
@@ -27,6 +28,7 @@ impl AudioFileTypes {
         match file_type {
             AudioFileTypes::MP3 => "mp3",
             AudioFileTypes::WAV => "wav",
+            AudioFileTypes::WEBM => "webm",
         }
     }
 

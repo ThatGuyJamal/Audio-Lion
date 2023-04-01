@@ -1,21 +1,9 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-	import {
-		extractFileName,
-		getCurrentPlatform,
-		getDirectoryPath,
-		getFileExtension,
-		getIndexByName,
-	} from "$lib/utils/format";
+	import { extractFileName } from "$lib/utils/format";
 	import DevInfo from "$lib/components/popups/dev-info.svelte";
-	import { ApplicationConfigurationState } from "$lib/stores/AppConfig";
-	import {
-		getAudioFiles,
-		handleAudioInput,
-		loadConfig,
-		type AppConfig,
-		type ConfigResult,
-	} from "$lib/bindings";
+	import { ApplicationConfigurationState } from "$lib/stores/ConfigStore";
+	import { getAudioFiles, loadConfig, type ConfigResult } from "$lib/bindings";
 
 	// the array of audio files to display to the user
 	let audio_files_arr: string[] = [];
@@ -31,6 +19,7 @@
 		ApplicationConfigurationState.set(config.data);
 
 		const audioFiles = await loadAudioFiles(config);
+		console.debug("audioFiles", audioFiles);
 
 		// If the audio files exist, store them in the array to display
 		if (audioFiles) {
@@ -61,31 +50,39 @@
 			? "yes"
 			: "no";
 
+		let shouldLoadWebm = config.data.audio_file_types_allowed.find(
+			(type) => type === "WEBM"
+		)
+			? "yes"
+			: "no";
+
 		if (shouldLoadMp3 === "yes") {
 			const mp3Files = await getAudioFiles("MP3");
-
-			// console.log("MP3", mp3Files);
-
+			// console.debug("MP3", mp3Files);
 			for (let i = 0; i < mp3Files.length; i++) {
 				audio_files_arr.push(mp3Files[i]);
 			}
 		}
-
 		if (shouldLoadWav === "yes") {
 			const wavFiles = await getAudioFiles("WAV");
-
-			// console.log("WAV", wavFiles);
-
+			// console.debug("WAV", wavFiles);
 			for (let i = 0; i < wavFiles.length; i++) {
 				audio_files_arr.push(wavFiles[i]);
+			}
+		}
+
+		if (shouldLoadWebm === "yes") {
+			const webmFiles = await getAudioFiles("WEBM");
+			// console.debug("WEBM", webmFiles);
+			for (let i = 0; i < webmFiles.length; i++) {
+				audio_files_arr.push(webmFiles[i]);
 			}
 		}
 
 		return audio_files_arr;
 	}
 	async function play(path: string) {
-		let result = await handleAudioInput("Play", path);
-		console.table(result);
+		// implement
 	}
 </script>
 

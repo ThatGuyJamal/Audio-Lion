@@ -17,7 +17,7 @@ pub struct AppConfig {
     pub audio_directories: Vec<String>,
     // The name of the audio device to use for playback
     pub audio_device_name: Option<String>,
-    // The file types to allow for playback
+     // The file types to allow for playback
     pub audio_file_types_allowed: Vec<AudioFileTypes>,
 }
 

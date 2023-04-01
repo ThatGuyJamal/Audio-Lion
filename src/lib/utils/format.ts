@@ -33,7 +33,7 @@ export function extractFileNameWithoutExtension({
   capitalize,
 }: {
   fileName: string;
-  fileType?: AudioFileTypes
+  fileType?: AudioFileTypes;
   capitalize?: boolean;
 }): string {
   let name = fileName;
