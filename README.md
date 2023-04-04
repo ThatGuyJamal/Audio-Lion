@@ -1,12 +1,12 @@
 # `Audio Lion`
 
-![icon](./static/lion/128px.png)
+![icon](./packages/app/static/lion/128px.png)
 
 **Audio Lion** is a simple audio player and downloader for windows.
 
 ## Features
 
-- [x] Play audio from local disk
+- [ ] Play audio from local disk
 
 - [ ] Download audio from YouTube, SoundCloud, etc.
 
