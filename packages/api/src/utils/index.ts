@@ -1,13 +1,7 @@
-import mongoose from "mongoose";
-import { statisticSchema } from "./db.js";
-// import { AppConfig } from "AudioLionTypes";
+import type { Config } from "../configs/index.js";
 
-/**
- * Creates the config object. Runs a few helper functions before returning the config.
- * @param {AppConfig} config The config object
- * @returns {AppConfig} The created config
- */
-export function CreateConfig(config) {
+/** Creates a new config but validates the props first. */
+export function CreateConfig(config: Config): Config {
   if (!config) throw new Error("No config file passed to CreateConfig");
 
   validateConfigFile(config);
@@ -16,12 +10,12 @@ export function CreateConfig(config) {
     config.devMode = false;
   }
 
-  console.table(config);
+  console.debug(config);
 
   return config;
 }
 
-function validateConfigFile(config) {
+function validateConfigFile(config: Config) {
   if (!config.port) {
     throw new Error(missing("port"));
   }
@@ -41,24 +35,29 @@ function validateConfigFile(config) {
   if (!config.mongodbUrl) {
     throw new Error(missing("mongodbUrl"));
   }
-}
 
-export function CreateMongooseConnection(config) {
-  mongoose
-    .connect(config.mongodbUrl)
-    .then(() => {
-      console.log("Connected to MongoDB");
-    })
-    .catch((err) => {
-      console.error(err);
-    });
+  if (!config.hostUrl) {
+    throw new Error(missing("hostUrl"));
+  }
+
+  if (!config.mongodbUrl.startsWith("mongodb://")) {
+    throw new Error(invalid("mongodbUrl"));
+  }
+
+  if (!config.hostUrl.startsWith("http://")) {
+    throw new Error(invalid("hostUrl"));
+  }
+
+  if(!config.discord) {
+    throw new Error(missing("discord"));
+  }
 }
 
 /**
  * @param {String} caller
  * @returns
  */
-function invalid(caller) {
+function invalid(caller: string) {
   return `Invalid ${caller} in config file. Please fix it before running the program.`;
 }
 
@@ -66,14 +65,6 @@ function invalid(caller) {
  * @param {String} caller
  * @returns
  */
-function missing(caller) {
+function missing(caller: string) {
   return `Missing ${caller} in config file. Please fix it before running the program.`;
-}
-
-export async function GetGlobalStatistics() {
-  const data = await statisticSchema.findOne({ findOneId: "global-data" });
-
-  if (!data) await statisticSchema.create({ findOneId: "global-data" });
-
-  return data;
 }

@@ -1,10 +1,9 @@
 import express from "express";
-import { statisticSchema } from "../db.js";
-import { GetGlobalStatistics } from "../utils.js";
+import { GetGlobalStatistics } from "../../db/utils.js";
 
 const router = express.Router();
 
-router.get("/stats", async (req, res) => {
+router.get("/stats", async (_req, res) => {
   const data = await GetGlobalStatistics();
 
   if (!data) {
@@ -15,7 +14,7 @@ router.get("/stats", async (req, res) => {
     });
   }
 
-  res.status(200).json({
+  return res.status(200).json({
     status: "ok",
     message: "Successfully fetched global statistics.",
     data: data,

@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "Aclass",
+        "ADASCZXVZOPXSADASDMXZLQPZCXKMZCA",
         "channelmap",
         "consts",
         "conv",
@@ -15,12 +16,15 @@
         "prebuf",
         "psimple",
         "pulseaudio",
+        "resave",
         "rodio",
+        "soerenmetje",
         "specta",
         "Spsc",
         "tailwindcss",
         "tauri",
         "thiserror",
-        "tlength"
+        "tlength",
+        "tsbuildinfo"
     ]
 }

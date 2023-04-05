@@ -1,0 +1,1 @@
+declare module "@soerenmetje/passport-discord";
