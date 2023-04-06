@@ -10,7 +10,7 @@ export function CreateConfig(config: Config): Config {
     config.devMode = false;
   }
 
-  console.debug(config);
+  if(config.devMode) console.debug("config file data:", config);
 
   return config;
 }
