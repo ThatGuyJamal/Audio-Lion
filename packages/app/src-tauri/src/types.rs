@@ -1,7 +1,11 @@
 #![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
 
 use serde::{Deserialize, Serialize};
 use specta::Type;
+
+use crate::config::AppConfig;
 
 // use crate::config::AppConfig;
 
@@ -14,7 +18,7 @@ pub struct ISuccess {
 
 /// basic Errors returned by the application to the front end.
 #[derive(Serialize, Deserialize, Debug, Type)]
-pub struct IError {
+pub struct AppError {
     pub status: bool,
     pub message: String,
 }
@@ -22,8 +26,8 @@ pub struct IError {
 #[derive(Serialize, Deserialize, Debug, Type)]
 // The result of a config operation
 pub struct ConfigResult {
-    // pub data: AppConfig,
-    pub error: Option<IError>,
+    pub data: AppConfig,
+    pub error: Option<AppError>,
 }
 
 #[derive(Clone, Serialize)]
@@ -81,4 +85,17 @@ pub struct AudioCommandResult {
     pub success: bool,
     pub is_paused: bool,
     pub path: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Type, Clone)]
+/// The User data information saved from discord oauth
+pub struct AppUser {
+    // Handled by discord api
+    pub discord_id: String,
+    pub access_token: String,
+    pub refresh_token: String,
+
+    // Handled by the application
+    /// A name to display to the user in the app.
+    pub display_name: Option<String>,
 }

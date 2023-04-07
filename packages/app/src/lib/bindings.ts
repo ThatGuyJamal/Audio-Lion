@@ -8,6 +8,38 @@ declare global {
 
 const invoke = window.__TAURI_INVOKE__;
 
+export function loadConfig() {
+    return invoke<ConfigResult>("load_config")
+}
 
+export function saveConfig(config: AppConfig) {
+    return invoke<ConfigResult>("save_config", { config })
+}
 
+export function resetConfig() {
+    return invoke<ConfigResult>("reset_config")
+}
 
+export function getAudioFiles(audioFileType: AudioFileTypes) {
+    return invoke<string[]>("get_audio_files", { audioFileType })
+}
+
+export function getAppInfo() {
+    return invoke<AppInfo>("get_app_info")
+}
+
+export type ConfigResult = { data: AppConfig; error: AppError | null }
+/**
+ * The configuration file for the application
+ */
+export type AppConfig = { local_audio_folders: string[]; file_filter_types: AudioFileTypes[]; user: AppUser | null }
+/**
+ * basic Errors returned by the application to the front end.
+ */
+export type AppError = { status: boolean; message: string }
+export type AudioFileTypes = "MP3" | "WAV" | "WEBM"
+export type AppInfo = { os: string; name: string; version: string; description: string }
+/**
+ * The User data information saved from discord oauth
+ */
+export type AppUser = { discord_id: string; access_token: string; refresh_token: string; display_name: string | null }

@@ -17,9 +17,14 @@ export default {
 		under_development: false,
 		version_state: 'alpha',
 		app_config_defaults: {
-			audio_directories: [],
-			audio_file_types_allowed: [],
-			audio_device_name: null
+			local_audio_folders: [],
+			file_filter_types: [],
+			user: null
 		} as AppConfig
 	}
 };
+
+
+export enum AppConfigLimits {
+	MAX_AUDIO_DIRECTORIES = 2
+}

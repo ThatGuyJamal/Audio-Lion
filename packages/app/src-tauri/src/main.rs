@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
 #![cfg_attr(
   all(not(debug_assertions), target_os = "windows"),
   windows_subsystem = "windows"
@@ -10,7 +13,10 @@ use tauri_specta::ts;
 use types::Payload;
 use window_shadows::set_shadow;
 
+mod config;
 mod types;
+mod utils;
+mod commands;
 
 fn main() {
     // ! This must be disabled when building the app or it will not start.
@@ -39,11 +45,11 @@ fn main() {
             // println!("{}, {argv:?}, {cwd}", app.package_info().name);
         }))
         .invoke_handler(tauri::generate_handler![
-            // commands::load_config,
-            // commands::save_config,
-            // commands::reset_config,
-            // commands::get_audio_files,
-            // commands::get_app_info,
+            commands::load_config,
+            commands::save_config,
+            commands::reset_config,
+            commands::get_audio_files,
+            commands::get_app_info,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -53,11 +59,11 @@ fn main() {
 fn export_bindings() {
     match ts::export(
         collect_types![
-            // commands::load_config,
-            // commands::save_config,
-            // commands::reset_config,
-            // commands::get_audio_files,
-            // commands::get_app_info
+            commands::load_config,
+            commands::save_config,
+            commands::reset_config,
+            commands::get_audio_files,
+            commands::get_app_info
         ],
         "../src/lib/bindings.ts",
     ) {
