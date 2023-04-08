@@ -34,7 +34,8 @@
 	};
 </script>
 
-{#if appConfig !== null}
+<main>
+	{#if appConfig !== null}
 	<floutBar class="fixed inset-x-0 bottom-0 p-4">
 		<div class="rounded-full px- text-white shadow-lg bg-gradient-to-r from-teal-800 to-indigo-500">
 			<!-- Play/Pause/Stop buttons -->
@@ -60,3 +61,4 @@
 		</div></floutBar
 	>
 {/if}
+</main>

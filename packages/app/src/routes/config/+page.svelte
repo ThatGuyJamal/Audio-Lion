@@ -7,7 +7,7 @@
 
 	// load the current app config when the component is mounted
 	onMount(async () => {
-		const load = await loadConfig();
+		const load = await loadConfig()
 
 		console.debug("loadConfig", load);
 

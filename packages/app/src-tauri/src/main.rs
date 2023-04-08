@@ -2,25 +2,27 @@
 #![allow(unused_imports)]
 #![allow(unused_variables)]
 #![cfg_attr(
-  all(not(debug_assertions), target_os = "windows"),
-  windows_subsystem = "windows"
+    all(not(debug_assertions), target_os = "windows"),
+    windows_subsystem = "windows"
 )]
 
-// use config::AppConfig;
+use std::{sync::{Arc, Mutex}, io::sink};
+
 use specta::collect_types;
-use tauri::{Manager};
+use tauri::Manager;
 use tauri_specta::ts;
 use types::Payload;
 use window_shadows::set_shadow;
 
+mod audio;
+mod commands;
 mod config;
 mod types;
 mod utils;
-mod commands;
 
 fn main() {
     // ! This must be disabled when building the app or it will not start.
-    export_bindings();
+    // export_bindings();
 
     tauri::Builder::default()
         .setup(|app| {
@@ -50,6 +52,7 @@ fn main() {
             commands::reset_config,
             commands::get_audio_files,
             commands::get_app_info,
+            commands::handle_audio,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -63,11 +66,14 @@ fn export_bindings() {
             commands::save_config,
             commands::reset_config,
             commands::get_audio_files,
-            commands::get_app_info
+            commands::get_app_info,
+            commands::handle_audio
         ],
         "../src/lib/bindings.ts",
     ) {
-        Ok(_) => (),
+        Ok(_) => {
+            println!("Bindings exported successfully!");
+        }
         Err(e) => {
             println!("Error exporting bindings: {}", e);
         }

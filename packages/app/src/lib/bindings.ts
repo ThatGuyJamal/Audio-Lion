@@ -28,6 +28,18 @@ export function getAppInfo() {
     return invoke<AppInfo>("get_app_info")
 }
 
+export function playAudio(filePath: string) {
+    return invoke<null>("play_audio", { filePath })
+}
+
+export function pauseAudio() {
+    return invoke<null>("pause_audio")
+}
+
+export function resumeAudio() {
+    return invoke<null>("resume_audio")
+}
+
 export type ConfigResult = { data: AppConfig; error: AppError | null }
 /**
  * The configuration file for the application

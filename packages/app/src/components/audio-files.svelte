@@ -1,13 +1,19 @@
 <script lang="ts">
-	import { ApplicationConfigurationState, type AudioState } from '$lib/store';
+	import { playAudio } from '$lib/bindings';
+	import { ApplicationConfigurationState } from '$lib/store';
+	import { extractFileName } from '$lib/utils';
 
 	// the array of audio files to display to the user
-	export let audio_files: AudioState[];
+	export let audio_files: string[];
 
 	// whether or not to display the audio player
 	export let canDisplay: boolean;
 
-	function playAudio(audio: AudioState, index: number) {}
+	async function play(file_path: string, index: number) {
+		console.log('play audio', file_path, index);
+
+		await playAudio(file_path);
+	}
 </script>
 
 <main>
@@ -16,8 +22,8 @@
 	{:then}
 		{#if canDisplay}
 			{#each audio_files as file, i}
-				<button class="btn btn-sm mb-5 text-teal-600" on:click={() => playAudio(file, i)}>
-					{file.name}
+				<button class="btn btn-sm mb-5 text-teal-600" on:click={async () => await play(file, i)}>
+					{extractFileName(file)}
 				</button>
 				<br />
 			{/each}

@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { loadConfig } from '$lib/bindings';
-	import { ApplicationConfigurationState, type AudioState } from '$lib/store';
+	import { ApplicationConfigurationState } from '$lib/store';
 	import { extractFileName, loadAudioFiles } from '$lib/utils';
 	import { onMount, tick } from 'svelte';
 	import AudioFiles from '../../components/audio-files.svelte';
 	import DevInfo from '../../components/popups/dev-info.svelte';
-	import { AudioAPI } from '$lib/Audio';
 
-	let files: AudioState[] = [];
+	let files: string[] = [];
 
 	// whether or not to display the audio player
 	$: display = false;
@@ -23,21 +22,7 @@
 
 		// If the audio files exist, store them in the array to display
 		if (audioFiles) {
-			for (const file of audioFiles) {
-				let _preload = true;
-				if (audioFiles.length > 100) _preload = false;
-
-				// Create a new Howl instance for each file
-				const _api = new AudioAPI();
-
-				let getName = extractFileName(file);
-
-				files.push({
-					name: getName,
-					file: file,
-					api: _api
-				});
-			}
+			files = audioFiles;
 
 			display = true;
 			console.log('files', files);

@@ -77,6 +77,8 @@ pub enum AudioCommands {
     Pause,
     Resume,
     Stop,
+    Skip,
+    UnSkip
 }
 
 #[derive(Debug, Serialize, Deserialize, Type)]
