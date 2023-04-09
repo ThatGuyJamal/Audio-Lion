@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { playAudio } from '$lib/bindings';
+	import { handleAudio } from '$lib/bindings';
 	import { ApplicationConfigurationState } from '$lib/store';
 	import { extractFileName } from '$lib/utils';
 
@@ -12,7 +12,7 @@
 	async function play(file_path: string, index: number) {
 		console.log('play audio', file_path, index);
 
-		await playAudio(file_path);
+		await handleAudio("Play", file_path);
 	}
 </script>
 

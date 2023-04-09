@@ -93,9 +93,3 @@ pub async fn get_app_info(app_handle: tauri::AppHandle) -> AppInfo {
         description,
     };
 }
-
-#[tauri::command]
-#[specta::specta]
-pub fn handle_audio(command: AudioCommands, file_path: String) -> () {
-    
-}

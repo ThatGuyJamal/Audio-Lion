@@ -28,7 +28,6 @@ anyhow = "1.0.69"
 thiserror = "1.0.38"
 specta = "1.0.0"
 window-shadows = "0.2.1"
-rodio = "0.17.1"
 lazy_static = "1.4.0"
 
 [features]

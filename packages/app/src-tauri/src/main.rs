@@ -14,14 +14,14 @@ use tauri_specta::ts;
 use types::Payload;
 use window_shadows::set_shadow;
 
-mod audio;
 mod commands;
-mod config;
 mod types;
 mod utils;
+mod config;
+mod downloader;
 
 fn main() {
-    // ! This must be disabled when building the app or it will not start.
+// ! This must be disabled when building the app or it will not start.
     // export_bindings();
 
     tauri::Builder::default()
@@ -52,7 +52,6 @@ fn main() {
             commands::reset_config,
             commands::get_audio_files,
             commands::get_app_info,
-            commands::handle_audio,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -67,7 +66,6 @@ fn export_bindings() {
             commands::reset_config,
             commands::get_audio_files,
             commands::get_app_info,
-            commands::handle_audio
         ],
         "../src/lib/bindings.ts",
     ) {
