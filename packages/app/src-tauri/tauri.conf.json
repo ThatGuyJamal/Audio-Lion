@@ -44,7 +44,7 @@
 			},
 			"resources": [],
 			"longDescription": "",
-			"shortDescription": "Local Audio Player and Downloading made simple",
+			"shortDescription": "A Modern Audio tool for any platform",
 			"targets": "all",
 			"windows": {
 				"certificateThumbprint": null,

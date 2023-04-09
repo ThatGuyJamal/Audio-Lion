@@ -19,6 +19,7 @@ mod types;
 mod utils;
 mod config;
 mod downloader;
+mod user;
 
 fn main() {
 // ! This must be disabled when building the app or it will not start.

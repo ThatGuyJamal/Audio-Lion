@@ -3,7 +3,7 @@ import type { AppConfig } from '$lib/bindings';
 export default {
 	app: {
 		name: 'Audio Lion',
-		description: 'A simple audio player for your desktop',
+		description: 'A Modern Audio tool for any platform',
 		github_repo: 'https://github.com/audio-lion-dev/Audio-Lion',
 		developer: {
 			name: 'ThatGuyJamal',

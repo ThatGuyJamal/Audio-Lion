@@ -70,25 +70,6 @@ pub enum AudioOutputError {
     StreamClosedError,
 }
 
-#[derive(Debug, Serialize, Deserialize, Type)]
-/// Commands for the audio player to handle.
-pub enum AudioCommands {
-    Play,
-    Pause,
-    Resume,
-    Stop,
-    Skip,
-    Previous
-}
-
-#[derive(Debug, Serialize, Deserialize, Type)]
-pub struct AudioCommandResult {
-    pub command_name: String,
-    pub success: bool,
-    pub is_paused: bool,
-    pub path: Option<String>,
-}
-
 #[derive(Debug, Serialize, Deserialize, Type, Clone)]
 /// The User data information saved from discord oauth
 pub struct AppUser {
