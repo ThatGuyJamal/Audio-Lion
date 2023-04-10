@@ -63,13 +63,6 @@ impl serde::Serialize for TauriCommandError {
     }
 }
 
-#[derive(Debug)]
-pub enum AudioOutputError {
-    OpenStreamError,
-    PlayStreamError,
-    StreamClosedError,
-}
-
 #[derive(Debug, Serialize, Deserialize, Type, Clone)]
 /// The User data information saved from discord oauth
 pub struct AppUser {
@@ -81,4 +74,17 @@ pub struct AppUser {
     // Handled by the application
     /// A name to display to the user in the app.
     pub display_name: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Type)]
+pub enum VideoSourceType {
+    Youtube,
+    Soundcloud,
+    Spotify,
+}
+
+#[derive(Serialize, Deserialize, Type)]
+pub enum VideoLinkType {
+    Playlist,
+    Video,
 }

@@ -33,7 +33,7 @@
 				/></svg
 			>
 			<div>
-				<h3 class="font-bold">Click the lion icon to get started!</h3>
+				<h3 class="font-bold">Click the small lion to see the menu!</h3>
 			</div>
 		</div>
 	</div>

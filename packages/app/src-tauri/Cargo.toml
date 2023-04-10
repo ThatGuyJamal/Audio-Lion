@@ -17,6 +17,9 @@ tauri-build = { version = "1.2.1", features = [] }
 [dependencies]
 tauri = { version = "1.2.4", features = ["http-all", "notification-all", "shell-open"] }
 
+# Features
+youtube_dl = { version = "0.8.0", features = ["downloader"] }
+
 # Plugins
 tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 

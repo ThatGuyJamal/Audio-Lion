@@ -1,7 +1,3 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::fs::{self, File};
@@ -19,6 +15,9 @@ pub struct AppConfig {
     /// The file types to scan for. These are used to filter the files found in the local_audio_folders
     pub file_filter_types: Vec<AudioFileTypes>,
 
+    /// A path to the folder where the downloaded files will be saved
+    pub download_folder: Option<String>,
+
     pub user: Option<AppUser>,
 }
 
@@ -31,6 +30,7 @@ impl AppConfig {
                 AudioFileTypes::WAV,
                 AudioFileTypes::WEBM,
             ],
+            download_folder: None,
             user: None,
         }
     }

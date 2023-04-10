@@ -2,7 +2,7 @@
 	import FaPlay from 'svelte-icons/fa/FaPlay.svelte';
 	import FaPause from 'svelte-icons/fa/FaPause.svelte';
 	import FaStop from 'svelte-icons/fa/FaStop.svelte';
-	import { handleAudio, loadConfig } from '$lib/bindings';
+	import { loadConfig } from '$lib/bindings';
 
 	let appConfig = loadConfig()
 		.then((x) => {
@@ -22,11 +22,11 @@
 	});
 
 	const resume = async () => {
-		handleAudio("Resume", "")
+		// implement
 	};
 
 	const pause = async () => {
-		handleAudio("Pause", "")
+		// implement
 	};
 
 	const stop = async () => {

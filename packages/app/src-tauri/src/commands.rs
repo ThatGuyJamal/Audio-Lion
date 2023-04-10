@@ -1,11 +1,7 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-
 use crate::{
     config::AppConfig,
-    types::{AppError, AppInfo, AudioCommands, ConfigResult},
-    utils::{self, AudioFileTypes},
+    types::{AppError, AppInfo, ConfigResult, VideoLinkType},
+    utils::{self, AudioFileTypes}, downloader::download_youtube_audio,
 };
 
 #[tauri::command]
@@ -92,4 +88,18 @@ pub async fn get_app_info(app_handle: tauri::AppHandle) -> AppInfo {
         version,
         description,
     };
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn download_audio_yt(url: &str, video_type: VideoLinkType, config: AppConfig)-> Result<(), AppError> {
+
+    match download_youtube_audio(url, video_type, config) {
+        Ok(_) => {},
+        Err(e) => {
+            return Err(e);
+        }
+    }
+
+    Ok(())
 }

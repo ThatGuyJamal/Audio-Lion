@@ -28,26 +28,23 @@ export function getAppInfo() {
     return invoke<AppInfo>("get_app_info")
 }
 
-export function handleAudio(command: AudioCommands, filePath: string) {
-    return invoke<null>("handle_audio", { command,filePath })
+export function downloadAudioYt(url: string, videoType: VideoLinkType) {
+    return invoke<null>("download_audio_yt", { url,videoType })
 }
 
+export type AudioFileTypes = "MP3" | "WAV" | "WEBM"
+/**
+ * The configuration file for the application
+ */
+export type AppConfig = { local_audio_folders: string[]; file_filter_types: AudioFileTypes[]; download_folder: string | null; user: AppUser | null }
+export type VideoLinkType = "Playlist" | "Video"
+export type ConfigResult = { data: AppConfig; error: AppError | null }
 /**
  * The User data information saved from discord oauth
  */
 export type AppUser = { discord_id: string; access_token: string; refresh_token: string; display_name: string | null }
-export type ConfigResult = { data: AppConfig; error: AppError | null }
-/**
- * The configuration file for the application
- */
-export type AppConfig = { local_audio_folders: string[]; file_filter_types: AudioFileTypes[]; user: AppUser | null }
 /**
  * basic Errors returned by the application to the front end.
  */
 export type AppError = { status: boolean; message: string }
-export type AudioFileTypes = "MP3" | "WAV" | "WEBM"
-/**
- * Commands for the audio player to handle.
- */
-export type AudioCommands = "Play" | "Pause" | "Resume" | "Stop" | "Skip" | "Previous"
 export type AppInfo = { os: string; name: string; version: string; description: string }

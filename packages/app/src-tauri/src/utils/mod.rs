@@ -1,11 +1,9 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-
-use crate::{config::AppConfig, types::AudioOutputError};
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use tauri::{Manager, App, Wry, CustomMenuItem, AppHandle};
+use specta::collect_types;
+use tauri_specta::ts;
+
+use crate::commands;
 
 #[derive(PartialEq, Debug, Serialize, Deserialize, Type, Clone)]
 pub enum AudioFileTypes {
@@ -75,4 +73,28 @@ pub fn get_audio_files(dir: &str, file_type: AudioFileTypes) -> Vec<std::path::P
     }
 
     return audio_files;
+}
+
+/// Exports our rust types (converted to the similar js type) to a typescript file for use in the front end
+pub fn export_bindings(enabled: bool) {
+    if enabled {
+        match ts::export(
+            collect_types![
+                commands::load_config,
+                commands::save_config,
+                commands::reset_config,
+                commands::get_audio_files,
+                commands::get_app_info,
+                commands::download_audio_yt
+            ],
+            "../src/lib/bindings.ts",
+        ) {
+            Ok(_) => {
+                println!("Bindings exported successfully!");
+            }
+            Err(e) => {
+                println!("Error exporting bindings: {}", e);
+            }
+        }
+    }
 }

@@ -6,8 +6,8 @@
 	<div class="flex-1">
 		<a class="btn btn-ghost normal-case text-xl text-teal-600" href="/">{config.app.name}</a>
 	</div>
-	<a href="/player" class="btn btn-ghost rounded-btn">Player</a>
-	<a href="/" class="btn btn-ghost rounded-btn">Downloader</a>
+	<!-- <a href="/player" class="btn btn-ghost rounded-btn">Player</a> -->
+	<a href="/downloader" class="btn btn-ghost rounded-btn">Downloader</a>
 	<!-- The drop down icon for the nav bar. -->
 	<!-- see https://daisyui.com/components/navbar/#navbar-with-search-input-and-dropdown -->
 	<div class="dropdown dropdown-end">
@@ -32,7 +32,7 @@
 				</a>
 			</li>
 			<li><a href="/config">Settings ⚙️</a></li>
-			<li><a href="/player">Play Music 🎶</a></li>
+			<li><a href="/">Play Music 🎶</a></li>
 			<li>
 				<a href={config.app.community.discord} target="_blank" rel="noreferrer">Discord Server 🌐</a
 				>

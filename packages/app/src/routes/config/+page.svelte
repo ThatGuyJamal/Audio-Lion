@@ -1,15 +1,14 @@
 <script lang="ts">
-	import { onMount, tick } from "svelte";
-	import { resetConfig, saveConfig, loadConfig } from "$lib/bindings";
-	import DevInfo from "../../components/popups/dev-info.svelte";
-	import { ApplicationConfigurationState } from "$lib/store";
-	import { AppConfigLimits } from "$lib/config";
+	import { onMount, tick } from 'svelte';
+	import { resetConfig, saveConfig, loadConfig } from '$lib/bindings';
+	import DevInfo from '../../components/popups/dev-info.svelte';
+	import { ApplicationConfigurationState } from '$lib/store';
 
 	// load the current app config when the component is mounted
 	onMount(async () => {
-		const load = await loadConfig()
+		const load = await loadConfig();
 
-		console.debug("loadConfig", load);
+		console.debug('loadConfig', load);
 
 		if (load) {
 			ApplicationConfigurationState.set(load.data);
@@ -19,11 +18,44 @@
 		await tick();
 	});
 
+	$: downloadFolderDirPath = '';
+	$: dirInputStatus = 'loading' as 'invalid' | 'valid' | 'loading';
+
+	const runNewFolder = async (event: Event) => {
+		const input = event.target as HTMLInputElement;
+
+		downloadFolderDirPath = input.value;
+
+		const currentData = await loadConfig().then((result) => result.data);
+
+		// let checkDir = isValidDirectory(dirPath, getCurrentPlatform());
+		// todo - fix the isValidDirectory function
+		let checkDir = true;
+
+		if (!checkDir) {
+			dirInputStatus = 'invalid';
+		} else {
+			dirInputStatus = 'valid';
+
+			currentData.download_folder = downloadFolderDirPath;
+			let newData = currentData;
+
+			// console.debug("currentData", currentData);
+			await saveConfig(newData).catch((err) => {
+				console.error(err);
+			});
+
+			ApplicationConfigurationState.set(newData);
+			downloadFolderDirPath = '';
+			await tick();
+		}
+	};
+
 	const runReset = async () => {
 		await resetConfig();
 		const load = await loadConfig();
 
-		console.debug("loadConfig", load);
+		console.debug('loadConfig', load);
 
 		if (load) {
 			ApplicationConfigurationState.set(load.data);
@@ -33,60 +65,20 @@
 		await tick();
 	};
 
-	$: dirPath = "";
-	$: dirInputStatus = "loading" as "invalid" | "valid" | "loading";
-
-	const runNewFolder = async (event: Event) => {
-		const config = await loadConfig();
-		const input = event.target as HTMLInputElement;
-
-		// Makes sure we don't add the same directory twice
-		if (config.data.local_audio_folders.includes(input.value)) {
-			dirPath = "";
-			return;
-		}
-
-		dirPath = input.value;
-
-		const currentData = await loadConfig().then((result) => result.data);
-
-		// let checkDir = isValidDirectory(dirPath, getCurrentPlatform());
-		// todo - fix the isValidDirectory function
-		let checkDir = true;
-
-		if (!checkDir) {
-			dirInputStatus = "invalid";
-		} else {
-			dirInputStatus = "valid";
-
-			currentData.local_audio_folders.push(dirPath);
-			let newData = currentData;
-
-			// console.debug("currentData", currentData);
-			await saveConfig(newData).catch((err) => {
-				console.error(err);
-			});
-
-			ApplicationConfigurationState.set(newData);
-			dirPath = "";
-			await tick();
-		}
-	};
-
-	// Handles the checkbox for each folder
-	async function handleFolderChecks(dir: string) {
+	async function handleDownloadClick() {
 		const config = await loadConfig();
 
 		if (config) {
-			let index = config.data.local_audio_folders.indexOf(dir);
-			if (index > -1) {
-				config.data.local_audio_folders.splice(index, 1);
-			}
-			const newConfig = await saveConfig(config.data);
+			const newConfig = await saveConfig({
+				local_audio_folders: config.data.local_audio_folders,
+				file_filter_types: config.data.file_filter_types,
+				download_folder: null,
+				user: config.data.user
+			});
 			ApplicationConfigurationState.set(newConfig.data);
 			await tick();
 		} else {
-			alert("No config data found");
+			alert('No config data found');
 		}
 	}
 </script>
@@ -97,7 +89,46 @@
 	{#await $ApplicationConfigurationState}
 		<p>fetching config file from system...</p>
 	{:then result}
-		{#if result === null}
+		{#if result}
+			<h1 class="text-xl mb-1">Application Configuration Settings</h1>
+			<p>
+				You can change the default settings for the application here. These settings will be saved
+				to the system and will be loaded when the application starts.
+			</p>
+
+			<div class="divider" />
+			<h1 class="text-xl mb-2">Download Folder</h1>
+			<p>
+				You can change the default download folder for the application here. This folder will be
+				used to save all downloaded files.
+			</p>
+
+			{#if result.download_folder}
+				<p>Current path:</p>
+				<div class="form-control">
+					<label class="label cursor-pointer">
+						<span class="label-text mb-1 underline decoration-solid">{result.download_folder}</span>
+						<!-- We can hard code the checked (true) value because if its loaded then it must be enabled by default -->
+						<input
+							type="checkbox"
+							checked={true}
+							class="checkbox"
+							on:click={async () => await handleDownloadClick()}
+						/>
+					</label>
+				</div>
+			{:else}
+				<label for="dir-input">Paste a folder path:</label>
+				<input
+					type="text"
+					id="dir-input"
+					class="file-input file-input-xs max-w-xs mt-4"
+					on:input={runNewFolder}
+					bind:value={downloadFolderDirPath}
+				/>
+				<p class="mt-2 text-sm">Example: C:\Users\Bob\Music\Downloads</p>
+			{/if}
+		{:else}
 			<div>
 				It looks like the configuration file is missing or corrupted!
 				<div class="dropdown dropdown-end animate-pulse">
@@ -130,72 +161,12 @@
 					</div>
 				</div>
 			</div>
-		{:else}
-			<div>
-				<div>
-					{#if result?.local_audio_folders != null && result?.local_audio_folders.length > 0}
-						<h1 class="text-xl mb-1">Audio Streaming Directories:</h1>
-						{#each result?.local_audio_folders as dir}
-							<div class="form-control">
-								<label class="label cursor-pointer">
-									<span class="label-text mb-1 underline decoration-solid">{dir}</span>
-									<!-- We can hard code the checked (true) value because if its loaded then it must be enabled by default -->
-									<input
-										type="checkbox"
-										checked={true}
-										class="checkbox"
-										on:click={() => handleFolderChecks(dir)}
-									/>
-								</label>
-							</div>
-						{/each}
-						<p class="text-sm text-red-400">Uncheck to remove a folder</p>
-					{:else}
-						<p class="text-amber-200">
-							No audio streaming directories configured yet.
-						</p>
-					{/if}
-				</div>
-			</div>
-			<div class="divider" />
-			{#if result?.local_audio_folders != null && result?.local_audio_folders.length <= AppConfigLimits.MAX_AUDIO_DIRECTORIES}
-				<h1 class="text-xl mb-1">Select Music Folders</h1>
-				<p class="mb-2">This path will be used to play your music</p>
-				<label for="dir-input">Enter folder directory:</label>
-				<input
-					type="text"
-					id="dir-input"
-					class="file-input file-input-xs max-w-xs"
-					on:input={runNewFolder}
-					bind:value={dirPath}
-				/>
-				{#if dirPath}
-					{#if dirInputStatus === "invalid"}
-						<p class="warning">
-							Invalid directory path. Please make sure the folder path is correct!
-						</p>
-						<p>Example: C:\Users\Bob\Music</p>
-					{:else if dirInputStatus === "valid"}
-						<p>Selected directory: {dirPath}</p>
-					{:else if dirInputStatus === "loading"}
-						<p>Checking directory...</p>
-					{/if}
-				{:else}
-					<p class="mt-2">Example: C:\Users\Bob\Music</p>
-				{/if}
-			{:else}
-				<input
-					type="file"
-					placeholder="Max Folders reached"
-					class="file-input  file-input-xs max-w-xs"
-					disabled
-				/>
-			{/if}
-			<div class="divider" />
-			<h1 class="text-xl mb-2">Reset Config Defaults</h1>
-			<p>Click the button below to reset the app config to the default values.</p>
-			<button class="btn mt-3 mb-2" on:click={runReset}> Reset Config </button>
 		{/if}
+
+		<div class="divider" />
+		<h1 class="text-xl mb-2">Reset Config Defaults</h1>
+		<p>Click the button below to reset the app config to the default values.</p>
+		<button class="btn mt-3 mb-2" on:click={runReset}> Reset Config </button>
 	{:catch error}
 		<p>Something went wrong: {error.message}</p>
 	{/await}
