@@ -15,7 +15,7 @@ rust-version = "1.59"
 tauri-build = { version = "1.2.1", features = [] }
 
 [dependencies]
-tauri = { version = "1.2.4", features = ["http-all", "notification-all", "shell-open"] }
+tauri = { version = "1.2.5", features = ["http-all", "notification-all", "shell-open"] }
 
 # Features
 youtube_dl = { version = "0.8.0", features = ["downloader"] }
