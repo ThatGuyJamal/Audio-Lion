@@ -21,7 +21,7 @@
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/adapter-static": "^1.0.0-next.50",
-		"@sveltejs/kit": "^1.5.0",
+		"@sveltejs/kit": "^1.15.2",
 		"@tauri-apps/cli": "^1.2.3",
 		"@types/wavesurfer.js": "^6.0.4",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
