@@ -1,0 +1,74 @@
+{
+	"build": {
+		"beforeDevCommand": "yarn dev",
+		"beforeBuildCommand": "yarn build",
+		"devPath": "http://localhost:1420",
+		"distDir": "../build",
+		"withGlobalTauri": false
+	},
+	"package": {
+		"productName": "Audio Lion",
+		"version": "0.1.7"
+	},
+	"tauri": {
+		"allowlist": {
+			"all": false,
+			"shell": {
+				"all": false,
+				"open": true
+			},
+			"notification": {
+				"all": true
+			},
+			"http": {
+				"all": true,
+				"request": true
+			}
+		},
+		"bundle": {
+			"active": true,
+			"category": "Music",
+			"copyright": "Copyright Audio Lion 2023",
+			"deb": {
+				"depends": []
+			},
+			"externalBin": [],
+			"icon": ["icons/32px.png", "icons/128px.png", "icons/icon.icns", "icons/icon.ico"],
+			"identifier": "Audio-Lion",
+			"macOS": {
+				"entitlements": null,
+				"exceptionDomain": "",
+				"frameworks": [],
+				"providerShortName": null,
+				"signingIdentity": null
+			},
+			"resources": [],
+			"longDescription": "",
+			"shortDescription": "A Modern Audio tool for any platform",
+			"targets": "all",
+			"windows": {
+				"certificateThumbprint": null,
+				"digestAlgorithm": "sha256",
+				"timestampUrl": ""
+			}
+		},
+		"security": {
+			"csp": null
+		},
+		"updater": {
+			"active": false,
+			"dialog": true,
+			"pubkey": "YOUR_UPDATER_SIGNATURE_PUBKEY_HERE",
+			"endpoints": []
+		},
+		"windows": [
+			{
+				"fullscreen": false,
+				"height": 790,
+				"resizable": false,
+				"title": "Audio Lion",
+				"width": 999
+			}
+		]
+	}
+}

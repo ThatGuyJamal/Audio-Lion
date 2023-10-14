@@ -2,5 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base"
-  ]
+  ],
+  "platform": "github",
+  "includeForks": true
+  "baseBranches": ["stable", "master"]
 }

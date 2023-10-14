@@ -1,3 +1,30 @@
 {
-    "cSpell.words": ["fullscreen", "icns", "rodio", "tailwindcss", "tauri"]
+    "cSpell.words": [
+        "Aclass",
+        "ADASCZXVZOPXSADASDMXZLQPZCXKMZCA",
+        "channelmap",
+        "consts",
+        "conv",
+        "daisyui",
+        "dasp",
+        "fragsize",
+        "fullscreen",
+        "icns",
+        "libpulse",
+        "maxlength",
+        "minreq",
+        "prebuf",
+        "psimple",
+        "pulseaudio",
+        "resave",
+        "rodio",
+        "soerenmetje",
+        "specta",
+        "Spsc",
+        "tailwindcss",
+        "tauri",
+        "thiserror",
+        "tlength",
+        "tsbuildinfo"
+    ]
 }

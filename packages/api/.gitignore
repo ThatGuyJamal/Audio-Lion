@@ -1,0 +1,10 @@
+# Yarn files
+.yarn/install-state.gz
+.yarn/build-state.yml
+
+# node
+node_modules/
+dist/
+
+# Configs
+.env
