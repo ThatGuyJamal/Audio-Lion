@@ -36,5 +36,5 @@ libpulse-simple-binding = "2.25.0"
 
 [target.'cfg(not(target_os = "linux"))'.dependencies]
 rb = "0.4.0"
-cpal = { version = "0.14.1"}
+cpal = { version = "0.15.2"}
 dasp = "0.11.0"
